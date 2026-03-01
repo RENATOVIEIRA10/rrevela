@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown, Loader2, AlertTriangle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,10 +12,11 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { BIBLE_BOOKS, getChapterVerses } from "@/lib/bible-data";
+import { BIBLE_BOOKS } from "@/lib/bible-data";
 import BookPickerDrawer from "@/components/BookPickerDrawer";
 import { useHighlights, HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { useNotes } from "@/hooks/useNotes";
+import { useBibleVerses, searchBible, type BibleSearchResult } from "@/hooks/useBibleVerses";
 import VersePanel from "@/components/VersePanel";
 import HighlightLegend from "@/components/HighlightLegend";
 import NoteEditor from "@/components/NoteEditor";
@@ -29,11 +30,17 @@ const Reader = () => {
   const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
   const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
+
+  // Fetch verses from database
+  const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter);
 
   // Handle navigation from other pages via query params
   useEffect(() => {
@@ -48,7 +55,6 @@ const Reader = () => {
 
   const currentBook = BIBLE_BOOKS.find((b) => b.name === selectedBook);
   const chapters = currentBook ? currentBook.chapters : 1;
-  const verses = getChapterVerses(selectedBook, selectedChapter);
   const { getVerseHighlight, setHighlight } = useHighlights(selectedBook, selectedChapter);
 
   const chapterNotes = useNotes(selectedBook, selectedChapter);
@@ -77,6 +83,48 @@ const Reader = () => {
   const openChapterNote = () => {
     setNoteVerse(undefined);
     setNoteSheetOpen(true);
+  };
+
+  // Search debounce
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      const results = await searchBible(searchQuery, 30);
+      setSearchResults(results);
+      setShowSearchResults(true);
+      setSearching(false);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const navigateToSearchResult = (result: BibleSearchResult) => {
+    setSelectedBook(result.book);
+    setSelectedChapter(result.chapter);
+    setSearchQuery("");
+    setShowSearchResults(false);
+  };
+
+  const highlightMatch = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    const words = query.trim().split(/\s+/);
+    const regex = new RegExp(`(${words.join("|")})`, "gi");
+    const parts = text.split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} className="bg-accent/30 text-foreground rounded-sm px-0.5">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
   };
 
   const activeNotes = noteVerse !== undefined ? verseNotes : chapterNotes;
@@ -126,16 +174,60 @@ const Reader = () => {
         </div>
 
         {/* Search bar */}
-        <div className="px-3 pb-2">
+        <div className="px-3 pb-2 relative">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
-              placeholder="Buscar passagem ou palavra..."
+              placeholder="Buscar palavra na Bíblia..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 bg-secondary/40 border-0 text-sm h-8 rounded-lg"
+              className="pl-8 pr-8 bg-secondary/40 border-0 text-sm h-8 rounded-lg"
             />
+            {searchQuery && (
+              <button
+                onClick={() => { setSearchQuery(""); setShowSearchResults(false); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {searching && (
+              <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground animate-spin" />
+            )}
           </div>
+
+          {/* Search results dropdown */}
+          {showSearchResults && searchResults.length > 0 && (
+            <div className="absolute left-3 right-3 top-full z-50 mt-1 bg-card border border-border rounded-xl shadow-lg max-h-[50vh] overflow-y-auto">
+              <div className="p-2">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 py-1">
+                  {searchResults.length} resultados
+                </p>
+                {searchResults.map((r, i) => (
+                  <button
+                    key={`${r.book}-${r.chapter}-${r.verse}-${i}`}
+                    onClick={() => navigateToSearchResult(r)}
+                    className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-secondary/60 active:bg-secondary transition-colors"
+                  >
+                    <span className="text-xs font-semibold text-accent">
+                      {r.book} {r.chapter}:{r.verse}
+                    </span>
+                    <p className="text-xs text-foreground/80 font-scripture mt-0.5 line-clamp-2">
+                      {highlightMatch(r.text, searchQuery)}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showSearchResults && searchResults.length === 0 && !searching && searchQuery.trim() && (
+            <div className="absolute left-3 right-3 top-full z-50 mt-1 bg-card border border-border rounded-xl shadow-lg p-4">
+              <p className="text-sm text-muted-foreground text-center">
+                Nenhum resultado para "{searchQuery}"
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -164,42 +256,53 @@ const Reader = () => {
             {selectedBook} {selectedChapter}
           </h2>
 
-          <div className="space-y-1">
-            {verses.map((verse) => (
-              <p
-                key={verse.number}
-                className={`font-scripture text-foreground/90 leading-[1.8] cursor-pointer rounded-sm transition-all active:scale-[0.99] ${getHighlightClass(verse.number)}`}
-                onClick={() => setSelectedVerse(verse)}
-              >
-                <sup className="text-xs text-accent font-ui font-semibold mr-1.5 select-none">
-                  {verse.number}
-                </sup>
-                {verse.text}
-              </p>
-            ))}
-          </div>
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 text-accent animate-spin" />
+            </div>
+          )}
+
+          {error && !loading && (
+            <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+              <AlertTriangle className="w-8 h-8 text-destructive/70" />
+              <p className="text-sm text-muted-foreground">{error}</p>
+            </div>
+          )}
+
+          {!loading && !error && (
+            <div className="space-y-1">
+              {verses.map((verse) => (
+                <p
+                  key={verse.number}
+                  className={`font-scripture text-foreground/90 leading-[1.8] cursor-pointer rounded-sm transition-all active:scale-[0.99] ${getHighlightClass(verse.number)}`}
+                  onClick={() => setSelectedVerse(verse)}
+                >
+                  <sup className="text-xs text-accent font-ui font-semibold mr-1.5 select-none">
+                    {verse.number}
+                  </sup>
+                  {verse.text}
+                </p>
+              ))}
+            </div>
+          )}
 
           {/* Revelation Mode - below the chapter text */}
-          <div className="mt-8 border-t border-border pt-4 space-y-4">
-            <DepthSelector value={depth} onChange={setDepth} />
-
-            {/* Essencial: always show */}
-            <MessianicLinePanel book={selectedBook} chapter={selectedChapter} />
-
-            {/* Intermediário+: show patterns */}
-            {(depth === "intermediario" || depth === "profundo") && (
-              <BiblicalPatternsPanel book={selectedBook} chapter={selectedChapter} depth={depth} />
-            )}
-
-            {/* Perguntas reveladoras */}
-            <RevealingQuestions
-              depth={depth}
-              onApplyQuestion={(q) => {
-                setNoteVerse(undefined);
-                setNoteSheetOpen(true);
-              }}
-            />
-          </div>
+          {!loading && !error && verses.length > 0 && (
+            <div className="mt-8 border-t border-border pt-4 space-y-4">
+              <DepthSelector value={depth} onChange={setDepth} />
+              <MessianicLinePanel book={selectedBook} chapter={selectedChapter} />
+              {(depth === "intermediario" || depth === "profundo") && (
+                <BiblicalPatternsPanel book={selectedBook} chapter={selectedChapter} depth={depth} />
+              )}
+              <RevealingQuestions
+                depth={depth}
+                onApplyQuestion={(q) => {
+                  setNoteVerse(undefined);
+                  setNoteSheetOpen(true);
+                }}
+              />
+            </div>
+          )}
         </motion.div>
       </ScrollArea>
 
