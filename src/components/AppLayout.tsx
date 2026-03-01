@@ -1,11 +1,12 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Search, Footprints, LogOut } from "lucide-react";
+import { BookOpen, Search, Footprints, LogOut, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 
 const tabs = [
   { to: "/leitor", icon: BookOpen, label: "Palavra" },
   { to: "/revela", icon: Search, label: "Revela" },
+  { to: "/promessa", icon: Sparkles, label: "Promessa" },
   { to: "/jornada", icon: Footprints, label: "Jornada" },
 ];
 

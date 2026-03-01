@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Reader from "./pages/Reader";
 import RevelaAgora from "./pages/RevelaAgora";
 import MinhaJornada from "./pages/MinhaJornada";
+import LinhaPromessa from "./pages/LinhaPromessa";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 
@@ -33,6 +34,7 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/leitor" element={<Reader />} />
         <Route path="/revela" element={<RevelaAgora />} />
+        <Route path="/promessa" element={<LinhaPromessa />} />
         <Route path="/jornada" element={<MinhaJornada />} />
       </Route>
       <Route path="*" element={<NotFound />} />
