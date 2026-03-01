@@ -1,17 +1,10 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Search, StickyNote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -20,6 +13,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { BIBLE_BOOKS, getChapterVerses } from "@/lib/bible-data";
+import BookPickerDrawer from "@/components/BookPickerDrawer";
 import { useHighlights, HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { useNotes } from "@/hooks/useNotes";
 import VersePanel from "@/components/VersePanel";
@@ -39,6 +33,7 @@ const Reader = () => {
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
+  const [bookPickerOpen, setBookPickerOpen] = useState(false);
 
   // Handle navigation from other pages via query params
   useEffect(() => {
@@ -90,27 +85,26 @@ const Reader = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Navigation bar */}
-      <div className="border-b border-border bg-card/80 backdrop-blur-sm px-4 py-3 space-y-3">
-        <div className="flex items-center gap-2">
-          <Select value={selectedBook} onValueChange={(v) => { setSelectedBook(v); setSelectedChapter(1); }}>
-            <SelectTrigger className="flex-1 bg-secondary/50 border-0 font-scripture text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="max-h-64">
-              {BIBLE_BOOKS.map((book) => (
-                <SelectItem key={book.name} value={book.name} className="font-scripture text-sm">
-                  {book.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Native-style navigation bar */}
+      <div className="border-b border-border bg-card/95 backdrop-blur-md safe-top">
+        <div className="flex items-center justify-between px-3 py-2">
+          {/* Book + Chapter picker */}
+          <button
+            onClick={() => setBookPickerOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary/60 active:bg-secondary transition-colors min-w-0"
+          >
+            <span className="font-scripture text-sm font-medium text-foreground truncate max-w-[120px]">
+              {selectedBook}
+            </span>
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          </button>
 
-          <div className="flex items-center gap-1">
+          {/* Chapter nav */}
+          <div className="flex items-center gap-0.5">
             <Button variant="ghost" size="icon" onClick={goToPrev} disabled={selectedChapter <= 1} className="h-8 w-8">
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm font-medium min-w-[2.5rem] text-center text-foreground">
+            <span className="text-sm font-semibold min-w-[2rem] text-center text-foreground tabular-nums">
               {selectedChapter}
             </span>
             <Button variant="ghost" size="icon" onClick={goToNext} disabled={selectedChapter >= chapters} className="h-8 w-8">
@@ -118,28 +112,44 @@ const Reader = () => {
             </Button>
           </div>
 
-          <HighlightLegend />
-
-          <button
-            onClick={openChapterNote}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors px-2 py-1 rounded-md hover:bg-secondary/50"
-            aria-label="Nota do capítulo"
-          >
-            <StickyNote className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Nota</span>
-          </button>
+          {/* Actions */}
+          <div className="flex items-center gap-1">
+            <HighlightLegend />
+            <button
+              onClick={openChapterNote}
+              className="flex items-center justify-center w-8 h-8 text-muted-foreground hover:text-accent transition-colors rounded-lg hover:bg-secondary/50"
+              aria-label="Nota do capítulo"
+            >
+              <StickyNote className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar passagem ou palavra..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-secondary/50 border-0 text-sm h-9"
-          />
+        {/* Search bar */}
+        <div className="px-3 pb-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Buscar passagem ou palavra..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 bg-secondary/40 border-0 text-sm h-8 rounded-lg"
+            />
+          </div>
         </div>
       </div>
+
+      {/* Book Picker Drawer */}
+      <BookPickerDrawer
+        open={bookPickerOpen}
+        onOpenChange={setBookPickerOpen}
+        onSelect={(book, chapter) => {
+          setSelectedBook(book);
+          setSelectedChapter(chapter);
+        }}
+        currentBook={selectedBook}
+        currentChapter={selectedChapter}
+      />
 
       {/* Scripture text */}
       <ScrollArea className="flex-1">
