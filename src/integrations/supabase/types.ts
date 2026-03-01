@@ -71,6 +71,57 @@ export type Database = {
         }
         Relationships: []
       }
+      structured_notes: {
+        Row: {
+          application: string | null
+          book: string | null
+          chapter: number | null
+          christocentric: string | null
+          created_at: string
+          id: string
+          interpretation: string | null
+          observation: string | null
+          prayer: string | null
+          theme_label: string | null
+          type: Database["public"]["Enums"]["note_type"]
+          updated_at: string
+          user_id: string
+          verse: number | null
+        }
+        Insert: {
+          application?: string | null
+          book?: string | null
+          chapter?: number | null
+          christocentric?: string | null
+          created_at?: string
+          id?: string
+          interpretation?: string | null
+          observation?: string | null
+          prayer?: string | null
+          theme_label?: string | null
+          type?: Database["public"]["Enums"]["note_type"]
+          updated_at?: string
+          user_id: string
+          verse?: number | null
+        }
+        Update: {
+          application?: string | null
+          book?: string | null
+          chapter?: number | null
+          christocentric?: string | null
+          created_at?: string
+          id?: string
+          interpretation?: string | null
+          observation?: string | null
+          prayer?: string | null
+          theme_label?: string | null
+          type?: Database["public"]["Enums"]["note_type"]
+          updated_at?: string
+          user_id?: string
+          verse?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -85,6 +136,7 @@ export type Database = {
         | "ATRIBUTOS_DE_DEUS"
         | "EMOCOES_ORACAO"
         | "VERDADE_DOUTRINARIA"
+      note_type: "verse" | "chapter" | "theme"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -219,6 +271,7 @@ export const Constants = {
         "EMOCOES_ORACAO",
         "VERDADE_DOUTRINARIA",
       ],
+      note_type: ["verse", "chapter", "theme"],
     },
   },
 } as const

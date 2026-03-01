@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X } from "lucide-react";
+import { X, StickyNote } from "lucide-react";
 import { HIGHLIGHT_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 import {
   Drawer,
@@ -16,6 +16,7 @@ interface VersePanelProps {
   verseText: string;
   currentColor: HighlightColor | null;
   onSelectColor: (color: HighlightColor | null) => void;
+  onOpenNote?: () => void;
 }
 
 const VersePanel = ({
@@ -25,6 +26,7 @@ const VersePanel = ({
   verseText,
   currentColor,
   onSelectColor,
+  onOpenNote,
 }: VersePanelProps) => {
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
@@ -66,15 +68,27 @@ const VersePanel = ({
             })}
           </div>
 
-          {currentColor && (
-            <button
-              onClick={() => onSelectColor(null)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
-            >
-              <X className="w-3 h-3" />
-              Remover marca
-            </button>
-          )}
+          <div className="flex items-center gap-3 pt-1">
+            {currentColor && (
+              <button
+                onClick={() => onSelectColor(null)}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+              >
+                <X className="w-3 h-3" />
+                Remover marca
+              </button>
+            )}
+
+            {onOpenNote && (
+              <button
+                onClick={onOpenNote}
+                className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors ml-auto"
+              >
+                <StickyNote className="w-3.5 h-3.5" />
+                Anotar verso
+              </button>
+            )}
+          </div>
         </div>
       </DrawerContent>
     </Drawer>
