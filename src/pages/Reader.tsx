@@ -24,6 +24,7 @@ import { useNotes } from "@/hooks/useNotes";
 import VersePanel from "@/components/VersePanel";
 import HighlightLegend from "@/components/HighlightLegend";
 import NoteEditor from "@/components/NoteEditor";
+import MessianicLinePanel from "@/components/MessianicLinePanel";
 
 const Reader = () => {
   const [selectedBook, setSelectedBook] = useState("Gênesis");
@@ -38,7 +39,6 @@ const Reader = () => {
   const verses = getChapterVerses(selectedBook, selectedChapter);
   const { getVerseHighlight, setHighlight } = useHighlights(selectedBook, selectedChapter);
 
-  // Notes for current chapter (for chapter notes) and for specific verse
   const chapterNotes = useNotes(selectedBook, selectedChapter);
   const verseNotes = useNotes(selectedBook, selectedChapter, noteVerse);
 
@@ -151,14 +151,21 @@ const Reader = () => {
               </p>
             ))}
           </div>
+
+          {/* Messianic Line Panel - below the chapter text */}
+          <div className="mt-8 border-t border-border pt-4">
+            <MessianicLinePanel book={selectedBook} chapter={selectedChapter} />
+          </div>
         </motion.div>
       </ScrollArea>
 
-      {/* Verse Panel (bottom sheet) */}
+      {/* Verse Panel */}
       {selectedVerse && (
         <VersePanel
           open={!!selectedVerse}
           onClose={() => setSelectedVerse(null)}
+          book={selectedBook}
+          chapter={selectedChapter}
           verseNumber={selectedVerse.number}
           verseText={selectedVerse.text}
           currentColor={getVerseHighlight(selectedVerse.number)?.color_key ?? null}
@@ -195,7 +202,6 @@ const Reader = () => {
             onClose={() => setNoteSheetOpen(false)}
           />
 
-          {/* Previous notes (for "Comparar Minha Compreensão") */}
           {activeNotes.notes.length > 1 && (
             <div className="mt-8 space-y-3">
               <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
