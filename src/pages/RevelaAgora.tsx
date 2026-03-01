@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BookOpen, Cross, Heart } from "lucide-react";
+import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { CONNECTION_TYPE_LABELS, type ConnectionType } from "@/lib/christocentric-index";
 
 const SUGGESTIONS = [
   "Estou com medo do futuro",
@@ -9,16 +12,69 @@ const SUGGESTIONS = [
   "Tenho culpa",
   "Estou cansado",
   "Preciso de esperança",
-  "Como perdoar?",
+  "Onde encontrar Jesus em Gênesis?",
 ];
+
+interface Passage {
+  reference: string;
+  text: string;
+  why: string;
+}
+
+interface AnchorData {
+  category: string;
+  at_reference: string;
+  at_summary: string;
+  nt_references: string[];
+  nt_summary: string;
+  connection_type: ConnectionType;
+}
+
+interface RevelaResponse {
+  intent: string;
+  theme: string;
+  passages: Passage[];
+  context: string;
+  christocentric_connection: string;
+  application: string;
+  anchors: AnchorData[];
+  error?: string;
+  raw?: string;
+}
 
 const RevelaAgora = () => {
   const [query, setQuery] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
+  const [response, setResponse] = useState<RevelaResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSearch = () => {
-    if (query.trim()) {
-      setHasSearched(true);
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    setResponse(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("revela-agora", {
+        body: { query: query.trim() },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({ title: "Erro", description: data.error, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      setResponse(data as RevelaResponse);
+    } catch (e: any) {
+      toast({
+        title: "Erro",
+        description: e?.message || "Não foi possível buscar. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,9 +82,9 @@ const RevelaAgora = () => {
     <div className="flex flex-col h-full">
       <ScrollHeader />
 
-      <div className="flex-1 px-5 py-6 max-w-2xl mx-auto w-full">
+      <div className="flex-1 px-5 py-6 max-w-2xl mx-auto w-full overflow-y-auto">
         <AnimatePresence mode="wait">
-          {!hasSearched ? (
+          {!response && !loading ? (
             <motion.div
               key="search-home"
               initial={{ opacity: 0 }}
@@ -48,7 +104,6 @@ const RevelaAgora = () => {
                 </p>
               </div>
 
-              {/* Search input */}
               <div className="w-full max-w-md relative">
                 <Input
                   placeholder="Escreva sua dúvida…"
@@ -65,7 +120,6 @@ const RevelaAgora = () => {
                 </button>
               </div>
 
-              {/* Suggestions */}
               <div className="flex flex-wrap gap-2 justify-center max-w-md">
                 {SUGGESTIONS.map((s, i) => (
                   <motion.button
@@ -73,7 +127,7 @@ const RevelaAgora = () => {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.05 }}
-                    onClick={() => { setQuery(s); }}
+                    onClick={() => setQuery(s)}
                     className="px-3 py-1.5 text-xs bg-secondary text-secondary-foreground rounded-full hover:bg-accent/10 hover:text-accent transition-colors"
                   >
                     {s}
@@ -81,63 +135,119 @@ const RevelaAgora = () => {
                 ))}
               </div>
             </motion.div>
-          ) : (
+          ) : loading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center h-full space-y-4"
+            >
+              <Loader2 className="w-8 h-8 text-accent animate-spin" />
+              <p className="text-sm text-muted-foreground font-scripture">
+                Buscando na Palavra…
+              </p>
+            </motion.div>
+          ) : response ? (
             <motion.div
               key="search-result"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6 pb-8"
             >
-              {/* Back to search */}
               <button
-                onClick={() => { setHasSearched(false); setQuery(""); }}
+                onClick={() => { setResponse(null); setQuery(""); }}
                 className="text-sm text-muted-foreground hover:text-accent transition-colors"
               >
                 ← Nova busca
               </button>
 
-              <div className="bg-card rounded-xl p-5 shadow-soft space-y-4">
+              <div className="bg-card rounded-xl p-5 shadow-soft space-y-3">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   Sua busca
                 </p>
                 <p className="font-scripture text-lg text-foreground italic">"{query}"</p>
+                {response.intent && (
+                  <span className="inline-block text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                    {response.intent === "EMOCIONAL" && "Emocional / Prática"}
+                    {response.intent === "DOUTRINARIA" && "Doutrinária"}
+                    {response.intent === "CRISTOCENTRICA" && "Cristocêntrica"}
+                    {response.intent === "REFERENCIA" && "Referência direta"}
+                  </span>
+                )}
               </div>
 
-              {/* Placeholder response structure */}
               <div className="space-y-4">
-                <ResultSection
-                  icon={<BookOpen className="w-4 h-4" />}
-                  title="Tema detectado"
-                  content="Ansiedade e confiança em Deus"
-                />
-                <ResultSection
-                  icon={<BookOpen className="w-4 h-4" />}
-                  title="Passagens bíblicas"
-                  content={
-                    <div className="space-y-3">
-                      <VerseCard reference="Filipenses 4:6-7" text="Não andeis ansiosos de coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus pela oração e súplica, com ação de graças." />
-                      <VerseCard reference="Salmos 55:22" text="Lança o teu cuidado sobre o Senhor, e ele te susterá; não permitirá jamais que o justo seja abalado." />
-                      <VerseCard reference="1 Pedro 5:7" text="Lançando sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós." />
-                    </div>
-                  }
-                />
-                <ResultSection
-                  icon={<Cross className="w-4 h-4" />}
-                  title="Conexão cristocêntrica"
-                  content="Cristo mesmo enfrentou angústia no Getsêmani (Mt 26:38), mas entregou-se inteiramente à vontade do Pai — modelo para nossa confiança."
-                />
-                <ResultSection
-                  icon={<Heart className="w-4 h-4" />}
-                  title="Aplicação"
-                  content="A Escritura convida a lançar sobre Deus aquilo que pesa. Não como fórmula, mas como confiança: Ele sustenta."
-                />
+                {response.theme && (
+                  <ResultSection
+                    icon={<BookOpen className="w-4 h-4" />}
+                    title="Tema detectado"
+                    content={response.theme}
+                  />
+                )}
+
+                {response.passages?.length > 0 && (
+                  <ResultSection
+                    icon={<BookOpen className="w-4 h-4" />}
+                    title="Passagens bíblicas"
+                    content={
+                      <div className="space-y-3">
+                        {response.passages.map((p, i) => (
+                          <VerseCard
+                            key={i}
+                            reference={p.reference}
+                            text={p.text}
+                            why={p.why}
+                          />
+                        ))}
+                      </div>
+                    }
+                  />
+                )}
+
+                {response.context && (
+                  <ResultSection
+                    icon={<BookOpen className="w-4 h-4" />}
+                    title="Contexto"
+                    content={response.context}
+                  />
+                )}
+
+                {response.christocentric_connection && (
+                  <ResultSection
+                    icon={<Cross className="w-4 h-4" />}
+                    title="Conexão cristocêntrica"
+                    content={response.christocentric_connection}
+                  />
+                )}
+
+                {response.anchors?.length > 0 && (
+                  <ResultSection
+                    icon={<Anchor className="w-4 h-4" />}
+                    title="Âncoras cristocêntricas"
+                    content={
+                      <div className="space-y-4">
+                        {response.anchors.map((a, i) => (
+                          <AnchorCard key={i} anchor={a} />
+                        ))}
+                      </div>
+                    }
+                  />
+                )}
+
+                {response.application && (
+                  <ResultSection
+                    icon={<Heart className="w-4 h-4" />}
+                    title="Aplicação"
+                    content={response.application}
+                  />
+                )}
               </div>
 
               <p className="text-xs text-muted-foreground text-center pt-4">
                 Todas as respostas são fundamentadas exclusivamente na Escritura.
               </p>
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
       </div>
     </div>
@@ -176,11 +286,55 @@ const ResultSection = ({
   </motion.div>
 );
 
-const VerseCard = ({ reference, text }: { reference: string; text: string }) => (
-  <div className="bg-secondary/50 rounded-lg p-3 space-y-1">
+const VerseCard = ({ reference, text, why }: { reference: string; text: string; why?: string }) => (
+  <div className="bg-secondary/50 rounded-lg p-3 space-y-1.5">
     <p className="text-xs font-ui font-semibold text-accent">{reference}</p>
     <p className="font-scripture text-sm text-foreground/85 italic">{text}</p>
+    {why && (
+      <p className="text-xs text-muted-foreground mt-1">
+        <span className="font-medium">Por que este texto:</span> {why}
+      </p>
+    )}
   </div>
 );
+
+const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
+  const connLabel = CONNECTION_TYPE_LABELS[anchor.connection_type];
+  return (
+    <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50 space-y-3">
+      <div className="flex items-center justify-between">
+        <h4 className="font-scripture text-sm font-semibold text-foreground">{anchor.category}</h4>
+        {connLabel && (
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+            connLabel.strength === "forte"
+              ? "bg-accent/15 text-accent"
+              : connLabel.strength === "média"
+              ? "bg-secondary text-foreground/70"
+              : "bg-secondary/50 text-muted-foreground"
+          }`}>
+            {connLabel.label}
+          </span>
+        )}
+      </div>
+      
+      <div className="space-y-1">
+        <p className="text-xs font-ui font-semibold text-accent">{anchor.at_reference}</p>
+        <p className="text-sm text-foreground/80 font-scripture">{anchor.at_summary}</p>
+      </div>
+
+      <div className="flex items-center gap-1 text-muted-foreground">
+        <ArrowRight className="w-3 h-3" />
+        <span className="text-[10px] uppercase tracking-widest">Conexão NT</span>
+      </div>
+
+      <div className="space-y-1">
+        <p className="text-xs font-ui font-semibold text-accent">
+          {anchor.nt_references?.join(" · ")}
+        </p>
+        <p className="text-sm text-foreground/80 font-scripture">{anchor.nt_summary}</p>
+      </div>
+    </div>
+  );
+};
 
 export default RevelaAgora;

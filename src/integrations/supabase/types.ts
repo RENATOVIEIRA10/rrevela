@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      highlights: {
+        Row: {
+          book: string
+          chapter: number
+          color_key: Database["public"]["Enums"]["highlight_color"]
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          verse: number
+        }
+        Insert: {
+          book: string
+          chapter: number
+          color_key: Database["public"]["Enums"]["highlight_color"]
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          verse: number
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          color_key?: Database["public"]["Enums"]["highlight_color"]
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          verse?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +79,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      highlight_color:
+        | "PROMESSA"
+        | "RESPOSTA_HUMANA"
+        | "ATRIBUTOS_DE_DEUS"
+        | "EMOCOES_ORACAO"
+        | "VERDADE_DOUTRINARIA"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +211,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      highlight_color: [
+        "PROMESSA",
+        "RESPOSTA_HUMANA",
+        "ATRIBUTOS_DE_DEUS",
+        "EMOCOES_ORACAO",
+        "VERDADE_DOUTRINARIA",
+      ],
+    },
   },
 } as const
