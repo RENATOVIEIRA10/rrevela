@@ -25,6 +25,9 @@ import VersePanel from "@/components/VersePanel";
 import HighlightLegend from "@/components/HighlightLegend";
 import NoteEditor from "@/components/NoteEditor";
 import MessianicLinePanel from "@/components/MessianicLinePanel";
+import BiblicalPatternsPanel from "@/components/BiblicalPatternsPanel";
+import DepthSelector, { type DepthLevel } from "@/components/DepthSelector";
+import RevealingQuestions from "@/components/RevealingQuestions";
 
 const Reader = () => {
   const [selectedBook, setSelectedBook] = useState("Gênesis");
@@ -33,6 +36,7 @@ const Reader = () => {
   const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
+  const [depth, setDepth] = useState<DepthLevel>("essencial");
 
   const currentBook = BIBLE_BOOKS.find((b) => b.name === selectedBook);
   const chapters = currentBook ? currentBook.chapters : 1;
@@ -152,9 +156,26 @@ const Reader = () => {
             ))}
           </div>
 
-          {/* Messianic Line Panel - below the chapter text */}
-          <div className="mt-8 border-t border-border pt-4">
+          {/* Revelation Mode - below the chapter text */}
+          <div className="mt-8 border-t border-border pt-4 space-y-4">
+            <DepthSelector value={depth} onChange={setDepth} />
+
+            {/* Essencial: always show */}
             <MessianicLinePanel book={selectedBook} chapter={selectedChapter} />
+
+            {/* Intermediário+: show patterns */}
+            {(depth === "intermediario" || depth === "profundo") && (
+              <BiblicalPatternsPanel book={selectedBook} chapter={selectedChapter} depth={depth} />
+            )}
+
+            {/* Perguntas reveladoras */}
+            <RevealingQuestions
+              depth={depth}
+              onApplyQuestion={(q) => {
+                setNoteVerse(undefined);
+                setNoteSheetOpen(true);
+              }}
+            />
           </div>
         </motion.div>
       </ScrollArea>
