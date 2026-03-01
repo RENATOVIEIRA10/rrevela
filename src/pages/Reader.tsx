@@ -12,15 +12,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BIBLE_BOOKS, getChapterVerses } from "@/lib/bible-data";
+import { useHighlights, HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
+import VersePanel from "@/components/VersePanel";
+import HighlightLegend from "@/components/HighlightLegend";
+import type { HighlightColor } from "@/hooks/useHighlights";
 
 const Reader = () => {
   const [selectedBook, setSelectedBook] = useState("Gênesis");
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
 
   const currentBook = BIBLE_BOOKS.find((b) => b.name === selectedBook);
   const chapters = currentBook ? currentBook.chapters : 1;
   const verses = getChapterVerses(selectedBook, selectedChapter);
+  const { getVerseHighlight, setHighlight } = useHighlights(selectedBook, selectedChapter);
 
   const goToPrev = () => {
     if (selectedChapter > 1) setSelectedChapter((c) => c - 1);
@@ -28,6 +34,12 @@ const Reader = () => {
 
   const goToNext = () => {
     if (selectedChapter < chapters) setSelectedChapter((c) => c + 1);
+  };
+
+  const getHighlightClass = (verseNumber: number) => {
+    const h = getVerseHighlight(verseNumber);
+    if (!h) return "";
+    return HIGHLIGHT_COLORS.find((c) => c.key === h.color_key)?.cssClass ?? "";
   };
 
   return (
@@ -59,6 +71,8 @@ const Reader = () => {
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
+
+          <HighlightLegend />
         </div>
 
         <div className="relative">
@@ -87,7 +101,11 @@ const Reader = () => {
 
           <div className="space-y-1">
             {verses.map((verse) => (
-              <p key={verse.number} className="font-scripture text-foreground/90 leading-[1.8]">
+              <p
+                key={verse.number}
+                className={`font-scripture text-foreground/90 leading-[1.8] cursor-pointer rounded-sm transition-all active:scale-[0.99] ${getHighlightClass(verse.number)}`}
+                onClick={() => setSelectedVerse(verse)}
+              >
                 <sup className="text-xs text-accent font-ui font-semibold mr-1.5 select-none">
                   {verse.number}
                 </sup>
@@ -97,6 +115,21 @@ const Reader = () => {
           </div>
         </motion.div>
       </ScrollArea>
+
+      {/* Verse Panel (bottom sheet) */}
+      {selectedVerse && (
+        <VersePanel
+          open={!!selectedVerse}
+          onClose={() => setSelectedVerse(null)}
+          verseNumber={selectedVerse.number}
+          verseText={selectedVerse.text}
+          currentColor={getVerseHighlight(selectedVerse.number)?.color_key ?? null}
+          onSelectColor={(color) => {
+            setHighlight(selectedVerse.number, color);
+            if (color === null) setSelectedVerse(null);
+          }}
+        />
+      )}
     </div>
   );
 };

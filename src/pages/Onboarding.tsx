@@ -108,7 +108,7 @@ const Onboarding = () => {
           transition={{ delay: 1.5, duration: 0.5 }}
         >
           <Button
-            onClick={() => navigate("/leitor")}
+            onClick={() => navigate("/auth")}
             size="lg"
             className="w-full max-w-xs bg-primary text-primary-foreground hover:bg-primary/90 font-scripture text-base tracking-wide"
           >
