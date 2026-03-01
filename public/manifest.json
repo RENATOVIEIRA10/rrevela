@@ -1,0 +1,17 @@
+{
+  "name": "Revela",
+  "short_name": "Revela",
+  "description": "Estudo bíblico cristocêntrico — Profundo, silencioso, fundamentado na Escritura.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F6F2",
+  "theme_color": "#2F3A4A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
