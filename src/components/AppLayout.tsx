@@ -21,30 +21,30 @@ const AppLayout = () => {
       </main>
 
       <nav className="border-t border-border bg-card/90 backdrop-blur-sm safe-bottom">
-        <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-1">
+        <div className="flex items-center justify-around max-w-lg mx-auto px-1 py-0.5">
           {tabs.map((tab) => {
             const isActive = location.pathname.startsWith(tab.to);
             return (
               <NavLink
                 key={tab.to}
                 to={tab.to}
-                className="flex flex-col items-center gap-0.5 py-2 px-4 relative"
+                className="flex flex-col items-center gap-px py-1.5 px-2 min-w-0 relative"
               >
                 {isActive && (
                   <motion.div
                     layoutId="tab-indicator"
-                    className="absolute -top-px left-3 right-3 h-0.5 bg-accent rounded-full"
+                    className="absolute -top-px left-2 right-2 h-0.5 bg-accent rounded-full"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
                 <tab.icon
-                  className={`w-5 h-5 transition-colors duration-200 ${
+                  className={`w-[18px] h-[18px] transition-colors duration-200 ${
                     isActive ? "text-accent" : "text-muted-foreground"
                   }`}
                   strokeWidth={isActive ? 2 : 1.5}
                 />
                 <span
-                  className={`text-[10px] tracking-wide transition-colors duration-200 ${
+                  className={`text-[9px] leading-tight tracking-wide transition-colors duration-200 truncate ${
                     isActive ? "text-accent font-medium" : "text-muted-foreground"
                   }`}
                 >
@@ -55,10 +55,10 @@ const AppLayout = () => {
           })}
           <button
             onClick={signOut}
-            className="flex flex-col items-center gap-0.5 py-2 px-4 text-muted-foreground hover:text-destructive transition-colors"
+            className="flex flex-col items-center gap-px py-1.5 px-2 min-w-0 text-muted-foreground hover:text-destructive transition-colors"
           >
-            <LogOut className="w-5 h-5" strokeWidth={1.5} />
-            <span className="text-[10px] tracking-wide">Sair</span>
+            <LogOut className="w-[18px] h-[18px]" strokeWidth={1.5} />
+            <span className="text-[9px] leading-tight tracking-wide">Sair</span>
           </button>
         </div>
       </nav>
