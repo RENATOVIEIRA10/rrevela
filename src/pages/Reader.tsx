@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search, StickyNote } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,13 +31,25 @@ import DepthSelector, { type DepthLevel } from "@/components/DepthSelector";
 import RevealingQuestions from "@/components/RevealingQuestions";
 
 const Reader = () => {
-  const [selectedBook, setSelectedBook] = useState("Gênesis");
-  const [selectedChapter, setSelectedChapter] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
+  const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
+
+  // Handle navigation from other pages via query params
+  useEffect(() => {
+    const livro = searchParams.get("livro");
+    const cap = searchParams.get("cap");
+    if (livro && BIBLE_BOOKS.some((b) => b.name === livro)) {
+      setSelectedBook(livro);
+      setSelectedChapter(Number(cap) || 1);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const currentBook = BIBLE_BOOKS.find((b) => b.name === selectedBook);
   const chapters = currentBook ? currentBook.chapters : 1;
