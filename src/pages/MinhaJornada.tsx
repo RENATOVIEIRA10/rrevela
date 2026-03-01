@@ -175,7 +175,7 @@ const MinhaJornada = () => {
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 + i * 0.03 }}
-                        onClick={() => navigate("/leitor")}
+                        onClick={() => navigate(`/leitor?livro=${encodeURIComponent(ch.book)}&cap=${ch.chapter}`)}
                         className="w-full flex items-center justify-between p-2.5 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/30 transition-colors text-left"
                       >
                         <div className="flex items-center gap-2">
@@ -265,7 +265,7 @@ const MinhaJornada = () => {
                         )}
 
                         <button
-                          onClick={() => navigate("/leitor")}
+                          onClick={() => navigate(`/leitor?livro=${encodeURIComponent(note.book || "")}&cap=${note.chapter || 1}`)}
                           className="flex items-center gap-1 text-[10px] text-accent hover:text-accent/80 transition-colors"
                         >
                           <Sparkles className="w-3 h-3" />
