@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      bible_verses: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          text: string
+          text_search: unknown
+          translation: string
+          updated_at: string
+          verse: number
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          text: string
+          text_search?: unknown
+          translation?: string
+          updated_at?: string
+          verse: number
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          text?: string
+          text_search?: unknown
+          translation?: string
+          updated_at?: string
+          verse?: number
+        }
+        Relationships: []
+      }
       highlights: {
         Row: {
           book: string
@@ -127,7 +163,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_bible: {
+        Args: {
+          result_limit?: number
+          search_query: string
+          translation_filter?: string
+        }
+        Returns: {
+          book: string
+          chapter: number
+          rank: number
+          text: string
+          verse: number
+        }[]
+      }
     }
     Enums: {
       highlight_color:
