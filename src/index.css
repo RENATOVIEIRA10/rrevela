@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,101 +6,101 @@
 
 @layer base {
   :root {
-    /* Paper & warmth palette */
-    --background: 40 23% 96%;        /* #F7F6F2 warm paper */
-    --foreground: 213 22% 24%;       /* #2F3A4A deep slate */
+    /* Branding: Papel e Tinta */
+    --background: 40 27% 96%;        /* #F9F7F2 Vellum */
+    --foreground: 210 7% 11%;        /* #1A1C1E Deep Ink */
 
-    --card: 0 0% 100%;              /* #FFFFFF clean surface */
-    --card-foreground: 213 22% 24%;
+    --card: 40 30% 97%;              /* warm paper surface */
+    --card-foreground: 210 7% 11%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 213 22% 24%;
+    --popover: 40 30% 97%;
+    --popover-foreground: 210 7% 11%;
 
-    --primary: 213 22% 24%;          /* #2F3A4A */
-    --primary-foreground: 40 23% 96%;
+    --primary: 3 44% 27%;            /* #632A26 Theology Wine */
+    --primary-foreground: 40 27% 96%;
 
-    --secondary: 40 15% 92%;        /* warm muted surface */
-    --secondary-foreground: 213 22% 24%;
+    --secondary: 37 25% 92%;         /* warm muted surface */
+    --secondary-foreground: 210 7% 11%;
 
-    --muted: 40 12% 90%;
-    --muted-foreground: 213 10% 50%;
+    --muted: 37 18% 90%;
+    --muted-foreground: 200 5% 47%;  /* #70777A Dusty Slate */
 
-    --accent: 254 25% 50%;          /* #6B5CA5 muted purple */
-    --accent-foreground: 0 0% 100%;
+    --accent: 3 44% 27%;             /* Theology Wine */
+    --accent-foreground: 40 27% 96%;
 
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 254 25% 50%;
+    --border: 37 20% 89%;            /* #E8E4DB */
+    --input: 37 20% 89%;
+    --ring: 3 44% 27%;
 
-    --radius: 0.625rem;
+    --radius: 0.25rem;               /* 4px — bordas mínimas */
 
-    /* Highlight system - fixed meanings */
-    --highlight-promise: 45 90% 65%;       /* 🟡 Promessas */
-    --highlight-response: 140 45% 55%;     /* 🟢 Resposta humana */
-    --highlight-attribute: 210 55% 55%;    /* 🔵 Atributos de Deus */
-    --highlight-emotion: 330 50% 70%;      /* 🌸 Emoções */
-    --highlight-doctrine: 270 40% 55%;     /* 🟣 Verdade doutrinária */
+    /* Highlight system */
+    --highlight-promise: 45 85% 88%;       /* Soft Amber #FDF2D0 */
+    --highlight-response: 140 35% 60%;
+    --highlight-attribute: 210 45% 55%;
+    --highlight-emotion: 330 40% 70%;
+    --highlight-doctrine: 270 35% 55%;
 
     /* Sidebar */
-    --sidebar-background: 40 20% 97%;
-    --sidebar-foreground: 213 22% 24%;
-    --sidebar-primary: 213 22% 24%;
-    --sidebar-primary-foreground: 40 23% 96%;
-    --sidebar-accent: 40 15% 92%;
-    --sidebar-accent-foreground: 213 22% 24%;
-    --sidebar-border: 40 15% 88%;
-    --sidebar-ring: 254 25% 50%;
+    --sidebar-background: 40 25% 96%;
+    --sidebar-foreground: 210 7% 11%;
+    --sidebar-primary: 3 44% 27%;
+    --sidebar-primary-foreground: 40 27% 96%;
+    --sidebar-accent: 37 25% 92%;
+    --sidebar-accent-foreground: 210 7% 11%;
+    --sidebar-border: 37 20% 89%;
+    --sidebar-ring: 3 44% 27%;
 
     /* Typography */
-    --font-scripture: 'Lora', Georgia, 'Times New Roman', serif;
+    --font-scripture: 'Crimson Pro', Georgia, 'Times New Roman', serif;
     --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
 
-    /* Shadows */
-    --shadow-soft: 0 1px 3px 0 hsl(213 22% 24% / 0.04), 0 1px 2px -1px hsl(213 22% 24% / 0.04);
-    --shadow-card: 0 4px 12px -2px hsl(213 22% 24% / 0.06), 0 2px 4px -2px hsl(213 22% 24% / 0.04);
-    --shadow-elevated: 0 8px 24px -4px hsl(213 22% 24% / 0.08), 0 4px 8px -4px hsl(213 22% 24% / 0.04);
+    /* Shadows — minimal, paper-like */
+    --shadow-soft: 0 1px 2px 0 hsl(210 7% 11% / 0.03);
+    --shadow-card: 0 1px 3px -1px hsl(210 7% 11% / 0.04), 0 1px 0 0 hsl(37 20% 89% / 0.6);
+    --shadow-elevated: 0 4px 12px -4px hsl(210 7% 11% / 0.06);
   }
 
   .dark {
-    --background: 220 20% 8%;
-    --foreground: 40 15% 90%;
+    --background: 210 10% 8%;       /* Deep dark */
+    --foreground: 37 15% 88%;
 
-    --card: 220 18% 12%;
-    --card-foreground: 40 15% 90%;
+    --card: 210 8% 12%;
+    --card-foreground: 37 15% 88%;
 
-    --popover: 220 18% 12%;
-    --popover-foreground: 40 15% 90%;
+    --popover: 210 8% 12%;
+    --popover-foreground: 37 15% 88%;
 
-    --primary: 40 15% 90%;
-    --primary-foreground: 220 20% 8%;
+    --primary: 3 40% 55%;           /* Lighter wine for dark */
+    --primary-foreground: 210 10% 8%;
 
-    --secondary: 220 15% 16%;
-    --secondary-foreground: 40 15% 90%;
+    --secondary: 210 8% 16%;
+    --secondary-foreground: 37 15% 88%;
 
-    --muted: 220 12% 18%;
-    --muted-foreground: 40 8% 55%;
+    --muted: 210 6% 18%;
+    --muted-foreground: 200 5% 55%;
 
-    --accent: 254 30% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 3 40% 55%;
+    --accent-foreground: 37 15% 88%;
 
     --destructive: 0 55% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 12% 18%;
-    --input: 220 12% 18%;
-    --ring: 254 30% 60%;
+    --border: 210 6% 18%;
+    --input: 210 6% 18%;
+    --ring: 3 40% 55%;
 
-    --sidebar-background: 220 18% 10%;
-    --sidebar-foreground: 40 15% 90%;
-    --sidebar-primary: 254 30% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 12% 16%;
-    --sidebar-accent-foreground: 40 15% 90%;
-    --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 254 30% 60%;
+    --sidebar-background: 210 8% 10%;
+    --sidebar-foreground: 37 15% 88%;
+    --sidebar-primary: 3 40% 55%;
+    --sidebar-primary-foreground: 37 15% 88%;
+    --sidebar-accent: 210 6% 16%;
+    --sidebar-accent-foreground: 37 15% 88%;
+    --sidebar-border: 210 6% 18%;
+    --sidebar-ring: 3 40% 55%;
   }
 }
 

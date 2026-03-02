@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        scripture: ["Lora", "Georgia", "Times New Roman", "serif"],
+        scripture: ["Crimson Pro", "Georgia", "Times New Roman", "serif"],
         ui: ["Inter", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
