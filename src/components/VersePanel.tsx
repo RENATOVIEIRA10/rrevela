@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X, StickyNote } from "lucide-react";
+import { X, StickyNote, Pin } from "lucide-react";
 import { HIGHLIGHT_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 import {
   Drawer,
@@ -20,6 +20,7 @@ interface VersePanelProps {
   currentColor: HighlightColor | null;
   onSelectColor: (color: HighlightColor | null) => void;
   onOpenNote?: () => void;
+  onPinVerse?: () => void;
 }
 
 const VersePanel = ({
@@ -32,6 +33,7 @@ const VersePanel = ({
   currentColor,
   onSelectColor,
   onOpenNote,
+  onPinVerse,
 }: VersePanelProps) => {
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
@@ -46,9 +48,9 @@ const VersePanel = ({
         </DrawerHeader>
 
         <div className="px-4 pb-6 space-y-4 overflow-y-auto">
-          {/* Highlight colors */}
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-            Marcar como
+          {/* Natural language prompt */}
+          <p className="text-xs text-muted-foreground font-scripture italic">
+            Como este texto fala comigo?
           </p>
 
           <div className="flex flex-wrap gap-2">
@@ -84,15 +86,27 @@ const VersePanel = ({
               </button>
             )}
 
-            {onOpenNote && (
-              <button
-                onClick={onOpenNote}
-                className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors ml-auto"
-              >
-                <StickyNote className="w-3.5 h-3.5" />
-                Anotar verso
-              </button>
-            )}
+            <div className="flex items-center gap-3 ml-auto">
+              {onPinVerse && (
+                <button
+                  onClick={onPinVerse}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors"
+                >
+                  <Pin className="w-3.5 h-3.5" />
+                  Fixar verso
+                </button>
+              )}
+
+              {onOpenNote && (
+                <button
+                  onClick={onOpenNote}
+                  className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors"
+                >
+                  <StickyNote className="w-3.5 h-3.5" />
+                  Anotar
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Separator */}

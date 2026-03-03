@@ -22,12 +22,13 @@ export const HIGHLIGHT_COLORS: {
   label: string;
   emoji: string;
   cssClass: string;
+  dotColor: string;
 }[] = [
-  { key: "PROMESSA", label: "Promessas", emoji: "🟡", cssClass: "highlight-promise" },
-  { key: "RESPOSTA_HUMANA", label: "Resposta humana", emoji: "🟢", cssClass: "highlight-response" },
-  { key: "ATRIBUTOS_DE_DEUS", label: "Atributos de Deus", emoji: "🔵", cssClass: "highlight-attribute" },
-  { key: "EMOCOES_ORACAO", label: "Emoções / Oração", emoji: "🌸", cssClass: "highlight-emotion" },
-  { key: "VERDADE_DOUTRINARIA", label: "Verdade doutrinária", emoji: "🟣", cssClass: "highlight-doctrine" },
+  { key: "PROMESSA", label: "O que Deus promete", emoji: "💛", cssClass: "highlight-promise", dotColor: "hsl(var(--highlight-promise))" },
+  { key: "RESPOSTA_HUMANA", label: "O que eu devo viver", emoji: "🌿", cssClass: "highlight-response", dotColor: "hsl(var(--highlight-response))" },
+  { key: "ATRIBUTOS_DE_DEUS", label: "Quem Deus é", emoji: "💙", cssClass: "highlight-attribute", dotColor: "hsl(var(--highlight-attribute))" },
+  { key: "EMOCOES_ORACAO", label: "Clamor do coração", emoji: "🌸", cssClass: "highlight-emotion", dotColor: "hsl(var(--highlight-emotion))" },
+  { key: "VERDADE_DOUTRINARIA", label: "O que isso ensina", emoji: "🕊", cssClass: "highlight-doctrine", dotColor: "hsl(var(--highlight-doctrine))" },
 ];
 
 export function useHighlights(book: string, chapter: number) {

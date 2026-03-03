@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Palette } from "lucide-react";
 import { HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import {
@@ -13,21 +12,21 @@ const HighlightLegend = () => {
       <PopoverTrigger asChild>
         <button
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors px-2 py-1 rounded-md hover:bg-secondary/50"
-          aria-label="Legenda de cores"
+          aria-label="Significado das marcas"
         >
           <Palette className="w-3.5 h-3.5" />
-          <span>Legenda</span>
+          <span className="hidden sm:inline">Marcas</span>
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-3" align="end">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium mb-2">
-          Cores fixas
+      <PopoverContent className="w-64 p-3" align="end">
+        <p className="text-xs text-muted-foreground font-scripture italic mb-3">
+          Como este texto fala comigo?
         </p>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {HIGHLIGHT_COLORS.map((c) => (
-            <div key={c.key} className="flex items-center gap-2 text-sm">
-              <span>{c.emoji}</span>
-              <span className="text-foreground/85">{c.label}</span>
+            <div key={c.key} className="flex items-center gap-2.5 text-sm">
+              <span className="text-base">{c.emoji}</span>
+              <span className="text-foreground/85 font-scripture">{c.label}</span>
             </div>
           ))}
         </div>
