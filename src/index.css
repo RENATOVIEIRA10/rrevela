@@ -129,40 +129,73 @@
     letter-spacing: 0.01em;
   }
 
-  /* Highlight system - organic, semi-transparent */
-  .highlight-promise {
-    background-color: hsl(var(--highlight-promise) / 0.3);
-    border-bottom: 2px solid hsl(var(--highlight-promise) / 0.5);
-    border-radius: 2px;
-    padding: 1px 2px;
+  /* Highlight system — desktop: subtle underline + tint; mobile: clean dot marker */
+  
+  /* Desktop highlights */
+  @media (min-width: 768px) {
+    .highlight-promise {
+      background-color: hsl(var(--highlight-promise) / 0.2);
+      border-bottom: 2px solid hsl(var(--highlight-promise) / 0.5);
+      border-radius: 2px;
+      padding: 1px 2px;
+    }
+    .highlight-response {
+      background-color: hsl(var(--highlight-response) / 0.15);
+      border-bottom: 2px solid hsl(var(--highlight-response) / 0.4);
+      border-radius: 2px;
+      padding: 1px 2px;
+    }
+    .highlight-attribute {
+      background-color: hsl(var(--highlight-attribute) / 0.15);
+      border-bottom: 2px solid hsl(var(--highlight-attribute) / 0.4);
+      border-radius: 2px;
+      padding: 1px 2px;
+    }
+    .highlight-emotion {
+      background-color: hsl(var(--highlight-emotion) / 0.15);
+      border-bottom: 2px solid hsl(var(--highlight-emotion) / 0.4);
+      border-radius: 2px;
+      padding: 1px 2px;
+    }
+    .highlight-doctrine {
+      background-color: hsl(var(--highlight-doctrine) / 0.15);
+      border-bottom: 2px solid hsl(var(--highlight-doctrine) / 0.4);
+      border-radius: 2px;
+      padding: 1px 2px;
+    }
   }
 
-  .highlight-response {
-    background-color: hsl(var(--highlight-response) / 0.25);
-    border-bottom: 2px solid hsl(var(--highlight-response) / 0.45);
-    border-radius: 2px;
-    padding: 1px 2px;
+  /* Mobile highlights — NO background paint, dots handled via pseudo-element */
+  @media (max-width: 767px) {
+    .verse-line {
+      position: relative;
+      padding-left: 1rem;
+    }
+    .verse-line.has-highlight::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .verse-line.highlight-promise::before { background-color: hsl(var(--highlight-promise)); }
+    .verse-line.highlight-response::before { background-color: hsl(var(--highlight-response)); }
+    .verse-line.highlight-attribute::before { background-color: hsl(var(--highlight-attribute)); }
+    .verse-line.highlight-emotion::before { background-color: hsl(var(--highlight-emotion)); }
+    .verse-line.highlight-doctrine::before { background-color: hsl(var(--highlight-doctrine)); }
   }
 
-  .highlight-attribute {
-    background-color: hsl(var(--highlight-attribute) / 0.25);
-    border-bottom: 2px solid hsl(var(--highlight-attribute) / 0.45);
-    border-radius: 2px;
-    padding: 1px 2px;
-  }
-
-  .highlight-emotion {
-    background-color: hsl(var(--highlight-emotion) / 0.25);
-    border-bottom: 2px solid hsl(var(--highlight-emotion) / 0.45);
-    border-radius: 2px;
-    padding: 1px 2px;
-  }
-
-  .highlight-doctrine {
-    background-color: hsl(var(--highlight-doctrine) / 0.25);
-    border-bottom: 2px solid hsl(var(--highlight-doctrine) / 0.45);
-    border-radius: 2px;
-    padding: 1px 2px;
+  /* Notebook page style */
+  .notebook-page {
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--background)) 0%,
+      hsl(40 30% 97%) 100%
+    );
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 3px -1px hsl(210 7% 11% / 0.04);
   }
 }
 
