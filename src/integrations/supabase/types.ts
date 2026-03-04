@@ -107,6 +107,42 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_verses: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          insight_text: string
+          share_text: string
+          translation: string
+          user_id: string | null
+          verse: number
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          insight_text?: string
+          share_text: string
+          translation?: string
+          user_id?: string | null
+          verse: number
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          insight_text?: string
+          share_text?: string
+          translation?: string
+          user_id?: string | null
+          verse?: number
+        }
+        Relationships: []
+      }
       structured_notes: {
         Row: {
           application: string | null
