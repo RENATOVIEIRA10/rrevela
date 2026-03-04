@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown, Loader2, AlertTriangle, X, Pin, PanelLeftClose, PanelRightClose } from "lucide-react";
+import { usePinnedVerse } from "@/hooks/usePinnedVerse";
+import PinnedVerseCard from "@/components/PinnedVerseCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -36,7 +38,7 @@ const Reader = () => {
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
-  const [pinnedVerse, setPinnedVerse] = useState<{ number: number; text: string } | null>(null);
+  const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
@@ -99,9 +101,20 @@ const Reader = () => {
 
   const handlePinVerse = () => {
     if (selectedVerse) {
-      setPinnedVerse(selectedVerse);
+      pinVerse({
+        translation: "acf",
+        book: selectedBook,
+        chapter: selectedChapter,
+        verse: selectedVerse.number,
+        text: selectedVerse.text,
+      });
       setSelectedVerse(null);
     }
+  };
+
+  const handleGoToPinned = (book: string, chapter: number, _verse: number) => {
+    setSelectedBook(book);
+    setSelectedChapter(chapter);
   };
 
   // Search debounce
@@ -258,7 +271,7 @@ const Reader = () => {
                 <div className="space-y-0.5">
                   {verses.map((verse) => {
                     const hlClass = getHighlightClass(verse.number);
-                    const isPinned = pinnedVerse?.number === verse.number;
+                    const isPinned = pinnedVerse?.verse === verse.number && pinnedVerse?.book === selectedBook && pinnedVerse?.chapter === selectedChapter;
                     return (
                       <p
                         key={verse.number}
@@ -288,7 +301,8 @@ const Reader = () => {
               depth={depth}
               onDepthChange={setDepth}
               pinnedVerse={pinnedVerse}
-              onUnpin={() => setPinnedVerse(null)}
+              onUnpin={unpinVerse}
+              onGoToPinned={handleGoToPinned}
               chapterNotes={chapterNotes}
               verseNotes={verseNotes}
               selectedVerseForNote={desktopNoteVerse}
@@ -424,6 +438,15 @@ const Reader = () => {
         currentBook={selectedBook}
         currentChapter={selectedChapter}
       />
+
+      {/* Pinned verse card (mobile) */}
+      {pinnedVerse && (
+        <PinnedVerseCard
+          pinned={pinnedVerse}
+          onGoTo={handleGoToPinned}
+          onUnpin={unpinVerse}
+        />
+      )}
 
       {/* Scripture text */}
       <ScrollArea className="flex-1">

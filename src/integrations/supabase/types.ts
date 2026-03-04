@@ -83,6 +83,39 @@ export type Database = {
         }
         Relationships: []
       }
+      pinned_verses: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          translation: string
+          updated_at: string
+          user_id: string
+          verse: number
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          translation?: string
+          updated_at?: string
+          user_id: string
+          verse: number
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          translation?: string
+          updated_at?: string
+          user_id?: string
+          verse?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
