@@ -7,20 +7,18 @@ import BiblicalPatternsPanel from "./BiblicalPatternsPanel";
 import RevealingQuestions from "./RevealingQuestions";
 import DepthSelector, { type DepthLevel } from "./DepthSelector";
 import CompareOlhares from "./CompareOlhares";
+import PinnedVerseCard from "./PinnedVerseCard";
 import type { StructuredNote, NoteType } from "@/hooks/useNotes";
-
-interface PinnedVerse {
-  number: number;
-  text: string;
-}
+import type { PinnedVerseData } from "@/hooks/usePinnedVerse";
 
 interface DesktopStudyMarginProps {
   book: string;
   chapter: number;
   depth: DepthLevel;
   onDepthChange: (d: DepthLevel) => void;
-  pinnedVerse: PinnedVerse | null;
+  pinnedVerse: PinnedVerseData | null;
   onUnpin: () => void;
+  onGoToPinned: (book: string, chapter: number, verse: number) => void;
   // Notes
   chapterNotes: {
     notes: StructuredNote[];
@@ -43,6 +41,7 @@ const DesktopStudyMargin = ({
   onDepthChange,
   pinnedVerse,
   onUnpin,
+  onGoToPinned,
   chapterNotes,
   verseNotes,
   selectedVerseForNote,
@@ -84,22 +83,11 @@ const DesktopStudyMargin = ({
         <div className="p-4 space-y-4">
           {/* Pinned verse */}
           {pinnedVerse && (
-            <div className="bg-accent/5 border border-accent/15 rounded-lg p-3 space-y-1">
-              <div className="flex items-center justify-between">
-                <p className="text-[9px] uppercase tracking-widest text-accent font-medium flex items-center gap-1">
-                  <Pin className="w-3 h-3" /> Verso fixado
-                </p>
-                <button onClick={onUnpin} className="text-[10px] text-muted-foreground hover:text-foreground">
-                  Soltar
-                </button>
-              </div>
-              <p className="font-scripture text-xs text-accent font-semibold">
-                {book} {chapter}:{pinnedVerse.number}
-              </p>
-              <p className="font-scripture text-sm text-foreground/85 leading-relaxed italic">
-                {pinnedVerse.text}
-              </p>
-            </div>
+            <PinnedVerseCard
+              pinned={pinnedVerse}
+              onGoTo={onGoToPinned}
+              onUnpin={onUnpin}
+            />
           )}
 
           {activeTab === "study" && (
@@ -121,10 +109,10 @@ const DesktopStudyMargin = ({
               {pinnedVerse && (
                 <div className="border-t border-border/50 pt-4">
                   <CompareOlhares
-                    book={book}
-                    chapter={chapter}
-                    verse={pinnedVerse.number}
-                    verseText={pinnedVerse.text}
+                    book={pinnedVerse.book}
+                    chapter={pinnedVerse.chapter}
+                    verse={pinnedVerse.verse}
+                    verseText={pinnedVerse.text ?? ""}
                   />
                 </div>
               )}
@@ -147,14 +135,14 @@ const DesktopStudyMargin = ({
                 </button>
                 {pinnedVerse && (
                   <button
-                    onClick={() => onSelectVerseForNote(pinnedVerse.number)}
+                    onClick={() => onSelectVerseForNote(pinnedVerse.verse)}
                     className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
-                      selectedVerseForNote === pinnedVerse.number
+                      selectedVerseForNote === pinnedVerse.verse
                         ? "bg-accent/10 text-accent font-medium"
                         : "bg-secondary/40 text-foreground/60 hover:bg-secondary"
                     }`}
                   >
-                    v. {pinnedVerse.number}
+                    v. {pinnedVerse.verse}
                   </button>
                 )}
               </div>
