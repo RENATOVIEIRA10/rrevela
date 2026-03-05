@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Repeat, ChevronDown, AlertCircle, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfidenceBadge } from "./ConfidenceBadge";
+import ReferenceChip from "./ReferenceChip";
+import RichText from "./RichText";
+import { parseReferences } from "@/lib/reference-parser";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,9 +37,10 @@ interface BiblicalPatternsPanelProps {
   book: string;
   chapter: number;
   depth: string;
+  onNavigate?: (book: string, chapter: number, verse: number) => void;
 }
 
-const BiblicalPatternsPanel = ({ book, chapter, depth }: BiblicalPatternsPanelProps) => {
+const BiblicalPatternsPanel = ({ book, chapter, depth, onNavigate }: BiblicalPatternsPanelProps) => {
   const [data, setData] = useState<PatternsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -73,6 +77,14 @@ const BiblicalPatternsPanel = ({ book, chapter, depth }: BiblicalPatternsPanelPr
     }
   };
 
+  const renderRef = (refStr: string) => {
+    const parsed = parseReferences(refStr);
+    if (parsed.length > 0) {
+      return <ReferenceChip reference={parsed[0]} label={refStr} onNavigate={onNavigate} />;
+    }
+    return <span className="text-xs font-ui font-semibold text-accent">{refStr}</span>;
+  };
+
   return (
     <div className="space-y-3">
       <Button
@@ -107,7 +119,6 @@ const BiblicalPatternsPanel = ({ book, chapter, depth }: BiblicalPatternsPanelPr
                     transition={{ delay: i * 0.08 }}
                     className="bg-card rounded-xl p-4 border border-border/50 space-y-3"
                   >
-                    {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <h4 className="font-scripture text-sm font-semibold text-foreground">
@@ -118,12 +129,8 @@ const BiblicalPatternsPanel = ({ book, chapter, depth }: BiblicalPatternsPanelPr
                       <ConfidenceBadge confidence={pattern.confidence} />
                     </div>
 
-                    {/* Description */}
-                    <p className="text-sm text-foreground/80 font-scripture leading-relaxed">
-                      {pattern.description}
-                    </p>
+                    <RichText text={pattern.description} className="text-sm text-foreground/80 font-scripture leading-relaxed" onNavigate={onNavigate} />
 
-                    {/* Other occurrences */}
                     {pattern.other_occurrences?.length > 0 && (
                       <div className="space-y-1.5">
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -133,28 +140,28 @@ const BiblicalPatternsPanel = ({ book, chapter, depth }: BiblicalPatternsPanelPr
                           <div key={j} className="flex items-start gap-2 bg-secondary/30 rounded-lg p-2.5">
                             <ArrowRight className="w-3 h-3 text-accent mt-0.5 shrink-0" />
                             <div>
-                              <span className="text-xs font-ui font-semibold text-accent">{occ.reference}</span>
-                              <p className="text-xs text-foreground/70">{occ.brief}</p>
+                              {renderRef(occ.reference)}
+                              <p className="text-xs text-foreground/70 mt-0.5">{occ.brief}</p>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    {/* Christocentric echo */}
                     {pattern.christocentric_echo && (
                       <div className="space-y-1 border-t border-border/30 pt-2">
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
                           ✝️ Eco cristocêntrico
                         </p>
-                        <p className="text-sm text-foreground/85 font-scripture">{pattern.christocentric_echo}</p>
+                        <RichText text={pattern.christocentric_echo} className="text-sm text-foreground/85 font-scripture" onNavigate={onNavigate} />
                       </div>
                     )}
 
-                    {/* Textual basis */}
-                    <p className="text-[10px] text-muted-foreground italic border-t border-border/30 pt-2">
-                      Base textual: {pattern.textual_basis}
-                    </p>
+                    <RichText
+                      text={`Base textual: ${pattern.textual_basis}`}
+                      className="text-[10px] text-muted-foreground italic border-t border-border/30 pt-2"
+                      onNavigate={onNavigate}
+                    />
                   </motion.div>
                 ))
               ) : (

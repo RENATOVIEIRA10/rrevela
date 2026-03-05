@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X, StickyNote, Pin, Share2, Copy, MessageCircle } from "lucide-react";
+import { X, StickyNote, Pin, Share2, Copy, MessageCircle, Sparkles } from "lucide-react";
 import { HIGHLIGHT_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 import { useShareVerse } from "@/hooks/useShareVerse";
 import {
@@ -10,6 +10,7 @@ import {
   DrawerDescription,
 } from "@/components/ui/drawer";
 import CompareOlhares from "./CompareOlhares";
+import VerseRevealSection from "./VerseRevealSection";
 
 interface VersePanelProps {
   open: boolean;
@@ -22,6 +23,7 @@ interface VersePanelProps {
   onSelectColor: (color: HighlightColor | null) => void;
   onOpenNote?: () => void;
   onPinVerse?: () => void;
+  onNavigateToRef?: (book: string, chapter: number, verse: number) => void;
 }
 
 const VersePanel = ({
@@ -35,6 +37,7 @@ const VersePanel = ({
   onSelectColor,
   onOpenNote,
   onPinVerse,
+  onNavigateToRef,
 }: VersePanelProps) => {
   const { shareVerse } = useShareVerse();
 
@@ -45,6 +48,13 @@ const VersePanel = ({
       shareVerse(shareParams, "native");
     } else {
       shareVerse(shareParams, "copy");
+    }
+  };
+
+  const handleRefNavigate = (refBook: string, refChapter: number, refVerse: number) => {
+    if (onNavigateToRef) {
+      onClose();
+      onNavigateToRef(refBook, refChapter, refVerse);
     }
   };
 
@@ -157,12 +167,25 @@ const VersePanel = ({
           {/* Separator */}
           <div className="h-px bg-border" />
 
+          {/* Revela (este verso) */}
+          <VerseRevealSection
+            book={book}
+            chapter={chapter}
+            verse={verseNumber}
+            verseText={verseText}
+            onNavigate={handleRefNavigate}
+          />
+
+          {/* Separator */}
+          <div className="h-px bg-border" />
+
           {/* Compare Olhares */}
           <CompareOlhares
             book={book}
             chapter={chapter}
             verse={verseNumber}
             verseText={verseText}
+            onNavigate={handleRefNavigate}
           />
         </div>
       </DrawerContent>

@@ -117,6 +117,12 @@ const Reader = () => {
     setSelectedChapter(chapter);
   };
 
+  const handleNavigateToRef = (refBook: string, refChapter: number, _refVerse: number) => {
+    setSelectedBook(refBook);
+    setSelectedChapter(refChapter);
+    setSelectedVerse(null);
+  };
+
   // Search debounce
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -303,6 +309,7 @@ const Reader = () => {
               pinnedVerse={pinnedVerse}
               onUnpin={unpinVerse}
               onGoToPinned={handleGoToPinned}
+              onNavigateToRef={handleNavigateToRef}
               chapterNotes={chapterNotes}
               verseNotes={verseNotes}
               selectedVerseForNote={desktopNoteVerse}
@@ -327,6 +334,7 @@ const Reader = () => {
             }}
             onOpenNote={() => openVerseNote(selectedVerse.number)}
             onPinVerse={handlePinVerse}
+            onNavigateToRef={handleNavigateToRef}
           />
         )}
       </div>
@@ -499,9 +507,9 @@ const Reader = () => {
           {!loading && !error && verses.length > 0 && (
             <div className="mt-8 border-t border-border pt-4 space-y-4">
               <DepthSelector value={depth} onChange={setDepth} />
-              <MessianicLinePanel book={selectedBook} chapter={selectedChapter} />
+              <MessianicLinePanel book={selectedBook} chapter={selectedChapter} onNavigate={handleNavigateToRef} />
               {(depth === "intermediario" || depth === "profundo") && (
-                <BiblicalPatternsPanel book={selectedBook} chapter={selectedChapter} depth={depth} />
+                <BiblicalPatternsPanel book={selectedBook} chapter={selectedChapter} depth={depth} onNavigate={handleNavigateToRef} />
               )}
               <RevealingQuestions
                 depth={depth}
@@ -531,6 +539,7 @@ const Reader = () => {
           }}
           onOpenNote={() => openVerseNote(selectedVerse.number)}
           onPinVerse={handlePinVerse}
+          onNavigateToRef={handleNavigateToRef}
         />
       )}
 

@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, BookOpen, ArrowRight, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfidenceBadge, ConnectionTypeBadge } from "./ConfidenceBadge";
+import ReferenceChip from "./ReferenceChip";
+import RichText from "./RichText";
+import { parseReferences } from "@/lib/reference-parser";
 import { useToast } from "@/hooks/use-toast";
 
 interface CrossReference {
@@ -37,9 +40,10 @@ interface CompareOlharesProps {
   chapter: number;
   verse: number;
   verseText: string;
+  onNavigate?: (book: string, chapter: number, verse: number) => void;
 }
 
-const CompareOlhares = ({ book, chapter, verse, verseText }: CompareOlharesProps) => {
+const CompareOlhares = ({ book, chapter, verse, verseText, onNavigate }: CompareOlharesProps) => {
   const [data, setData] = useState<CrossRefData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -70,6 +74,14 @@ const CompareOlhares = ({ book, chapter, verse, verseText }: CompareOlharesProps
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderRef = (refStr: string) => {
+    const parsed = parseReferences(refStr);
+    if (parsed.length > 0) {
+      return <ReferenceChip reference={parsed[0]} label={refStr} onNavigate={onNavigate} />;
+    }
+    return <span className="text-xs font-ui font-semibold text-accent">{refStr}</span>;
   };
 
   return (
@@ -104,14 +116,14 @@ const CompareOlhares = ({ book, chapter, verse, verseText }: CompareOlharesProps
                 {data.cross_references.map((ref, i) => (
                   <div key={i} className="bg-secondary/30 rounded-lg p-3 space-y-1.5 border border-border/30">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-ui font-semibold text-accent">{ref.reference}</p>
+                      {renderRef(ref.reference)}
                       <div className="flex items-center gap-1.5">
                         <ConnectionTypeBadge type={ref.relationship} />
                         <ConfidenceBadge confidence={ref.confidence} />
                       </div>
                     </div>
                     <p className="font-scripture text-sm text-foreground/85 italic">{ref.text}</p>
-                    <p className="text-xs text-muted-foreground">{ref.explanation}</p>
+                    <RichText text={ref.explanation} className="text-xs text-muted-foreground" onNavigate={onNavigate} />
                   </div>
                 ))}
               </div>
@@ -130,15 +142,17 @@ const CompareOlhares = ({ book, chapter, verse, verseText }: CompareOlharesProps
                         <ConnectionTypeBadge type={conn.type} />
                         <ConfidenceBadge confidence={conn.confidence} />
                       </div>
-                      <p className="text-sm text-foreground/85 font-scripture">{conn.description}</p>
+                      <RichText text={conn.description} className="text-sm text-foreground/85 font-scripture" onNavigate={onNavigate} />
                       <div className="flex items-center gap-2 text-xs text-accent">
-                        {conn.at_reference && <span>{conn.at_reference}</span>}
+                        {conn.at_reference && renderRef(conn.at_reference)}
                         {conn.at_reference && <ArrowRight className="w-3 h-3" />}
-                        <span>{conn.nt_reference}</span>
+                        {renderRef(conn.nt_reference)}
                       </div>
-                      <p className="text-[10px] text-muted-foreground italic">
-                        Base textual: {conn.textual_basis}
-                      </p>
+                      <RichText
+                        text={`Base textual: ${conn.textual_basis}`}
+                        className="text-[10px] text-muted-foreground italic"
+                        onNavigate={onNavigate}
+                      />
                     </div>
                   ))
                 ) : (
