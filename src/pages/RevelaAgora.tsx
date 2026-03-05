@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CONNECTION_TYPE_LABELS, type ConnectionType } from "@/lib/christocentric-index";
+import ReferenceChip from "@/components/ReferenceChip";
+import RichText from "@/components/RichText";
+import { parseReferences } from "@/lib/reference-parser";
 
 const SUGGESTIONS = [
   "Estou com medo do futuro",
@@ -181,7 +184,7 @@ const RevelaAgora = () => {
                   <ResultSection
                     icon={<BookOpen className="w-4 h-4" />}
                     title="Tema detectado"
-                    content={response.theme}
+                    content={<RichText text={response.theme} />}
                   />
                 )}
 
@@ -208,7 +211,7 @@ const RevelaAgora = () => {
                   <ResultSection
                     icon={<BookOpen className="w-4 h-4" />}
                     title="Contexto"
-                    content={response.context}
+                    content={<RichText text={response.context} />}
                   />
                 )}
 
@@ -216,7 +219,7 @@ const RevelaAgora = () => {
                   <ResultSection
                     icon={<Cross className="w-4 h-4" />}
                     title="Conexão cristocêntrica"
-                    content={response.christocentric_connection}
+                    content={<RichText text={response.christocentric_connection} />}
                   />
                 )}
 
@@ -238,7 +241,7 @@ const RevelaAgora = () => {
                   <ResultSection
                     icon={<Heart className="w-4 h-4" />}
                     title="Aplicação"
-                    content={response.application}
+                    content={<RichText text={response.application} />}
                   />
                 )}
               </div>
@@ -281,25 +284,41 @@ const ResultSection = ({
       <span className="text-xs uppercase tracking-widest font-medium">{title}</span>
     </div>
     <div className="text-sm text-foreground/85 leading-relaxed font-scripture pl-6">
-      {typeof content === "string" ? <p>{content}</p> : content}
+      {content}
     </div>
   </motion.div>
 );
 
-const VerseCard = ({ reference, text, why }: { reference: string; text: string; why?: string }) => (
-  <div className="bg-secondary/50 rounded-lg p-3 space-y-1.5">
-    <p className="text-xs font-ui font-semibold text-accent">{reference}</p>
-    <p className="font-scripture text-sm text-foreground/85 italic">{text}</p>
-    {why && (
-      <p className="text-xs text-muted-foreground mt-1">
-        <span className="font-medium">Por que este texto:</span> {why}
-      </p>
-    )}
-  </div>
-);
+const VerseCard = ({ reference, text, why }: { reference: string; text: string; why?: string }) => {
+  const parsed = parseReferences(reference);
+  return (
+    <div className="bg-secondary/50 rounded-lg p-3 space-y-1.5">
+      {parsed.length > 0 ? (
+        <ReferenceChip reference={parsed[0]} label={reference} />
+      ) : (
+        <p className="text-xs font-ui font-semibold text-accent">{reference}</p>
+      )}
+      <p className="font-scripture text-sm text-foreground/85 italic">{text}</p>
+      {why && (
+        <p className="text-xs text-muted-foreground mt-1">
+          <span className="font-medium">Por que este texto:</span> {why}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
   const connLabel = CONNECTION_TYPE_LABELS[anchor.connection_type];
+
+  const renderRef = (refStr: string) => {
+    const parsed = parseReferences(refStr);
+    if (parsed.length > 0) {
+      return <ReferenceChip reference={parsed[0]} label={refStr} />;
+    }
+    return <span className="text-xs font-ui font-semibold text-accent">{refStr}</span>;
+  };
+
   return (
     <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50 space-y-3">
       <div className="flex items-center justify-between">
@@ -318,8 +337,8 @@ const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
       </div>
       
       <div className="space-y-1">
-        <p className="text-xs font-ui font-semibold text-accent">{anchor.at_reference}</p>
-        <p className="text-sm text-foreground/80 font-scripture">{anchor.at_summary}</p>
+        {renderRef(anchor.at_reference)}
+        <RichText text={anchor.at_summary} className="text-sm text-foreground/80 font-scripture" />
       </div>
 
       <div className="flex items-center gap-1 text-muted-foreground">
@@ -328,10 +347,12 @@ const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
       </div>
 
       <div className="space-y-1">
-        <p className="text-xs font-ui font-semibold text-accent">
-          {anchor.nt_references?.join(" · ")}
-        </p>
-        <p className="text-sm text-foreground/80 font-scripture">{anchor.nt_summary}</p>
+        <div className="flex flex-wrap gap-1">
+          {anchor.nt_references?.map((ref, i) => (
+            <span key={i}>{renderRef(ref)}</span>
+          ))}
+        </div>
+        <RichText text={anchor.nt_summary} className="text-sm text-foreground/80 font-scripture" />
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ interface DesktopStudyMarginProps {
   pinnedVerse: PinnedVerseData | null;
   onUnpin: () => void;
   onGoToPinned: (book: string, chapter: number, verse: number) => void;
+  onNavigateToRef?: (book: string, chapter: number, verse: number) => void;
   // Notes
   chapterNotes: {
     notes: StructuredNote[];
@@ -42,6 +43,7 @@ const DesktopStudyMargin = ({
   pinnedVerse,
   onUnpin,
   onGoToPinned,
+  onNavigateToRef,
   chapterNotes,
   verseNotes,
   selectedVerseForNote,
@@ -93,9 +95,9 @@ const DesktopStudyMargin = ({
           {activeTab === "study" && (
             <>
               <DepthSelector value={depth} onChange={onDepthChange} />
-              <MessianicLinePanel book={book} chapter={chapter} />
+              <MessianicLinePanel book={book} chapter={chapter} onNavigate={onNavigateToRef} />
               {(depth === "intermediario" || depth === "profundo") && (
-                <BiblicalPatternsPanel book={book} chapter={chapter} depth={depth} />
+                <BiblicalPatternsPanel book={book} chapter={chapter} depth={depth} onNavigate={onNavigateToRef} />
               )}
               <RevealingQuestions
                 depth={depth}

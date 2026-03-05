@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Cross, ArrowRight, AlertCircle, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfidenceBadge, ConnectionTypeBadge } from "./ConfidenceBadge";
+import ReferenceChip from "./ReferenceChip";
+import RichText from "./RichText";
+import { parseReferences } from "@/lib/reference-parser";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,9 +33,10 @@ interface MessianicData {
 interface MessianicLinePanelProps {
   book: string;
   chapter: number;
+  onNavigate?: (book: string, chapter: number, verse: number) => void;
 }
 
-const MessianicLinePanel = ({ book, chapter }: MessianicLinePanelProps) => {
+const MessianicLinePanel = ({ book, chapter, onNavigate }: MessianicLinePanelProps) => {
   const [data, setData] = useState<MessianicData | null>(null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -65,6 +69,14 @@ const MessianicLinePanel = ({ book, chapter }: MessianicLinePanelProps) => {
     }
   };
 
+  const renderRef = (refStr: string) => {
+    const parsed = parseReferences(refStr);
+    if (parsed.length > 0) {
+      return <ReferenceChip reference={parsed[0]} label={refStr} onNavigate={onNavigate} />;
+    }
+    return <span className="text-xs text-accent font-ui font-medium bg-accent/5 px-2 py-0.5 rounded">{refStr}</span>;
+  };
+
   return (
     <div className="space-y-3">
       <Button
@@ -95,9 +107,11 @@ const MessianicLinePanel = ({ book, chapter }: MessianicLinePanelProps) => {
                 <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
                   {book} {chapter} — Visão cristocêntrica
                 </p>
-                <p className="text-sm text-foreground/85 font-scripture leading-relaxed">
-                  {data.summary}
-                </p>
+                <RichText
+                  text={data.summary}
+                  className="text-sm text-foreground/85 font-scripture leading-relaxed"
+                  onNavigate={onNavigate}
+                />
               </div>
 
               {data.has_messianic_content && data.connections?.length > 0 ? (
@@ -110,7 +124,6 @@ const MessianicLinePanel = ({ book, chapter }: MessianicLinePanelProps) => {
                       transition={{ delay: i * 0.08 }}
                       className="bg-card rounded-xl p-4 border border-border/50 space-y-3"
                     >
-                      {/* Header */}
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <h4 className="font-scripture text-sm font-semibold text-foreground">
@@ -124,38 +137,34 @@ const MessianicLinePanel = ({ book, chapter }: MessianicLinePanelProps) => {
                         </div>
                       </div>
 
-                      {/* What text says */}
                       <div className="space-y-1">
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
                           O que o texto diz
                         </p>
-                        <p className="text-sm text-foreground/80 font-scripture">{conn.what_text_says}</p>
+                        <RichText text={conn.what_text_says} className="text-sm text-foreground/80 font-scripture" onNavigate={onNavigate} />
                       </div>
 
-                      {/* Christocentric connection */}
                       <div className="space-y-1">
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
                           ✝️ Conexão com Cristo
                         </p>
-                        <p className="text-sm text-foreground/85 font-scripture">{conn.christocentric_connection}</p>
+                        <RichText text={conn.christocentric_connection} className="text-sm text-foreground/85 font-scripture" onNavigate={onNavigate} />
                       </div>
 
-                      {/* NT References */}
                       {conn.nt_references?.length > 0 && (
                         <div className="flex items-center gap-2 flex-wrap">
                           <ArrowRight className="w-3 h-3 text-muted-foreground" />
                           {conn.nt_references.map((ref, j) => (
-                            <span key={j} className="text-xs text-accent font-ui font-medium bg-accent/5 px-2 py-0.5 rounded">
-                              {ref}
-                            </span>
+                            <span key={j}>{renderRef(ref)}</span>
                           ))}
                         </div>
                       )}
 
-                      {/* Textual basis */}
-                      <p className="text-[10px] text-muted-foreground italic border-t border-border/30 pt-2">
-                        Base textual: {conn.textual_basis}
-                      </p>
+                      <RichText
+                        text={`Base textual: ${conn.textual_basis}`}
+                        className="text-[10px] text-muted-foreground italic border-t border-border/30 pt-2"
+                        onNavigate={onNavigate}
+                      />
                     </motion.div>
                   ))}
                 </div>
