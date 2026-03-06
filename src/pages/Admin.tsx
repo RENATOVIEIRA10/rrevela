@@ -18,6 +18,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+interface MetricAuditEntry {
+  key: string;
+  source: string;
+  query: string;
+  status: "ok" | "empty" | "error";
+  error: string | null;
+}
+
 interface MetricStateEntry {
   key: string;
   status: "ok" | "empty" | "error";
@@ -47,8 +55,18 @@ interface AdminMetrics {
   users: { user_id: string; display_name: string; email: string; created_at: string; last_sign_in: string | null }[];
   __meta?: {
     status: "ok" | "partial";
+    httpStatus?: number;
     metricErrors: Record<string, string>;
     metricState?: Record<string, MetricStateEntry>;
+    requestAudit?: {
+      metrics: MetricAuditEntry[];
+      auth: {
+        hasAuthorizationHeader: boolean;
+        userId: string | null;
+        email: string | null;
+        adminCheck: "ok" | "forced_admin_email" | "failed";
+      };
+    };
     analyticsAudit?: {
       events_table_selected: string | null;
       required_tables: Record<string, boolean>;
@@ -73,8 +91,18 @@ interface AdminMetricsApiResponse {
   __meta?: {
     endpoint?: string;
     status?: "ok" | "partial";
+    httpStatus?: number;
     metricErrors?: Record<string, string>;
     metricState?: Record<string, MetricStateEntry>;
+    requestAudit?: {
+      metrics: MetricAuditEntry[];
+      auth: {
+        hasAuthorizationHeader: boolean;
+        userId: string | null;
+        email: string | null;
+        adminCheck: "ok" | "forced_admin_email" | "failed";
+      };
+    };
     analyticsAudit?: {
       events_table_selected: string | null;
       required_tables: Record<string, boolean>;
@@ -105,7 +133,17 @@ const EMPTY_METRICS: AdminMetrics = {
   users: [],
   __meta: {
     status: "ok",
+    httpStatus: 200,
     metricErrors: {},
+    requestAudit: {
+      metrics: [],
+      auth: {
+        hasAuthorizationHeader: false,
+        userId: null,
+        email: null,
+        adminCheck: "failed",
+      },
+    },
   },
 };
 
@@ -141,8 +179,10 @@ const Admin = () => {
   const [metricsDebug, setMetricsDebug] = useState({
     endpoint: "admin-metrics",
     statusCode: 0,
+    responseStatus: "ok" as "ok" | "partial",
     okKeys: [] as string[],
     failedKeys: [] as string[],
+    requestAudit: [] as MetricAuditEntry[],
     error: "",
   });
   const navigate = useNavigate();
@@ -194,8 +234,10 @@ const Admin = () => {
           topPassages: payload.top_passages ?? [],
           __meta: {
             status: (payload.__meta?.status ?? "ok") as "ok" | "partial",
+            httpStatus: payload.__meta?.httpStatus ?? statusCode,
             metricErrors: payload.__meta?.metricErrors ?? {},
             metricState: payload.__meta?.metricState ?? {},
+            requestAudit: payload.__meta?.requestAudit ?? EMPTY_METRICS.__meta?.requestAudit,
             analyticsAudit: payload.__meta?.analyticsAudit,
           },
         };
@@ -212,9 +254,11 @@ const Admin = () => {
 
         setMetricsDebug({
           endpoint: payload.__meta?.endpoint ?? endpoint,
-          statusCode,
+          statusCode: payload.__meta?.httpStatus ?? statusCode,
+          responseStatus: (payload.__meta?.status ?? "ok") as "ok" | "partial",
           okKeys,
           failedKeys,
+          requestAudit: payload.__meta?.requestAudit?.metrics ?? [],
           error: endpointError,
         });
 
@@ -228,7 +272,7 @@ const Admin = () => {
         console.error("[admin] falha inesperada ao buscar métricas:", err);
         setMetrics(EMPTY_METRICS);
         setMetricsStatus("failed");
-        setMetricsDebug({ endpoint: "admin-metrics", statusCode: 0, okKeys: [], failedKeys: [], error: String(err) });
+        setMetricsDebug({ endpoint: "admin-metrics", statusCode: 0, responseStatus: "partial", okKeys: [], failedKeys: [], requestAudit: [], error: String(err) });
         setError("Falha inesperada ao carregar métricas.");
       } finally {
         setLoading(false);
@@ -286,9 +330,26 @@ const Admin = () => {
               <p><strong>Status das métricas:</strong> {metricsStatus}</p>
               <p><strong>Endpoint:</strong> {metricsDebug.endpoint}</p>
               <p><strong>Status HTTP:</strong> {metricsDebug.statusCode || "n/d"}</p>
+              <p><strong>Status de resposta:</strong> {metricsDebug.responseStatus}</p>
               <p><strong>Fonte de eventos:</strong> {metrics.__meta?.analyticsAudit?.events_table_selected ?? "não detectada"}</p>
+              <p><strong>JWT no request:</strong> {metrics.__meta?.requestAudit?.auth.hasAuthorizationHeader ? "sim" : "não"}</p>
+              <p><strong>Auth user na função:</strong> {metrics.__meta?.requestAudit?.auth.userId ?? "não identificado"}</p>
+              <p><strong>Admin check backend:</strong> {metrics.__meta?.requestAudit?.auth.adminCheck ?? "desconhecido"}</p>
               <p><strong>Métricas com sucesso:</strong> {metricsDebug.okKeys.length > 0 ? metricsDebug.okKeys.join(", ") : "nenhuma"}</p>
               <p><strong>Métricas com falha:</strong> {metricsDebug.failedKeys.length > 0 ? metricsDebug.failedKeys.join(", ") : "nenhuma"}</p>
+              {metricsDebug.requestAudit.length > 0 && (
+                <div className="pt-1">
+                  <p><strong>Auditoria de queries:</strong></p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {metricsDebug.requestAudit.map((entry, idx) => (
+                      <li key={`${entry.key}-${idx}`}>
+                        <strong>{entry.key}</strong> [{entry.status.toUpperCase()}] tabela/fonte: {entry.source} · query: {entry.query}
+                        {entry.error ? ` · erro: ${entry.error}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {Object.keys(metricState).length > 0 && (
                 <div className="pt-1">
                   <p><strong>Diagnóstico por métrica:</strong></p>
