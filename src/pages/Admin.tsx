@@ -57,6 +57,31 @@ interface AdminMetrics {
   };
 }
 
+interface AdminMetricsApiResponse {
+  total_users?: number;
+  active_today?: number;
+  active_week?: number;
+  active_month?: number;
+  chapters_read?: number;
+  revela_usage?: number;
+  notes_created?: number;
+  highlights_created?: number;
+  shares_created?: number;
+  questions?: { query?: string; created_at?: string; user_id?: string | null }[];
+  top_passages?: { passage: string; count: number }[];
+  __meta?: {
+    endpoint?: string;
+    status?: "ok" | "partial";
+    metricErrors?: Record<string, string>;
+    metricState?: Record<string, MetricStateEntry>;
+    analyticsAudit?: {
+      events_table_selected: string | null;
+      required_tables: Record<string, boolean>;
+      missing_or_invalid: { key: string; reason: string; message: string }[];
+    };
+  };
+}
+
 const EMPTY_METRICS: AdminMetrics = {
   totalUsers: 0,
   activeTodayCount: 0,
@@ -104,6 +129,156 @@ const MetricCard = ({ icon: Icon, label, value, sub, state }: { icon: any; label
   </Card>
 );
 
+
+const eventTypesRead = ["chapter_read", "chapter_opened", "verse_read", "verse_opened"];
+const eventTypesRevela = ["revela_search", "revela_used"];
+
+type SafeCountResult = { count: number; error?: string };
+type SafeRowsResult<T> = { rows: T[]; error?: string };
+
+const safeCount = async (table: string, key: string): Promise<SafeCountResult> => {
+  try {
+    const { count, error } = await supabase.from(table as any).select("id", { count: "exact", head: true });
+    if (error) return { count: 0, error: `${key}: ${error.message}` };
+    return { count: count ?? 0 };
+  } catch (err) {
+    return { count: 0, error: `${key}: ${String(err)}` };
+  }
+};
+
+const safeEvents = async (table: "app_events" | "analytics_events", sinceIso: string): Promise<SafeRowsResult<any>> => {
+  try {
+    const selectCols = table === "app_events"
+      ? "event_type, user_id, created_at, book, chapter, verse, metadata"
+      : "event_type, user_id, created_at, event_data";
+
+    const { data, error } = await supabase
+      .from(table)
+      .select(selectCols as any)
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(2500);
+
+    if (error) return { rows: [], error: `${table}: ${error.message}` };
+    return { rows: data ?? [] };
+  } catch (err) {
+    return { rows: [], error: `${table}: ${String(err)}` };
+  }
+};
+
+const buildClientFallbackMetrics = async (): Promise<AdminMetricsApiResponse> => {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString();
+  const monthStart = new Date(now.getTime() - 30 * 86400000).toISOString();
+
+  const [totalUsersRes, notesRes, highlightsRes, sharesRes] = await Promise.all([
+    safeCount("profiles", "total_users"),
+    safeCount("structured_notes", "notes_created"),
+    safeCount("highlights", "highlights_created"),
+    safeCount("shared_verses", "shares_created"),
+  ]);
+
+  const appEventsRes = await safeEvents("app_events", monthStart);
+  const analyticsEventsRes = await safeEvents("analytics_events", monthStart);
+
+  const eventsSource = appEventsRes.rows.length > 0 || !appEventsRes.error ? "app_events" : "analytics_events";
+  const eventsRes = eventsSource === "app_events" ? appEventsRes : analyticsEventsRes;
+
+  const metricErrors: Record<string, string> = {};
+  for (const item of [totalUsersRes, notesRes, highlightsRes, sharesRes]) {
+    if (item.error) {
+      const key = item.error.split(':')[0];
+      metricErrors[key] = item.error;
+    }
+  }
+  if (appEventsRes.error && analyticsEventsRes.error) {
+    metricErrors.events = `${appEventsRes.error}; ${analyticsEventsRes.error}`;
+  }
+
+  const events = eventsRes.rows ?? [];
+  const normalizePayload = (e: any) => {
+    if (eventsSource === "app_events") {
+      return {
+        book: e.book ?? e.metadata?.book,
+        chapter: e.chapter ?? e.metadata?.chapter,
+        verse: e.verse ?? e.metadata?.verse,
+        query: e.metadata?.query ?? e.metadata?.prompt,
+      };
+    }
+    return {
+      book: e.event_data?.book,
+      chapter: e.event_data?.chapter,
+      verse: e.event_data?.verse,
+      query: e.event_data?.query ?? e.event_data?.prompt,
+    };
+  };
+
+  const activeToday = new Set(events.filter((e: any) => e.created_at >= todayStart).map((e: any) => e.user_id).filter(Boolean)).size;
+  const activeWeek = new Set(events.filter((e: any) => e.created_at >= weekStart).map((e: any) => e.user_id).filter(Boolean)).size;
+  const activeMonth = new Set(events.map((e: any) => e.user_id).filter(Boolean)).size;
+
+  const countByType = (types: string[]) => events.filter((e: any) => types.includes(e.event_type)).length;
+  const questionEvents = events
+    .filter((e: any) => ["question_asked", ...eventTypesRevela].includes(e.event_type))
+    .slice(0, 30)
+    .map((e: any) => {
+      const payload = normalizePayload(e);
+      return {
+        query: payload.query ?? "",
+        created_at: e.created_at,
+        user_id: e.user_id ?? null,
+      };
+    });
+
+  const passageCounts: Record<string, number> = {};
+  events
+    .filter((e: any) => eventTypesRead.includes(e.event_type))
+    .forEach((e: any) => {
+      const payload = normalizePayload(e);
+      if (!payload.book || !payload.chapter) return;
+      const key = payload.verse ? `${payload.book} ${payload.chapter}:${payload.verse}` : `${payload.book} ${payload.chapter}`;
+      passageCounts[key] = (passageCounts[key] ?? 0) + 1;
+    });
+
+  const topPassages = Object.entries(passageCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 15)
+    .map(([passage, count]) => ({ passage, count }));
+
+  return {
+    total_users: totalUsersRes.count,
+    active_today: activeToday,
+    active_week: activeWeek,
+    active_month: activeMonth,
+    chapters_read: countByType(eventTypesRead),
+    revela_usage: countByType(eventTypesRevela),
+    notes_created: notesRes.count,
+    highlights_created: highlightsRes.count,
+    shares_created: sharesRes.count,
+    questions: questionEvents,
+    top_passages: topPassages,
+    __meta: {
+      endpoint: `client-fallback:${eventsSource}`,
+      status: Object.keys(metricErrors).length > 0 ? "partial" : "ok",
+      metricErrors,
+      metricState: {},
+      analyticsAudit: {
+        events_table_selected: eventsSource,
+        required_tables: {
+          profiles: !totalUsersRes.error,
+          structured_notes: !notesRes.error,
+          highlights: !highlightsRes.error,
+          shared_verses: !sharesRes.error,
+          app_events: !appEventsRes.error,
+          analytics_events: !analyticsEventsRes.error,
+        },
+        missing_or_invalid: Object.entries(metricErrors).map(([key, message]) => ({ key, reason: message, message })),
+      },
+    },
+  };
+};
+
 const Admin = () => {
   const { isAdmin, loading: roleLoading, role, email } = useAdminCheck();
   const { user } = useAuth();
@@ -111,6 +286,13 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [metricsStatus, setMetricsStatus] = useState<"idle" | "loading" | "ok" | "partial" | "failed">("idle");
+  const [metricsDebug, setMetricsDebug] = useState({
+    endpoint: "admin-metrics",
+    statusCode: 0,
+    okKeys: [] as string[],
+    failedKeys: [] as string[],
+    error: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -121,33 +303,71 @@ const Admin = () => {
       setMetricsStatus("loading");
 
       try {
-        const { data, error } = await supabase.functions.invoke("admin-metrics");
+        const endpoint = "admin-metrics";
+        let payload: AdminMetricsApiResponse | null = null;
+        let statusCode = 200;
+        let endpointError = "";
 
-        if (error) {
-          console.error("[admin] admin-metrics invoke error:", error);
-          setMetrics(EMPTY_METRICS);
-          setMetricsStatus("failed");
-          setError("Falha ao carregar endpoint de métricas.");
-          return;
+        try {
+          const { data, error } = await supabase.functions.invoke(endpoint);
+          payload = (data as AdminMetricsApiResponse | null) ?? null;
+          if (error || !payload) {
+            statusCode = (error as any)?.context?.status ?? 0;
+            endpointError = (error as any)?.message ?? (!payload ? "Resposta vazia" : "Erro desconhecido");
+          }
+        } catch (invokeError) {
+          statusCode = 0;
+          endpointError = String(invokeError);
         }
 
-        if (!data) {
-          setMetrics(EMPTY_METRICS);
-          setMetricsStatus("failed");
-          setError("Painel sem dados no momento.");
-          return;
+        if (!payload) {
+          console.warn("[admin] admin-metrics indisponível, usando fallback local:", endpointError || "sem detalhes");
+          payload = await buildClientFallbackMetrics();
+          setError(endpointError ? `Endpoint principal indisponível (${endpointError}). Exibindo fallback seguro.` : "Endpoint principal indisponível. Exibindo fallback seguro.");
         }
 
         const parsed = {
           ...EMPTY_METRICS,
-          ...(data as Partial<AdminMetrics>),
+          totalUsers: payload.total_users ?? 0,
+          activeTodayCount: payload.active_today ?? 0,
+          activeWeekCount: payload.active_week ?? 0,
+          activeMonthCount: payload.active_month ?? 0,
+          versesRead: payload.chapters_read ?? 0,
+          revelaUsage: payload.revela_usage ?? 0,
+          notesCreated: payload.notes_created ?? 0,
+          highlightsMade: payload.highlights_created ?? 0,
+          sharesCount: payload.shares_created ?? 0,
+          recentQueries: (payload.questions ?? []).map((q) => ({
+            event_data: { query: q.query ?? "" },
+            created_at: q.created_at ?? new Date(0).toISOString(),
+            user_id: q.user_id ?? null,
+          })),
+          topPassages: payload.top_passages ?? [],
           __meta: {
-            status: ((data as AdminMetrics).__meta?.status ?? "ok") as "ok" | "partial",
-            metricErrors: (data as AdminMetrics).__meta?.metricErrors ?? {},
-            metricState: (data as AdminMetrics).__meta?.metricState ?? {},
-            analyticsAudit: (data as AdminMetrics).__meta?.analyticsAudit,
+            status: (payload.__meta?.status ?? "ok") as "ok" | "partial",
+            metricErrors: payload.__meta?.metricErrors ?? {},
+            metricState: payload.__meta?.metricState ?? {},
+            analyticsAudit: payload.__meta?.analyticsAudit,
           },
         };
+
+        const stateValues = Object.values(parsed.__meta?.metricState ?? {});
+        const okKeys = stateValues.length > 0
+          ? stateValues.filter((m) => m.status !== "error").map((m) => m.key)
+          : Object.keys(parsed.__meta?.metricErrors ?? {}).length === 0
+            ? ["total_users", "active_today", "active_week", "active_month", "chapters_read", "revela_usage", "notes_created", "highlights_created", "shares_created", "questions", "top_passages"]
+            : [];
+        const failedKeys = stateValues.length > 0
+          ? stateValues.filter((m) => m.status === "error").map((m) => m.key)
+          : Object.keys(parsed.__meta?.metricErrors ?? {});
+
+        setMetricsDebug({
+          endpoint: payload.__meta?.endpoint ?? endpoint,
+          statusCode,
+          okKeys,
+          failedKeys,
+          error: "",
+        });
 
         if (Object.keys(parsed.__meta?.metricErrors ?? {}).length > 0) {
           console.warn("[admin] métricas parciais:", parsed.__meta?.metricErrors);
@@ -159,6 +379,7 @@ const Admin = () => {
         console.error("[admin] falha inesperada ao buscar métricas:", err);
         setMetrics(EMPTY_METRICS);
         setMetricsStatus("failed");
+        setMetricsDebug({ endpoint: "admin-metrics", statusCode: 0, okKeys: [], failedKeys: [], error: String(err) });
         setError("Falha inesperada ao carregar métricas.");
       } finally {
         setLoading(false);
@@ -214,7 +435,11 @@ const Admin = () => {
               <p><strong>Role atual:</strong> {role}</p>
               <p><strong>Reconhecido como admin:</strong> {isAdmin ? "sim" : "não"}</p>
               <p><strong>Status das métricas:</strong> {metricsStatus}</p>
+              <p><strong>Endpoint:</strong> {metricsDebug.endpoint}</p>
+              <p><strong>Status HTTP:</strong> {metricsDebug.statusCode || "n/d"}</p>
               <p><strong>Fonte de eventos:</strong> {metrics.__meta?.analyticsAudit?.events_table_selected ?? "não detectada"}</p>
+              <p><strong>Métricas com sucesso:</strong> {metricsDebug.okKeys.length > 0 ? metricsDebug.okKeys.join(", ") : "nenhuma"}</p>
+              <p><strong>Métricas com falha:</strong> {metricsDebug.failedKeys.length > 0 ? metricsDebug.failedKeys.join(", ") : "nenhuma"}</p>
               {Object.keys(metricErrors).length > 0 ? (
                 <div className="pt-1">
                   <p><strong>Métricas com falha ({Object.keys(metricErrors).length}):</strong></p>
@@ -227,6 +452,7 @@ const Admin = () => {
               ) : (
                 <p><strong>Métricas com falha:</strong> nenhuma</p>
               )}
+              {metricsDebug.error && <p className="text-destructive"><strong>Erro endpoint:</strong> {metricsDebug.error}</p>}
               {error && <p className="text-destructive"><strong>Observação:</strong> {error}</p>}
             </CardContent>
           </Card>
