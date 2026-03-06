@@ -1,9 +1,10 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Search, Footprints, LogOut, Sparkles } from "lucide-react";
+import { BookOpen, Search, Footprints, LogOut, Sparkles, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
-const tabs = [
+const baseTabs = [
   { to: "/leitor", icon: BookOpen, label: "Palavra" },
   { to: "/revela", icon: Search, label: "Revela" },
   { to: "/promessa", icon: Sparkles, label: "Promessa" },
@@ -13,6 +14,11 @@ const tabs = [
 const AppLayout = () => {
   const location = useLocation();
   const { signOut } = useAuth();
+  const { isAdmin } = useAdminCheck();
+
+  const tabs = isAdmin
+    ? [...baseTabs, { to: "/admin", icon: Shield, label: "Admin" }]
+    : baseTabs;
 
   return (
     <div className="flex flex-col h-screen bg-background">
