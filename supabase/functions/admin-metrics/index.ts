@@ -8,6 +8,33 @@ const corsHeaders = {
 
 const FORCED_ADMIN_EMAIL = "renatovieiraaurelio@gmail.com";
 
+const normalizeError = (error: unknown): string => {
+  if (!error) return "Erro desconhecido";
+  if (typeof error === "string") return error;
+  if (error instanceof Error) return error.message;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Erro sem detalhes serializáveis";
+  }
+};
+
+async function safeMetric<T>(
+  metricErrors: Record<string, string>,
+  key: string,
+  fallback: T,
+  action: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await action();
+  } catch (error) {
+    const message = normalizeError(error);
+    metricErrors[key] = message;
+    console.error(`[admin-metrics] ${key} failed:`, message);
+    return fallback;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -21,7 +48,6 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify the calling user is admin
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -29,23 +55,31 @@ Deno.serve(async (req) => {
     if (!user) throw new Error("Unauthorized");
 
     const admin = createClient(supabaseUrl, serviceKey);
+    const metricErrors: Record<string, string> = {};
 
-    // Check admin role
-    const { data: roleData } = await admin
+    const { data: roleData, error: roleError } = await admin
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .eq("role", "admin")
       .maybeSingle();
 
+    if (roleError) {
+      throw new Error(`Erro ao validar role admin: ${roleError.message}`);
+    }
+
     const isForcedAdminEmail = (user.email || "").toLowerCase() === FORCED_ADMIN_EMAIL;
 
     if (!roleData && isForcedAdminEmail) {
-      await admin
+      const { error: insertRoleError } = await admin
         .from("user_roles")
-        .insert({ user_id: user.id, role: "admin" })
+        .upsert({ user_id: user.id, role: "admin" }, { onConflict: "user_id,role" })
         .select("id")
         .maybeSingle();
+
+      if (insertRoleError) {
+        throw new Error(`Erro ao conceder admin por email forçado: ${insertRoleError.message}`);
+      }
     }
 
     if (!roleData && !isForcedAdminEmail) throw new Error("Forbidden");
@@ -55,80 +89,93 @@ Deno.serve(async (req) => {
     const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString();
     const monthStart = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-    // Total users
-    const { count: totalUsers } = await admin.from("profiles").select("*", { count: "exact", head: true });
-
-    // Active users (by analytics events)
-    const { data: activeToday } = await admin
-      .from("analytics_events")
-      .select("user_id")
-      .gte("created_at", todayStart);
-    const activeTodayCount = new Set(activeToday?.map((e: any) => e.user_id)).size;
-
-    const { data: activeWeek } = await admin
-      .from("analytics_events")
-      .select("user_id")
-      .gte("created_at", weekStart);
-    const activeWeekCount = new Set(activeWeek?.map((e: any) => e.user_id)).size;
-
-    const { data: activeMonth } = await admin
-      .from("analytics_events")
-      .select("user_id")
-      .gte("created_at", monthStart);
-    const activeMonthCount = new Set(activeMonth?.map((e: any) => e.user_id)).size;
-
-    // Event counts
-    const countEvent = async (type: string) => {
-      const { count } = await admin
-        .from("analytics_events")
-        .select("*", { count: "exact", head: true })
-        .eq("event_type", type);
-      return count ?? 0;
+    const fetchCount = async (table: string, key: string, builder?: (query: any) => any): Promise<number> => {
+      return safeMetric(metricErrors, key, 0, async () => {
+        let query = admin.from(table).select("*", { count: "exact", head: true });
+        if (builder) query = builder(query);
+        const { count, error } = await query;
+        if (error) throw error;
+        return count ?? 0;
+      });
     };
 
-    const versesRead = await countEvent("chapter_read");
-    const revelaUsage = await countEvent("revela_search");
-    const revelaVerse = await countEvent("revela_verse");
-    const notesCreated = await countEvent("note_created");
-    const highlightsMade = await countEvent("highlight_set");
-    const sharesCount = await countEvent("verse_shared");
-    const revelationMode = await countEvent("revelation_mode");
+    const fetchRows = async <T>(table: string, key: string, fallback: T, builder: (query: any) => any): Promise<T> => {
+      return safeMetric(metricErrors, key, fallback, async () => {
+        const { data, error } = await builder(admin.from(table));
+        if (error) throw error;
+        return (data as T) ?? fallback;
+      });
+    };
 
-    // Notes stats
-    const { count: totalNotes } = await admin
-      .from("structured_notes")
-      .select("*", { count: "exact", head: true });
-    const { data: noteUsers } = await admin
-      .from("structured_notes")
-      .select("user_id");
-    const uniqueNoteUsers = new Set(noteUsers?.map((n: any) => n.user_id)).size;
+    const totalUsers = await fetchCount("profiles", "totalUsers");
+
+    const activeToday = await fetchRows<any[]>("analytics_events", "activeTodayCount", [], (q) =>
+      q.select("user_id").gte("created_at", todayStart)
+    );
+    const activeTodayCount = new Set(activeToday.map((e) => e.user_id)).size;
+
+    const activeWeek = await fetchRows<any[]>("analytics_events", "activeWeekCount", [], (q) =>
+      q.select("user_id").gte("created_at", weekStart)
+    );
+    const activeWeekCount = new Set(activeWeek.map((e) => e.user_id)).size;
+
+    const activeMonth = await fetchRows<any[]>("analytics_events", "activeMonthCount", [], (q) =>
+      q.select("user_id").gte("created_at", monthStart)
+    );
+    const activeMonthCount = new Set(activeMonth.map((e) => e.user_id)).size;
+
+    const countEvents = async (key: string, eventTypes: string[]) => {
+      return safeMetric(metricErrors, key, 0, async () => {
+        const { count, error } = await admin
+          .from("analytics_events")
+          .select("*", { count: "exact", head: true })
+          .in("event_type", eventTypes);
+        if (error) throw error;
+        return count ?? 0;
+      });
+    };
+
+    const versesRead = await countEvents("versesRead", ["chapter_read", "verse_read", "verse_opened"]);
+    const revelaUsage = await countEvents("revelaUsage", ["revela_search", "revela_used"]);
+    const revelaVerse = await countEvents("revelaVerse", ["revela_verse"]);
+    const notesCreated = await countEvents("notesCreated", ["note_created"]);
+    const highlightsMade = await countEvents("highlightsMade", ["highlight_set"]);
+    const sharesCount = await countEvents("sharesCount", ["verse_shared", "share_created"]);
+    const revelationMode = await countEvents("revelationMode", ["revelation_mode", "study_opened"]);
+
+    const totalNotes = await fetchCount("structured_notes", "totalNotes");
+
+    const noteUsers = await fetchRows<any[]>("structured_notes", "noteUserPct", [], (q) =>
+      q.select("user_id")
+    );
+    const uniqueNoteUsers = new Set(noteUsers.map((n) => n.user_id)).size;
     const noteUserPct = totalUsers ? Math.round((uniqueNoteUsers / totalUsers) * 100) : 0;
 
-    // Shared verses (recent)
-    const { data: recentShares } = await admin
-      .from("shared_verses")
-      .select("book, chapter, verse, share_text, created_at")
-      .order("created_at", { ascending: false })
-      .limit(20);
+    const recentShares = await fetchRows<any[]>("shared_verses", "recentShares", [], (q) =>
+      q
+        .select("book, chapter, verse, share_text, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20)
+    );
 
-    // Recent revela queries
-    const { data: recentQueries } = await admin
-      .from("analytics_events")
-      .select("event_data, created_at, user_id")
-      .eq("event_type", "revela_search")
-      .order("created_at", { ascending: false })
-      .limit(30);
+    const recentQueries = await fetchRows<any[]>("analytics_events", "recentQueries", [], (q) =>
+      q
+        .select("event_data, created_at, user_id")
+        .in("event_type", ["revela_search", "revela_used"])
+        .order("created_at", { ascending: false })
+        .limit(30)
+    );
 
-    // Top passages (from chapter_read events)
-    const { data: passageEvents } = await admin
-      .from("analytics_events")
-      .select("event_data")
-      .eq("event_type", "chapter_read")
-      .order("created_at", { ascending: false })
-      .limit(1000);
+    const passageEvents = await fetchRows<any[]>("analytics_events", "topPassages", [], (q) =>
+      q
+        .select("event_data")
+        .in("event_type", ["chapter_read", "verse_read", "verse_opened"])
+        .order("created_at", { ascending: false })
+        .limit(1000)
+    );
 
     const passageCounts: Record<string, number> = {};
-    passageEvents?.forEach((e: any) => {
+    passageEvents.forEach((e: any) => {
       const key = `${e.event_data?.book || "?"} ${e.event_data?.chapter || "?"}`;
       passageCounts[key] = (passageCounts[key] || 0) + 1;
     });
@@ -137,44 +184,48 @@ Deno.serve(async (req) => {
       .slice(0, 15)
       .map(([passage, count]) => ({ passage, count }));
 
-    // Growth: new users per day (last 30 days)
-    const { data: profiles } = await admin
-      .from("profiles")
-      .select("created_at")
-      .gte("created_at", monthStart)
-      .order("created_at", { ascending: true });
+    const profiles = await fetchRows<any[]>("profiles", "growthData", [], (q) =>
+      q
+        .select("created_at")
+        .gte("created_at", monthStart)
+        .order("created_at", { ascending: true })
+    );
 
     const growthByDay: Record<string, number> = {};
-    profiles?.forEach((p: any) => {
+    profiles.forEach((p: any) => {
       const day = p.created_at?.slice(0, 10);
       if (day) growthByDay[day] = (growthByDay[day] || 0) + 1;
     });
     const growthData = Object.entries(growthByDay).map(([date, count]) => ({ date, count }));
 
-    // User list
-    const { data: userList } = await admin
-      .from("profiles")
-      .select("user_id, display_name, created_at")
-      .order("created_at", { ascending: false })
-      .limit(100);
+    const userList = await fetchRows<any[]>("profiles", "users", [], (q) =>
+      q
+        .select("user_id, display_name, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100)
+    );
 
-    // Get emails from auth (via admin API)
-    const { data: { users: authUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 });
+    const authUsers = await safeMetric(metricErrors, "usersAuth", [], async () => {
+      const { data, error } = await admin.auth.admin.listUsers({ perPage: 1000 });
+      if (error) throw error;
+      return data?.users ?? [];
+    });
+
     const emailMap: Record<string, { email: string; last_sign_in: string | null }> = {};
-    authUsers?.forEach((u: any) => {
+    authUsers.forEach((u: any) => {
       emailMap[u.id] = { email: u.email || "", last_sign_in: u.last_sign_in_at };
     });
 
-    const users = userList?.map((p: any) => ({
+    const users = userList.map((p: any) => ({
       user_id: p.user_id,
       display_name: p.display_name,
       email: emailMap[p.user_id]?.email || "",
       created_at: p.created_at,
       last_sign_in: emailMap[p.user_id]?.last_sign_in || null,
-    })) ?? [];
+    }));
 
     const result = {
-      totalUsers: totalUsers ?? 0,
+      totalUsers,
       activeTodayCount,
       activeWeekCount,
       activeMonthCount,
@@ -185,21 +236,27 @@ Deno.serve(async (req) => {
       highlightsMade,
       sharesCount,
       revelationMode,
-      totalNotes: totalNotes ?? 0,
+      totalNotes,
       noteUserPct,
-      recentShares: recentShares ?? [],
-      recentQueries: recentQueries ?? [],
+      recentShares,
+      recentQueries,
       topPassages,
       growthData,
       users,
+      __meta: {
+        status: Object.keys(metricErrors).length === 0 ? "ok" : "partial",
+        metricErrors,
+      },
     };
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {
-    const status = e.message === "Forbidden" ? 403 : e.message === "Unauthorized" ? 401 : 500;
-    return new Response(JSON.stringify({ error: e.message }), {
+    const message = normalizeError(e);
+    console.error("[admin-metrics] fatal error:", message);
+    const status = message === "Forbidden" ? 403 : message === "Unauthorized" ? 401 : 500;
+    return new Response(JSON.stringify({ error: message }), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

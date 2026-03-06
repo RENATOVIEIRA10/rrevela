@@ -37,7 +37,36 @@ interface AdminMetrics {
   topPassages: { passage: string; count: number }[];
   growthData: { date: string; count: number }[];
   users: { user_id: string; display_name: string; email: string; created_at: string; last_sign_in: string | null }[];
+  __meta?: {
+    status: "ok" | "partial";
+    metricErrors: Record<string, string>;
+  };
 }
+
+const EMPTY_METRICS: AdminMetrics = {
+  totalUsers: 0,
+  activeTodayCount: 0,
+  activeWeekCount: 0,
+  activeMonthCount: 0,
+  versesRead: 0,
+  revelaUsage: 0,
+  revelaVerse: 0,
+  notesCreated: 0,
+  highlightsMade: 0,
+  sharesCount: 0,
+  revelationMode: 0,
+  totalNotes: 0,
+  noteUserPct: 0,
+  recentShares: [],
+  recentQueries: [],
+  topPassages: [],
+  growthData: [],
+  users: [],
+  __meta: {
+    status: "ok",
+    metricErrors: {},
+  },
+};
 
 const MetricCard = ({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string | number; sub?: string }) => (
   <Card>
@@ -57,9 +86,10 @@ const MetricCard = ({ icon: Icon, label, value, sub }: { icon: any; label: strin
 const Admin = () => {
   const { isAdmin, loading: roleLoading, role, email } = useAdminCheck();
   const { user } = useAuth();
-  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [metrics, setMetrics] = useState<AdminMetrics>(EMPTY_METRICS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [metricsStatus, setMetricsStatus] = useState<"idle" | "loading" | "ok" | "partial" | "failed">("idle");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,26 +97,46 @@ const Admin = () => {
     const fetchMetrics = async () => {
       setLoading(true);
       setError("");
+      setMetricsStatus("loading");
 
       try {
         const { data, error } = await supabase.functions.invoke("admin-metrics");
 
         if (error) {
-          setMetrics(null);
-          setError("Não foi possível carregar métricas.");
+          console.error("[admin] admin-metrics invoke error:", error);
+          setMetrics(EMPTY_METRICS);
+          setMetricsStatus("failed");
+          setError("Falha ao carregar parte das métricas. Exibindo fallback seguro.");
           return;
         }
 
         if (!data) {
-          setMetrics(null);
-          setError("Painel sem dados no momento.");
+          setMetrics(EMPTY_METRICS);
+          setMetricsStatus("failed");
+          setError("Painel sem dados no momento. Exibindo fallback seguro.");
           return;
         }
 
-        setMetrics(data as AdminMetrics);
-      } catch {
-        setMetrics(null);
-        setError("Não foi possível carregar métricas.");
+        const parsed = {
+          ...EMPTY_METRICS,
+          ...(data as Partial<AdminMetrics>),
+          __meta: {
+            status: ((data as AdminMetrics).__meta?.status ?? "ok") as "ok" | "partial",
+            metricErrors: (data as AdminMetrics).__meta?.metricErrors ?? {},
+          },
+        };
+
+        if (Object.keys(parsed.__meta?.metricErrors ?? {}).length > 0) {
+          console.warn("[admin] métricas parciais:", parsed.__meta?.metricErrors);
+        }
+
+        setMetrics(parsed);
+        setMetricsStatus(parsed.__meta?.status ?? "ok");
+      } catch (err) {
+        console.error("[admin] falha inesperada ao buscar métricas:", err);
+        setMetrics(EMPTY_METRICS);
+        setMetricsStatus("failed");
+        setError("Falha ao carregar parte das métricas. Exibindo fallback seguro.");
       } finally {
         setLoading(false);
       }
@@ -117,22 +167,6 @@ const Admin = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-destructive">{error}</p>
-      </div>
-    );
-  }
-
-  if (!metrics) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Painel sem dados no momento.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border bg-card/80 backdrop-blur-sm px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
@@ -153,6 +187,8 @@ const Admin = () => {
               <p><strong>Email logado:</strong> {email ?? user?.email ?? "-"}</p>
               <p><strong>Role atual:</strong> {role}</p>
               <p><strong>Reconhecido como admin:</strong> {isAdmin ? "sim" : "não"}</p>
+              <p><strong>Status das métricas:</strong> {metricsStatus}</p>
+              {error && <p className="text-destructive"><strong>Observação:</strong> {error}</p>}
             </CardContent>
           </Card>
 
@@ -169,21 +205,19 @@ const Admin = () => {
             </div>
           </section>
 
-          {/* 2. Activity */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-accent" /> Atividade no App
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <MetricCard icon={BookOpen} label="Capítulos Lidos" value={metrics.versesRead} />
-              <MetricCard icon={Search} label="Buscas no Revela" value={metrics.revelaUsage} />
+              <MetricCard icon={Search} label="Uso do Revela" value={metrics.revelaUsage} />
               <MetricCard icon={StickyNote} label="Anotações Criadas" value={metrics.notesCreated} />
               <MetricCard icon={Palette} label="Destaques Feitos" value={metrics.highlightsMade} />
               <MetricCard icon={Share2} label="Compartilhamentos" value={metrics.sharesCount} />
             </div>
           </section>
 
-          {/* 3. Revela Queries */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Search className="w-4 h-4 text-accent" /> Perguntas no Revela
@@ -217,7 +251,6 @@ const Admin = () => {
             </Card>
           </section>
 
-          {/* 4. Top Passages */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-accent" /> Passagens Mais Acessadas
@@ -244,7 +277,6 @@ const Admin = () => {
             </Card>
           </section>
 
-          {/* 5. Revelation Mode + Notes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <section>
               <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -267,7 +299,6 @@ const Admin = () => {
             </section>
           </div>
 
-          {/* 6. Shares */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Share2 className="w-4 h-4 text-accent" /> Compartilhamentos Recentes
@@ -301,7 +332,6 @@ const Admin = () => {
             </Card>
           </section>
 
-          {/* 7. Growth Chart */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-accent" /> Crescimento (últimos 30 dias)
@@ -346,7 +376,6 @@ const Admin = () => {
             </Card>
           </section>
 
-          {/* 8. User List */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Users className="w-4 h-4 text-accent" /> Lista de Usuários
