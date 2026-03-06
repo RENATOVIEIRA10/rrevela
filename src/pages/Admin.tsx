@@ -65,13 +65,30 @@ const Admin = () => {
     if (roleLoading || !isAdmin) return;
     const fetchMetrics = async () => {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke("admin-metrics");
-      if (error) {
-        setError("Não foi possível carregar métricas.");
-      } else {
+      setError("");
+
+      try {
+        const { data, error } = await supabase.functions.invoke("admin-metrics");
+
+        if (error) {
+          setMetrics(null);
+          setError("Não foi possível carregar métricas.");
+          return;
+        }
+
+        if (!data) {
+          setMetrics(null);
+          setError("Painel sem dados no momento.");
+          return;
+        }
+
         setMetrics(data as AdminMetrics);
+      } catch {
+        setMetrics(null);
+        setError("Não foi possível carregar métricas.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchMetrics();
   }, [isAdmin, roleLoading]);
@@ -88,7 +105,7 @@ const Admin = () => {
     return <Navigate to="/leitor" replace />;
   }
 
-  if (loading || !metrics) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-3">
@@ -103,6 +120,14 @@ const Admin = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-sm text-destructive">{error}</p>
+      </div>
+    );
+  }
+
+  if (!metrics) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Painel sem dados no momento.</p>
       </div>
     );
   }
