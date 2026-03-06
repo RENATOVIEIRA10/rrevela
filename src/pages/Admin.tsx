@@ -129,6 +129,106 @@ const MetricCard = ({ icon: Icon, label, value, sub, state }: { icon: any; label
   </Card>
 );
 
+
+const eventTypesRead = ["chapter_read", "chapter_opened", "verse_read", "verse_opened"];
+const eventTypesRevela = ["revela_search", "revela_used"];
+
+const buildClientFallbackMetrics = async (): Promise<AdminMetricsApiResponse> => {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString();
+  const monthStart = new Date(now.getTime() - 30 * 86400000).toISOString();
+
+  const [
+    totalUsersRes,
+    notesRes,
+    highlightsRes,
+    sharesRes,
+    eventsRes,
+  ] = await Promise.all([
+    supabase.from("profiles").select("user_id", { count: "exact", head: true }),
+    supabase.from("structured_notes").select("id", { count: "exact", head: true }),
+    supabase.from("highlights").select("id", { count: "exact", head: true }),
+    supabase.from("shared_verses").select("id", { count: "exact", head: true }),
+    supabase
+      .from("analytics_events")
+      .select("event_type, user_id, created_at, event_data")
+      .gte("created_at", monthStart)
+      .order("created_at", { ascending: false })
+      .limit(2500),
+  ]);
+
+  const metricErrors: Record<string, string> = {};
+  if (totalUsersRes.error) metricErrors.total_users = totalUsersRes.error.message;
+  if (notesRes.error) metricErrors.notes_created = notesRes.error.message;
+  if (highlightsRes.error) metricErrors.highlights_created = highlightsRes.error.message;
+  if (sharesRes.error) metricErrors.shares_created = sharesRes.error.message;
+  if (eventsRes.error) metricErrors.events = eventsRes.error.message;
+
+  const events = eventsRes.data ?? [];
+  const activeToday = new Set(events.filter((e: any) => e.created_at >= todayStart).map((e: any) => e.user_id).filter(Boolean)).size;
+  const activeWeek = new Set(events.filter((e: any) => e.created_at >= weekStart).map((e: any) => e.user_id).filter(Boolean)).size;
+  const activeMonth = new Set(events.map((e: any) => e.user_id).filter(Boolean)).size;
+
+  const countByType = (types: string[]) => events.filter((e: any) => types.includes(e.event_type)).length;
+  const questionEvents = events
+    .filter((e: any) => ["question_asked", ...eventTypesRevela].includes(e.event_type))
+    .slice(0, 30)
+    .map((e: any) => ({
+      query: e.event_data?.query ?? e.event_data?.prompt ?? "",
+      created_at: e.created_at,
+      user_id: e.user_id ?? null,
+    }));
+
+  const passageCounts: Record<string, number> = {};
+  events
+    .filter((e: any) => eventTypesRead.includes(e.event_type))
+    .forEach((e: any) => {
+      const book = e.event_data?.book;
+      const chapter = e.event_data?.chapter;
+      const verse = e.event_data?.verse;
+      if (!book || !chapter) return;
+      const key = verse ? `${book} ${chapter}:${verse}` : `${book} ${chapter}`;
+      passageCounts[key] = (passageCounts[key] ?? 0) + 1;
+    });
+
+  const topPassages = Object.entries(passageCounts)
+    .sort(([,a],[,b]) => b - a)
+    .slice(0, 15)
+    .map(([passage, count]) => ({ passage, count }));
+
+  return {
+    total_users: totalUsersRes.count ?? 0,
+    active_today: activeToday,
+    active_week: activeWeek,
+    active_month: activeMonth,
+    chapters_read: countByType(eventTypesRead),
+    revela_usage: countByType(eventTypesRevela),
+    notes_created: notesRes.count ?? 0,
+    highlights_created: highlightsRes.count ?? 0,
+    shares_created: sharesRes.count ?? 0,
+    questions: questionEvents,
+    top_passages: topPassages,
+    __meta: {
+      endpoint: "client-fallback:analytics_events",
+      status: Object.keys(metricErrors).length ? "partial" : "ok",
+      metricErrors,
+      metricState: {},
+      analyticsAudit: {
+        events_table_selected: "analytics_events",
+        required_tables: {
+          profiles: !totalUsersRes.error,
+          structured_notes: !notesRes.error,
+          highlights: !highlightsRes.error,
+          shared_verses: !sharesRes.error,
+          analytics_events: !eventsRes.error,
+        },
+        missing_or_invalid: Object.entries(metricErrors).map(([key, message]) => ({ key, reason: message, message })),
+      },
+    },
+  };
+};
+
 const Admin = () => {
   const { isAdmin, loading: roleLoading, role, email } = useAdminCheck();
   const { user } = useAuth();
@@ -156,23 +256,15 @@ const Admin = () => {
         const endpoint = "admin-metrics";
         const { data, error } = await supabase.functions.invoke(endpoint);
 
-        if (error) {
-          const statusCode = (error as any)?.context?.status ?? 0;
-          const endpointError = (error as any)?.message ?? "Erro desconhecido";
-          console.error("[admin] admin-metrics invoke error:", error);
-          setMetrics(EMPTY_METRICS);
-          setMetricsStatus("failed");
-          setMetricsDebug({ endpoint, statusCode, okKeys: [], failedKeys: [], error: endpointError });
-          setError("Falha ao carregar endpoint de métricas.");
-          return;
-        }
+        let payload: AdminMetricsApiResponse | null = (data as AdminMetricsApiResponse | null) ?? null;
+        let statusCode = 200;
 
-        if (!data) {
-          setMetrics(EMPTY_METRICS);
-          setMetricsStatus("failed");
-          setMetricsDebug({ endpoint, statusCode: 200, okKeys: [], failedKeys: [], error: "Resposta vazia" });
-          setError("Painel sem dados no momento.");
-          return;
+        if (error || !payload) {
+          statusCode = (error as any)?.context?.status ?? 0;
+          const endpointError = (error as any)?.message ?? (!payload ? "Resposta vazia" : "Erro desconhecido");
+          console.warn("[admin] admin-metrics indisponível, usando fallback local:", endpointError);
+          payload = await buildClientFallbackMetrics();
+          setError(`Endpoint principal indisponível (${endpointError}). Exibindo fallback seguro.`);
         }
 
         const payload = data as AdminMetricsApiResponse;
@@ -211,7 +303,7 @@ const Admin = () => {
 
         setMetricsDebug({
           endpoint: payload.__meta?.endpoint ?? endpoint,
-          statusCode: 200,
+          statusCode,
           okKeys,
           failedKeys,
           error: "",
