@@ -133,39 +133,87 @@ const MetricCard = ({ icon: Icon, label, value, sub, state }: { icon: any; label
 const eventTypesRead = ["chapter_read", "chapter_opened", "verse_read", "verse_opened"];
 const eventTypesRevela = ["revela_search", "revela_used"];
 
+type SafeCountResult = { count: number; error?: string };
+type SafeRowsResult<T> = { rows: T[]; error?: string };
+
+const safeCount = async (table: string, key: string): Promise<SafeCountResult> => {
+  try {
+    const { count, error } = await supabase.from(table as any).select("id", { count: "exact", head: true });
+    if (error) return { count: 0, error: `${key}: ${error.message}` };
+    return { count: count ?? 0 };
+  } catch (err) {
+    return { count: 0, error: `${key}: ${String(err)}` };
+  }
+};
+
+const safeEvents = async (table: "app_events" | "analytics_events", sinceIso: string): Promise<SafeRowsResult<any>> => {
+  try {
+    const selectCols = table === "app_events"
+      ? "event_type, user_id, created_at, book, chapter, verse, metadata"
+      : "event_type, user_id, created_at, event_data";
+
+    const { data, error } = await supabase
+      .from(table)
+      .select(selectCols as any)
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(2500);
+
+    if (error) return { rows: [], error: `${table}: ${error.message}` };
+    return { rows: data ?? [] };
+  } catch (err) {
+    return { rows: [], error: `${table}: ${String(err)}` };
+  }
+};
+
 const buildClientFallbackMetrics = async (): Promise<AdminMetricsApiResponse> => {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
   const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString();
   const monthStart = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-  const [
-    totalUsersRes,
-    notesRes,
-    highlightsRes,
-    sharesRes,
-    eventsRes,
-  ] = await Promise.all([
-    supabase.from("profiles").select("user_id", { count: "exact", head: true }),
-    supabase.from("structured_notes").select("id", { count: "exact", head: true }),
-    supabase.from("highlights").select("id", { count: "exact", head: true }),
-    supabase.from("shared_verses").select("id", { count: "exact", head: true }),
-    supabase
-      .from("analytics_events")
-      .select("event_type, user_id, created_at, event_data")
-      .gte("created_at", monthStart)
-      .order("created_at", { ascending: false })
-      .limit(2500),
+  const [totalUsersRes, notesRes, highlightsRes, sharesRes] = await Promise.all([
+    safeCount("profiles", "total_users"),
+    safeCount("structured_notes", "notes_created"),
+    safeCount("highlights", "highlights_created"),
+    safeCount("shared_verses", "shares_created"),
   ]);
 
-  const metricErrors: Record<string, string> = {};
-  if (totalUsersRes.error) metricErrors.total_users = totalUsersRes.error.message;
-  if (notesRes.error) metricErrors.notes_created = notesRes.error.message;
-  if (highlightsRes.error) metricErrors.highlights_created = highlightsRes.error.message;
-  if (sharesRes.error) metricErrors.shares_created = sharesRes.error.message;
-  if (eventsRes.error) metricErrors.events = eventsRes.error.message;
+  const appEventsRes = await safeEvents("app_events", monthStart);
+  const analyticsEventsRes = await safeEvents("analytics_events", monthStart);
 
-  const events = eventsRes.data ?? [];
+  const eventsSource = appEventsRes.rows.length > 0 || !appEventsRes.error ? "app_events" : "analytics_events";
+  const eventsRes = eventsSource === "app_events" ? appEventsRes : analyticsEventsRes;
+
+  const metricErrors: Record<string, string> = {};
+  for (const item of [totalUsersRes, notesRes, highlightsRes, sharesRes]) {
+    if (item.error) {
+      const key = item.error.split(':')[0];
+      metricErrors[key] = item.error;
+    }
+  }
+  if (appEventsRes.error && analyticsEventsRes.error) {
+    metricErrors.events = `${appEventsRes.error}; ${analyticsEventsRes.error}`;
+  }
+
+  const events = eventsRes.rows ?? [];
+  const normalizePayload = (e: any) => {
+    if (eventsSource === "app_events") {
+      return {
+        book: e.book ?? e.metadata?.book,
+        chapter: e.chapter ?? e.metadata?.chapter,
+        verse: e.verse ?? e.metadata?.verse,
+        query: e.metadata?.query ?? e.metadata?.prompt,
+      };
+    }
+    return {
+      book: e.event_data?.book,
+      chapter: e.event_data?.chapter,
+      verse: e.event_data?.verse,
+      query: e.event_data?.query ?? e.event_data?.prompt,
+    };
+  };
+
   const activeToday = new Set(events.filter((e: any) => e.created_at >= todayStart).map((e: any) => e.user_id).filter(Boolean)).size;
   const activeWeek = new Set(events.filter((e: any) => e.created_at >= weekStart).map((e: any) => e.user_id).filter(Boolean)).size;
   const activeMonth = new Set(events.map((e: any) => e.user_id).filter(Boolean)).size;
@@ -174,54 +222,56 @@ const buildClientFallbackMetrics = async (): Promise<AdminMetricsApiResponse> =>
   const questionEvents = events
     .filter((e: any) => ["question_asked", ...eventTypesRevela].includes(e.event_type))
     .slice(0, 30)
-    .map((e: any) => ({
-      query: e.event_data?.query ?? e.event_data?.prompt ?? "",
-      created_at: e.created_at,
-      user_id: e.user_id ?? null,
-    }));
+    .map((e: any) => {
+      const payload = normalizePayload(e);
+      return {
+        query: payload.query ?? "",
+        created_at: e.created_at,
+        user_id: e.user_id ?? null,
+      };
+    });
 
   const passageCounts: Record<string, number> = {};
   events
     .filter((e: any) => eventTypesRead.includes(e.event_type))
     .forEach((e: any) => {
-      const book = e.event_data?.book;
-      const chapter = e.event_data?.chapter;
-      const verse = e.event_data?.verse;
-      if (!book || !chapter) return;
-      const key = verse ? `${book} ${chapter}:${verse}` : `${book} ${chapter}`;
+      const payload = normalizePayload(e);
+      if (!payload.book || !payload.chapter) return;
+      const key = payload.verse ? `${payload.book} ${payload.chapter}:${payload.verse}` : `${payload.book} ${payload.chapter}`;
       passageCounts[key] = (passageCounts[key] ?? 0) + 1;
     });
 
   const topPassages = Object.entries(passageCounts)
-    .sort(([,a],[,b]) => b - a)
+    .sort(([, a], [, b]) => b - a)
     .slice(0, 15)
     .map(([passage, count]) => ({ passage, count }));
 
   return {
-    total_users: totalUsersRes.count ?? 0,
+    total_users: totalUsersRes.count,
     active_today: activeToday,
     active_week: activeWeek,
     active_month: activeMonth,
     chapters_read: countByType(eventTypesRead),
     revela_usage: countByType(eventTypesRevela),
-    notes_created: notesRes.count ?? 0,
-    highlights_created: highlightsRes.count ?? 0,
-    shares_created: sharesRes.count ?? 0,
+    notes_created: notesRes.count,
+    highlights_created: highlightsRes.count,
+    shares_created: sharesRes.count,
     questions: questionEvents,
     top_passages: topPassages,
     __meta: {
-      endpoint: "client-fallback:analytics_events",
-      status: Object.keys(metricErrors).length ? "partial" : "ok",
+      endpoint: `client-fallback:${eventsSource}`,
+      status: Object.keys(metricErrors).length > 0 ? "partial" : "ok",
       metricErrors,
       metricState: {},
       analyticsAudit: {
-        events_table_selected: "analytics_events",
+        events_table_selected: eventsSource,
         required_tables: {
           profiles: !totalUsersRes.error,
           structured_notes: !notesRes.error,
           highlights: !highlightsRes.error,
           shared_verses: !sharesRes.error,
-          analytics_events: !eventsRes.error,
+          app_events: !appEventsRes.error,
+          analytics_events: !analyticsEventsRes.error,
         },
         missing_or_invalid: Object.entries(metricErrors).map(([key, message]) => ({ key, reason: message, message })),
       },
@@ -254,17 +304,26 @@ const Admin = () => {
 
       try {
         const endpoint = "admin-metrics";
-        const { data, error } = await supabase.functions.invoke(endpoint);
-
-        let payload: AdminMetricsApiResponse | null = (data as AdminMetricsApiResponse | null) ?? null;
+        let payload: AdminMetricsApiResponse | null = null;
         let statusCode = 200;
+        let endpointError = "";
 
-        if (error || !payload) {
-          statusCode = (error as any)?.context?.status ?? 0;
-          const endpointError = (error as any)?.message ?? (!payload ? "Resposta vazia" : "Erro desconhecido");
-          console.warn("[admin] admin-metrics indisponível, usando fallback local:", endpointError);
+        try {
+          const { data, error } = await supabase.functions.invoke(endpoint);
+          payload = (data as AdminMetricsApiResponse | null) ?? null;
+          if (error || !payload) {
+            statusCode = (error as any)?.context?.status ?? 0;
+            endpointError = (error as any)?.message ?? (!payload ? "Resposta vazia" : "Erro desconhecido");
+          }
+        } catch (invokeError) {
+          statusCode = 0;
+          endpointError = String(invokeError);
+        }
+
+        if (!payload) {
+          console.warn("[admin] admin-metrics indisponível, usando fallback local:", endpointError || "sem detalhes");
           payload = await buildClientFallbackMetrics();
-          setError(`Endpoint principal indisponível (${endpointError}). Exibindo fallback seguro.`);
+          setError(endpointError ? `Endpoint principal indisponível (${endpointError}). Exibindo fallback seguro.` : "Endpoint principal indisponível. Exibindo fallback seguro.");
         }
 
         const payload = data as AdminMetricsApiResponse;
@@ -294,12 +353,15 @@ const Admin = () => {
           },
         };
 
-        const okKeys = Object.values(parsed.__meta?.metricState ?? {})
-          .filter((m) => m.status !== "error")
-          .map((m) => m.key);
-        const failedKeys = Object.values(parsed.__meta?.metricState ?? {})
-          .filter((m) => m.status === "error")
-          .map((m) => m.key);
+        const stateValues = Object.values(parsed.__meta?.metricState ?? {});
+        const okKeys = stateValues.length > 0
+          ? stateValues.filter((m) => m.status !== "error").map((m) => m.key)
+          : Object.keys(parsed.__meta?.metricErrors ?? {}).length === 0
+            ? ["total_users", "active_today", "active_week", "active_month", "chapters_read", "revela_usage", "notes_created", "highlights_created", "shares_created", "questions", "top_passages"]
+            : [];
+        const failedKeys = stateValues.length > 0
+          ? stateValues.filter((m) => m.status === "error").map((m) => m.key)
+          : Object.keys(parsed.__meta?.metricErrors ?? {});
 
         setMetricsDebug({
           endpoint: payload.__meta?.endpoint ?? endpoint,
