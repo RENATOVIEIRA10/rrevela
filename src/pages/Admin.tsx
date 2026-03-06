@@ -18,6 +18,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+interface MetricStateEntry {
+  key: string;
+  status: "ok" | "empty" | "error";
+  message?: string;
+  source?: string;
+}
+
 interface AdminMetrics {
   totalUsers: number;
   activeTodayCount: number;
@@ -29,6 +36,7 @@ interface AdminMetrics {
   notesCreated: number;
   highlightsMade: number;
   sharesCount: number;
+  questionsAsked: number;
   revelationMode: number;
   totalNotes: number;
   noteUserPct: number;
@@ -40,6 +48,12 @@ interface AdminMetrics {
   __meta?: {
     status: "ok" | "partial";
     metricErrors: Record<string, string>;
+    metricState?: Record<string, MetricStateEntry>;
+    analyticsAudit?: {
+      events_table_selected: string | null;
+      required_tables: Record<string, boolean>;
+      missing_or_invalid: { key: string; reason: string; message: string }[];
+    };
   };
 }
 
@@ -54,6 +68,7 @@ const EMPTY_METRICS: AdminMetrics = {
   notesCreated: 0,
   highlightsMade: 0,
   sharesCount: 0,
+  questionsAsked: 0,
   revelationMode: 0,
   totalNotes: 0,
   noteUserPct: 0,
@@ -68,7 +83,7 @@ const EMPTY_METRICS: AdminMetrics = {
   },
 };
 
-const MetricCard = ({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string | number; sub?: string }) => (
+const MetricCard = ({ icon: Icon, label, value, sub, state }: { icon: any; label: string; value: string | number; sub?: string; state?: MetricStateEntry }) => (
   <Card>
     <CardContent className="p-4 flex items-center gap-3">
       <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
@@ -77,7 +92,13 @@ const MetricCard = ({ icon: Icon, label, value, sub }: { icon: any; label: strin
       <div>
         <p className="text-2xl font-semibold text-foreground tabular-nums">{value}</p>
         <p className="text-xs text-muted-foreground">{label}</p>
-        {sub && <p className="text-[10px] text-muted-foreground/70">{sub}</p>}
+        {state?.status === "error" ? (
+          <p className="text-[10px] text-destructive">Erro ao carregar</p>
+        ) : state?.status === "empty" ? (
+          <p className="text-[10px] text-muted-foreground/70">Sem dados ainda</p>
+        ) : (
+          sub && <p className="text-[10px] text-muted-foreground/70">{sub}</p>
+        )}
       </div>
     </CardContent>
   </Card>
@@ -106,14 +127,14 @@ const Admin = () => {
           console.error("[admin] admin-metrics invoke error:", error);
           setMetrics(EMPTY_METRICS);
           setMetricsStatus("failed");
-          setError("Falha ao carregar parte das métricas. Exibindo fallback seguro.");
+          setError("Falha ao carregar endpoint de métricas.");
           return;
         }
 
         if (!data) {
           setMetrics(EMPTY_METRICS);
           setMetricsStatus("failed");
-          setError("Painel sem dados no momento. Exibindo fallback seguro.");
+          setError("Painel sem dados no momento.");
           return;
         }
 
@@ -123,6 +144,8 @@ const Admin = () => {
           __meta: {
             status: ((data as AdminMetrics).__meta?.status ?? "ok") as "ok" | "partial",
             metricErrors: (data as AdminMetrics).__meta?.metricErrors ?? {},
+            metricState: (data as AdminMetrics).__meta?.metricState ?? {},
+            analyticsAudit: (data as AdminMetrics).__meta?.analyticsAudit,
           },
         };
 
@@ -136,13 +159,16 @@ const Admin = () => {
         console.error("[admin] falha inesperada ao buscar métricas:", err);
         setMetrics(EMPTY_METRICS);
         setMetricsStatus("failed");
-        setError("Falha ao carregar parte das métricas. Exibindo fallback seguro.");
+        setError("Falha inesperada ao carregar métricas.");
       } finally {
         setLoading(false);
       }
     };
     fetchMetrics();
   }, [isAdmin, roleLoading]);
+
+  const metricState = metrics.__meta?.metricState ?? {};
+  const metricErrors = metrics.__meta?.metricErrors ?? {};
 
   if (roleLoading) {
     return (
@@ -188,6 +214,19 @@ const Admin = () => {
               <p><strong>Role atual:</strong> {role}</p>
               <p><strong>Reconhecido como admin:</strong> {isAdmin ? "sim" : "não"}</p>
               <p><strong>Status das métricas:</strong> {metricsStatus}</p>
+              <p><strong>Fonte de eventos:</strong> {metrics.__meta?.analyticsAudit?.events_table_selected ?? "não detectada"}</p>
+              {Object.keys(metricErrors).length > 0 ? (
+                <div className="pt-1">
+                  <p><strong>Métricas com falha ({Object.keys(metricErrors).length}):</strong></p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {Object.entries(metricErrors).map(([key, reason]) => (
+                      <li key={key}><strong>{key}</strong>: {reason}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p><strong>Métricas com falha:</strong> nenhuma</p>
+              )}
               {error && <p className="text-destructive"><strong>Observação:</strong> {error}</p>}
             </CardContent>
           </Card>
@@ -198,10 +237,10 @@ const Admin = () => {
               <Users className="w-4 h-4 text-accent" /> Métricas Gerais
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <MetricCard icon={Users} label="Total de Usuários" value={metrics.totalUsers} />
-              <MetricCard icon={Users} label="Ativos Hoje" value={metrics.activeTodayCount} />
-              <MetricCard icon={Users} label="Ativos na Semana" value={metrics.activeWeekCount} />
-              <MetricCard icon={Users} label="Ativos no Mês" value={metrics.activeMonthCount} />
+              <MetricCard icon={Users} label="Total de Usuários" value={metrics.totalUsers} state={metricState.total_users} />
+              <MetricCard icon={Users} label="Ativos Hoje" value={metrics.activeTodayCount} state={metricState.active_today} />
+              <MetricCard icon={Users} label="Ativos na Semana" value={metrics.activeWeekCount} state={metricState.active_week} />
+              <MetricCard icon={Users} label="Ativos no Mês" value={metrics.activeMonthCount} state={metricState.active_month} />
             </div>
           </section>
 
@@ -210,11 +249,11 @@ const Admin = () => {
               <BookOpen className="w-4 h-4 text-accent" /> Atividade no App
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <MetricCard icon={BookOpen} label="Capítulos Lidos" value={metrics.versesRead} />
-              <MetricCard icon={Search} label="Uso do Revela" value={metrics.revelaUsage} />
-              <MetricCard icon={StickyNote} label="Anotações Criadas" value={metrics.notesCreated} />
-              <MetricCard icon={Palette} label="Destaques Feitos" value={metrics.highlightsMade} />
-              <MetricCard icon={Share2} label="Compartilhamentos" value={metrics.sharesCount} />
+              <MetricCard icon={BookOpen} label="Capítulos Lidos" value={metrics.versesRead} state={metricState.chapters_read} />
+              <MetricCard icon={Search} label="Uso do Revela" value={metrics.revelaUsage} state={metricState.revela_usage} />
+              <MetricCard icon={StickyNote} label="Anotações Criadas" value={metrics.notesCreated} state={metricState.notes_created} />
+              <MetricCard icon={Palette} label="Destaques Feitos" value={metrics.highlightsMade} state={metricState.highlights_created} />
+              <MetricCard icon={Share2} label="Compartilhamentos" value={metrics.sharesCount} state={metricState.shares_created} />
             </div>
           </section>
 
@@ -222,6 +261,9 @@ const Admin = () => {
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Search className="w-4 h-4 text-accent" /> Perguntas no Revela
             </h2>
+            <div className="mb-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <MetricCard icon={Search} label="Perguntas Feitas" value={metrics.questionsAsked} state={metricState.questions_asked} />
+            </div>
             <Card>
               <CardContent className="p-0">
                 <div className="max-h-64 overflow-y-auto">
@@ -242,7 +284,7 @@ const Admin = () => {
                         </TableRow>
                       ))}
                       {metrics.recentQueries.length === 0 && (
-                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">Nenhuma pergunta ainda</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">{metricState.recent_questions?.status === "error" ? "Erro ao carregar" : "Nenhuma pergunta ainda"}</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -270,7 +312,7 @@ const Admin = () => {
                     </div>
                   ))}
                   {metrics.topPassages.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">Sem dados ainda</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">{metricState.most_accessed_passages?.status === "error" ? "Erro ao carregar" : "Sem dados ainda"}</p>
                   )}
                 </div>
               </CardContent>
@@ -283,8 +325,8 @@ const Admin = () => {
                 <Sparkles className="w-4 h-4 text-accent" /> Modo Revelação
               </h2>
               <div className="grid grid-cols-2 gap-3">
-                <MetricCard icon={Sparkles} label="Vezes Ativado" value={metrics.revelationMode} />
-                <MetricCard icon={Search} label="Revela por Verso" value={metrics.revelaVerse} />
+                <MetricCard icon={Sparkles} label="Vezes Ativado" value={metrics.revelationMode} state={metricState.revelation_mode} />
+                <MetricCard icon={Search} label="Revela por Verso" value={metrics.revelaVerse} state={metricState.revela_verse} />
               </div>
             </section>
 
@@ -293,8 +335,8 @@ const Admin = () => {
                 <StickyNote className="w-4 h-4 text-accent" /> Anotações
               </h2>
               <div className="grid grid-cols-2 gap-3">
-                <MetricCard icon={StickyNote} label="Total de Notas" value={metrics.totalNotes} />
-                <MetricCard icon={Users} label="Usuários que Anotam" value={`${metrics.noteUserPct}%`} />
+                <MetricCard icon={StickyNote} label="Total de Notas" value={metrics.totalNotes} state={metricState.total_notes} />
+                <MetricCard icon={Users} label="Usuários que Anotam" value={`${metrics.noteUserPct}%`} state={metricState.note_user_pct} />
               </div>
             </section>
           </div>
@@ -323,7 +365,7 @@ const Admin = () => {
                         </TableRow>
                       ))}
                       {metrics.recentShares.length === 0 && (
-                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">Nenhum compartilhamento</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">{metricState.recent_shares?.status === "error" ? "Erro ao carregar" : "Nenhum compartilhamento"}</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -370,7 +412,7 @@ const Admin = () => {
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">Sem dados de crescimento</p>
+                  <p className="text-sm text-muted-foreground text-center py-8">{metricState.growth_data?.status === "error" ? "Erro ao carregar" : "Sem dados de crescimento"}</p>
                 )}
               </CardContent>
             </Card>

@@ -89,11 +89,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (!error && data.user) {
-      supabase.from("analytics_events").insert({
+      const payload = {
         user_id: data.user.id,
         event_type: "user_signed_in",
-        event_data: { email: data.user.email ?? "" },
-      }).then(() => {});
+      };
+
+      Promise.allSettled([
+        supabase.from("analytics_events").insert({
+          ...payload,
+          event_data: { email: data.user.email ?? "" },
+        }),
+        supabase.from("app_events" as any).insert({
+          ...payload,
+          metadata: { email: data.user.email ?? "" },
+        }),
+      ]).then(() => {});
     }
     return { error: error as Error | null };
   };
