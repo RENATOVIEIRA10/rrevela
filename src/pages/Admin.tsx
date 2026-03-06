@@ -57,6 +57,31 @@ interface AdminMetrics {
   };
 }
 
+interface AdminMetricsApiResponse {
+  total_users?: number;
+  active_today?: number;
+  active_week?: number;
+  active_month?: number;
+  chapters_read?: number;
+  revela_usage?: number;
+  notes_created?: number;
+  highlights_created?: number;
+  shares_created?: number;
+  questions?: { query?: string; created_at?: string; user_id?: string | null }[];
+  top_passages?: { passage: string; count: number }[];
+  __meta?: {
+    endpoint?: string;
+    status?: "ok" | "partial";
+    metricErrors?: Record<string, string>;
+    metricState?: Record<string, MetricStateEntry>;
+    analyticsAudit?: {
+      events_table_selected: string | null;
+      required_tables: Record<string, boolean>;
+      missing_or_invalid: { key: string; reason: string; message: string }[];
+    };
+  };
+}
+
 const EMPTY_METRICS: AdminMetrics = {
   totalUsers: 0,
   activeTodayCount: 0,
@@ -111,6 +136,13 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [metricsStatus, setMetricsStatus] = useState<"idle" | "loading" | "ok" | "partial" | "failed">("idle");
+  const [metricsDebug, setMetricsDebug] = useState({
+    endpoint: "admin-metrics",
+    statusCode: 0,
+    okKeys: [] as string[],
+    failedKeys: [] as string[],
+    error: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -121,12 +153,16 @@ const Admin = () => {
       setMetricsStatus("loading");
 
       try {
-        const { data, error } = await supabase.functions.invoke("admin-metrics");
+        const endpoint = "admin-metrics";
+        const { data, error } = await supabase.functions.invoke(endpoint);
 
         if (error) {
+          const statusCode = (error as any)?.context?.status ?? 0;
+          const endpointError = (error as any)?.message ?? "Erro desconhecido";
           console.error("[admin] admin-metrics invoke error:", error);
           setMetrics(EMPTY_METRICS);
           setMetricsStatus("failed");
+          setMetricsDebug({ endpoint, statusCode, okKeys: [], failedKeys: [], error: endpointError });
           setError("Falha ao carregar endpoint de métricas.");
           return;
         }
@@ -134,20 +170,52 @@ const Admin = () => {
         if (!data) {
           setMetrics(EMPTY_METRICS);
           setMetricsStatus("failed");
+          setMetricsDebug({ endpoint, statusCode: 200, okKeys: [], failedKeys: [], error: "Resposta vazia" });
           setError("Painel sem dados no momento.");
           return;
         }
 
+        const payload = data as AdminMetricsApiResponse;
+
         const parsed = {
           ...EMPTY_METRICS,
-          ...(data as Partial<AdminMetrics>),
+          totalUsers: payload.total_users ?? 0,
+          activeTodayCount: payload.active_today ?? 0,
+          activeWeekCount: payload.active_week ?? 0,
+          activeMonthCount: payload.active_month ?? 0,
+          versesRead: payload.chapters_read ?? 0,
+          revelaUsage: payload.revela_usage ?? 0,
+          notesCreated: payload.notes_created ?? 0,
+          highlightsMade: payload.highlights_created ?? 0,
+          sharesCount: payload.shares_created ?? 0,
+          recentQueries: (payload.questions ?? []).map((q) => ({
+            event_data: { query: q.query ?? "" },
+            created_at: q.created_at ?? new Date(0).toISOString(),
+            user_id: q.user_id ?? null,
+          })),
+          topPassages: payload.top_passages ?? [],
           __meta: {
-            status: ((data as AdminMetrics).__meta?.status ?? "ok") as "ok" | "partial",
-            metricErrors: (data as AdminMetrics).__meta?.metricErrors ?? {},
-            metricState: (data as AdminMetrics).__meta?.metricState ?? {},
-            analyticsAudit: (data as AdminMetrics).__meta?.analyticsAudit,
+            status: (payload.__meta?.status ?? "ok") as "ok" | "partial",
+            metricErrors: payload.__meta?.metricErrors ?? {},
+            metricState: payload.__meta?.metricState ?? {},
+            analyticsAudit: payload.__meta?.analyticsAudit,
           },
         };
+
+        const okKeys = Object.values(parsed.__meta?.metricState ?? {})
+          .filter((m) => m.status !== "error")
+          .map((m) => m.key);
+        const failedKeys = Object.values(parsed.__meta?.metricState ?? {})
+          .filter((m) => m.status === "error")
+          .map((m) => m.key);
+
+        setMetricsDebug({
+          endpoint: payload.__meta?.endpoint ?? endpoint,
+          statusCode: 200,
+          okKeys,
+          failedKeys,
+          error: "",
+        });
 
         if (Object.keys(parsed.__meta?.metricErrors ?? {}).length > 0) {
           console.warn("[admin] métricas parciais:", parsed.__meta?.metricErrors);
@@ -159,6 +227,7 @@ const Admin = () => {
         console.error("[admin] falha inesperada ao buscar métricas:", err);
         setMetrics(EMPTY_METRICS);
         setMetricsStatus("failed");
+        setMetricsDebug({ endpoint: "admin-metrics", statusCode: 0, okKeys: [], failedKeys: [], error: String(err) });
         setError("Falha inesperada ao carregar métricas.");
       } finally {
         setLoading(false);
@@ -214,7 +283,11 @@ const Admin = () => {
               <p><strong>Role atual:</strong> {role}</p>
               <p><strong>Reconhecido como admin:</strong> {isAdmin ? "sim" : "não"}</p>
               <p><strong>Status das métricas:</strong> {metricsStatus}</p>
+              <p><strong>Endpoint:</strong> {metricsDebug.endpoint}</p>
+              <p><strong>Status HTTP:</strong> {metricsDebug.statusCode || "n/d"}</p>
               <p><strong>Fonte de eventos:</strong> {metrics.__meta?.analyticsAudit?.events_table_selected ?? "não detectada"}</p>
+              <p><strong>Métricas com sucesso:</strong> {metricsDebug.okKeys.length > 0 ? metricsDebug.okKeys.join(", ") : "nenhuma"}</p>
+              <p><strong>Métricas com falha:</strong> {metricsDebug.failedKeys.length > 0 ? metricsDebug.failedKeys.join(", ") : "nenhuma"}</p>
               {Object.keys(metricErrors).length > 0 ? (
                 <div className="pt-1">
                   <p><strong>Métricas com falha ({Object.keys(metricErrors).length}):</strong></p>
@@ -227,6 +300,7 @@ const Admin = () => {
               ) : (
                 <p><strong>Métricas com falha:</strong> nenhuma</p>
               )}
+              {metricsDebug.error && <p className="text-destructive"><strong>Erro endpoint:</strong> {metricsDebug.error}</p>}
               {error && <p className="text-destructive"><strong>Observação:</strong> {error}</p>}
             </CardContent>
           </Card>
