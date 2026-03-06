@@ -35,8 +35,24 @@ type AdminMetricsResponse = {
   __meta: {
     endpoint: string;
     status: "ok" | "partial";
+    httpStatus: number;
     metricErrors: Record<string, string>;
     metricState: Record<string, Omit<MetricResult<unknown>, "value">>;
+    requestAudit: {
+      metrics: {
+        key: string;
+        source: string;
+        query: string;
+        status: "ok" | "empty" | "error";
+        error: string | null;
+      }[];
+      auth: {
+        hasAuthorizationHeader: boolean;
+        userId: string | null;
+        email: string | null;
+        adminCheck: "ok" | "forced_admin_email" | "failed";
+      };
+    };
     analyticsAudit: {
       events_table_selected: string | null;
       required_tables: Record<string, boolean>;
@@ -94,8 +110,18 @@ const baseResponse = (): AdminMetricsResponse => ({
   __meta: {
     endpoint: ENDPOINT_NAME,
     status: "ok",
+    httpStatus: 200,
     metricErrors: {},
     metricState: {},
+    requestAudit: {
+      metrics: [],
+      auth: {
+        hasAuthorizationHeader: false,
+        userId: null,
+        email: null,
+        adminCheck: "failed",
+      },
+    },
     analyticsAudit: {
       events_table_selected: null,
       required_tables: {},
@@ -123,6 +149,15 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("authorization");
+    const requestAudit: AdminMetricsResponse["__meta"]["requestAudit"] = {
+      metrics: [],
+      auth: {
+        hasAuthorizationHeader: Boolean(authHeader),
+        userId: null,
+        email: null,
+        adminCheck: "failed",
+      },
+    };
     if (!authHeader) throw new Error("Unauthorized");
 
     const supabaseUrl = getRequiredEnv("SUPABASE_URL");
@@ -137,6 +172,8 @@ Deno.serve(async (req) => {
       data: { user },
     } = await userClient.auth.getUser();
     if (!user) throw new Error("Unauthorized");
+    requestAudit.auth.userId = user.id;
+    requestAudit.auth.email = user.email ?? null;
 
     const admin = createClient(supabaseUrl, serviceKey);
 
@@ -167,6 +204,7 @@ Deno.serve(async (req) => {
     }
 
     if (!roleData && !isForcedAdminEmail) throw new Error("Forbidden");
+    requestAudit.auth.adminCheck = isForcedAdminEmail && !roleData ? "forced_admin_email" : "ok";
 
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
@@ -191,13 +229,21 @@ Deno.serve(async (req) => {
       key: string,
       fallback: T,
       source: string,
+      query: string,
       action: () => Promise<T>,
       isEmpty?: (value: T) => boolean,
     ): Promise<T> => {
       try {
         const value = await action();
         const empty = isEmpty ? isEmpty(value) : false;
-        console.log(`[admin-metrics] ${key} => status=${empty ? "empty" : "ok"}`);
+        requestAudit.metrics.push({
+          key,
+          source,
+          query,
+          status: empty ? "empty" : "ok",
+          error: null,
+        });
+        console.log(`[admin-metrics] metric=${key} table=${source} query="${query}" status=${empty ? "empty" : "ok"}`);
         return register({
           key,
           status: empty ? "empty" : "ok",
@@ -207,7 +253,14 @@ Deno.serve(async (req) => {
         });
       } catch (error) {
         const message = normalizeError(error);
-        console.error(`[admin-metrics] ${key} failed (${source}): ${message}`);
+        requestAudit.metrics.push({
+          key,
+          source,
+          query,
+          status: "error",
+          error: message,
+        });
+        console.error(`[admin-metrics] metric=${key} table=${source} query="${query}" status=error error=${message}`);
         return register({
           key,
           status: "error",
@@ -219,14 +272,14 @@ Deno.serve(async (req) => {
     };
 
     const resolveEventsSource = async () => {
-      const appEvents = await withMetric("_source_check_app_events", false, "app_events", async () => {
+      const appEvents = await withMetric("_source_check_app_events", false, "app_events", "select id head count exact limit 1", async () => {
         const { error } = await admin.from("app_events").select("id", { count: "exact", head: true }).limit(1);
         if (error) throw error;
         return true;
       });
       if (appEvents) return "app_events";
 
-      const analyticsEvents = await withMetric("_source_check_analytics_events", false, "analytics_events", async () => {
+      const analyticsEvents = await withMetric("_source_check_analytics_events", false, "analytics_events", "select id head count exact limit 1", async () => {
         const { error } = await admin.from("analytics_events").select("id", { count: "exact", head: true }).limit(1);
         if (error) throw error;
         return true;
@@ -240,7 +293,7 @@ Deno.serve(async (req) => {
       metricErrors.events_source = "Nenhuma fonte de eventos encontrada (app_events/analytics_events).";
     }
 
-    const totalUsers = await withMetric("total_users", 0, "profiles", async () => {
+    const totalUsers = await withMetric("total_users", 0, "profiles", "select * head count exact", async () => {
       const { count, error } = await admin.from("profiles").select("*", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
@@ -250,7 +303,7 @@ Deno.serve(async (req) => {
       if (!eventsTable) {
         return register({ key, status: "error", value: 0, source: "events_source", message: "Fonte de eventos indisponível" });
       }
-      return withMetric(key, 0, `${eventsTable}.user_id`, async () => {
+      return withMetric(key, 0, `${eventsTable}.user_id`, `select user_id where created_at >= ${sinceIso}`, async () => {
         const { data, error } = await admin.from(eventsTable).select("user_id").gte("created_at", sinceIso);
         if (error) throw error;
         return new Set((data || []).map((row: any) => row.user_id).filter(Boolean)).size;
@@ -261,7 +314,7 @@ Deno.serve(async (req) => {
       if (!eventsTable) {
         return register({ key, status: "error", value: 0, source: "events_source", message: "Fonte de eventos indisponível" });
       }
-      return withMetric(key, 0, `${eventsTable}.event_type`, async () => {
+      return withMetric(key, 0, `${eventsTable}.event_type`, `count where event_type in (${types.join(",")})`, async () => {
         const { count, error } = await admin.from(eventsTable).select("*", { count: "exact", head: true }).in("event_type", types);
         if (error) throw error;
         return count ?? 0;
@@ -274,24 +327,24 @@ Deno.serve(async (req) => {
 
     const chaptersRead = await countEvents("chapters_read", ["chapter_read", "chapter_opened", "verse_read", "verse_opened"]);
     const revelaUsage = await countEvents("revela_usage", ["revela_search", "revela_used"]);
-    const notesCreated = await withMetric("notes_created", 0, "structured_notes", async () => {
+    const notesCreated = await withMetric("notes_created", 0, "structured_notes", "select id head count exact", async () => {
       const { count, error } = await admin.from("structured_notes").select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     });
-    const highlightsCreated = await withMetric("highlights_created", 0, "highlights", async () => {
+    const highlightsCreated = await withMetric("highlights_created", 0, "highlights", "select id head count exact", async () => {
       const { count, error } = await admin.from("highlights").select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     });
-    const sharesCreated = await withMetric("shares_created", 0, "shared_verses", async () => {
+    const sharesCreated = await withMetric("shares_created", 0, "shared_verses", "select id head count exact", async () => {
       const { count, error } = await admin.from("shared_verses").select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     });
     const questionsAsked = await countEvents("questions_asked", ["question_asked"]);
 
-    const recentQueries = await withMetric("recent_questions", [], `${eventsTable ?? "events"}.query`, async () => {
+    const recentQueries = await withMetric("recent_questions", [], `${eventsTable ?? "events"}.query`, "latest 30 where event_type in (question_asked,revela_search,revela_used)", async () => {
       if (!eventsTable) return [];
       const queryText = eventsTable === "app_events" ? "metadata, created_at, user_id" : "event_data, created_at, user_id";
       const { data, error } = await admin
@@ -311,7 +364,7 @@ Deno.serve(async (req) => {
       });
     }, (rows) => rows.length === 0);
 
-    const topPassages = await withMetric("most_accessed_passages", [], `${eventsTable ?? "events"}.book/chapter/verse`, async () => {
+    const topPassages = await withMetric("most_accessed_passages", [], `${eventsTable ?? "events"}.book/chapter/verse`, "latest 1500 where event_type in (chapter_read,chapter_opened,verse_read,verse_opened)", async () => {
       if (!eventsTable) return [];
       const selectCols = eventsTable === "app_events" ? "book, chapter, verse, metadata" : "event_data";
       const { data, error } = await admin
@@ -376,8 +429,10 @@ Deno.serve(async (req) => {
       __meta: {
         endpoint: ENDPOINT_NAME,
         status: nonCheckFailures.length === 0 ? "ok" : "partial",
+        httpStatus: 200,
         metricErrors,
         metricState,
+        requestAudit,
         analyticsAudit,
       },
       totalUsers,
@@ -398,14 +453,18 @@ Deno.serve(async (req) => {
       topPassages: topPassages,
     };
 
+    console.log(`[admin-metrics] response status=200 endpoint=${ENDPOINT_NAME} metric_errors=${Object.keys(metricErrors).length}`);
+
     return new Response(JSON.stringify(result), {
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {
     const message = normalizeError(e);
     console.error("[admin-metrics] fatal error:", message);
     const status = message === "Forbidden" ? 403 : message === "Unauthorized" ? 401 : 200;
-    return new Response(JSON.stringify({ ...baseResponse(), error: message, __meta: { ...baseResponse().__meta, status: "partial", metricErrors: { fatal: message } } }), {
+    console.log(`[admin-metrics] response status=${status} endpoint=${ENDPOINT_NAME} fatal_error=${message}`);
+    return new Response(JSON.stringify({ ...baseResponse(), error: message, __meta: { ...baseResponse().__meta, status: "partial", httpStatus: status, metricErrors: { fatal: message } } }), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
