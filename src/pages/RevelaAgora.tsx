@@ -4,6 +4,7 @@ import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight } from "luc
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { CONNECTION_TYPE_LABELS, type ConnectionType } from "@/lib/christocentric-index";
 import ReferenceChip from "@/components/ReferenceChip";
 import RichText from "@/components/RichText";
@@ -50,6 +51,7 @@ const RevelaAgora = () => {
   const [response, setResponse] = useState<RevelaResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { track } = useAnalytics();
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -70,6 +72,7 @@ const RevelaAgora = () => {
       }
 
       setResponse(data as RevelaResponse);
+      track("revela_search", { query: query.trim() });
     } catch (e: any) {
       toast({
         title: "Erro",

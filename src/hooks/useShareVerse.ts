@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useAnalytics } from "./useAnalytics";
 import { useCallback } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -55,6 +56,7 @@ function buildShareText(params: ShareParams, insight: string): string {
 
 export function useShareVerse() {
   const { user } = useAuth();
+  const { track } = useAnalytics();
 
   const shareVerse = useCallback(async (params: ShareParams, method: "copy" | "whatsapp" | "native") => {
     const insight = await generateInsight(params, user?.id);
@@ -70,6 +72,7 @@ export function useShareVerse() {
         share_text: shareText,
         insight_text: insight,
       }).then(() => {});
+      track("verse_shared", { book: params.book, chapter: params.chapter, verse: params.verse, method });
     }
 
     if (method === "native" && navigator.share) {

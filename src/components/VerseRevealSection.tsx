@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Sparkles, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { ConfidenceBadge } from "./ConfidenceBadge";
 import ReferenceChip from "./ReferenceChip";
 import RichText from "./RichText";
@@ -36,6 +37,7 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate }: Ver
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
+  const { track } = useAnalytics();
 
   const fetchReveal = async () => {
     if (data) {
@@ -55,6 +57,7 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate }: Ver
         setExpanded(false);
       } else {
         setData(result);
+        track("revela_verse", { book, chapter, verse });
       }
     } catch (e: any) {
       toast({ title: "Erro", description: e?.message || "Falha ao revelar.", variant: "destructive" });

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useAnalytics } from "./useAnalytics";
 
 export type HighlightColor =
   | "PROMESSA"
@@ -33,6 +34,7 @@ export const HIGHLIGHT_COLORS: {
 
 export function useHighlights(book: string, chapter: number) {
   const { user } = useAuth();
+  const { track } = useAnalytics();
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -55,6 +57,7 @@ export function useHighlights(book: string, chapter: number) {
 
   const setHighlight = async (verse: number, colorKey: HighlightColor | null) => {
     if (!user) return;
+    if (colorKey) track("highlight_set", { book, chapter, verse, color: colorKey });
 
     // Optimistic update
     if (colorKey === null) {
