@@ -69,6 +69,12 @@ const normalizeError = (error: unknown): string => {
   }
 };
 
+const getRequiredEnv = (key: string): string => {
+  const value = Deno.env.get(key);
+  if (!value) throw new Error(`Missing env var: ${key}`);
+  return value;
+};
+
 const looksMissingRelation = (message: string) =>
   /relation .* does not exist|column .* does not exist|schema cache|PGRST204|42P01|42703/i.test(message);
 
@@ -119,9 +125,9 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("authorization");
     if (!authHeader) throw new Error("Unauthorized");
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseUrl = getRequiredEnv("SUPABASE_URL");
+    const serviceKey = getRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || serviceKey;
 
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
@@ -141,14 +147,20 @@ Deno.serve(async (req) => {
       .eq("role", "admin")
       .maybeSingle();
 
-    if (roleError) throw new Error(`Erro ao validar role admin: ${roleError.message}`);
-
     const isForcedAdminEmail = (user.email || "").toLowerCase() === FORCED_ADMIN_EMAIL;
+
+    if (roleError && !isForcedAdminEmail) {
+      throw new Error(`Erro ao validar role admin: ${roleError.message}`);
+    }
+
+    if (roleError && isForcedAdminEmail) {
+      console.warn(`[admin-metrics] role check warning ignored for forced admin email: ${roleError.message}`);
+    }
 
     if (!roleData && isForcedAdminEmail) {
       const { error: insertRoleError } = await admin
         .from("user_roles")
-        .upsert({ user_id: user.id, role: "admin" }, { onConflict: "user_id,role" })
+        .upsert({ user_id: user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true })
         .select("id")
         .maybeSingle();
       if (insertRoleError) throw new Error(`Erro ao conceder admin por email forçado: ${insertRoleError.message}`);
@@ -392,7 +404,7 @@ Deno.serve(async (req) => {
   } catch (e: any) {
     const message = normalizeError(e);
     console.error("[admin-metrics] fatal error:", message);
-    const status = message === "Forbidden" ? 403 : message === "Unauthorized" ? 401 : 500;
+    const status = message === "Forbidden" ? 403 : message === "Unauthorized" ? 401 : 200;
     return new Response(JSON.stringify({ ...baseResponse(), error: message, __meta: { ...baseResponse().__meta, status: "partial", metricErrors: { fatal: message } } }), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
