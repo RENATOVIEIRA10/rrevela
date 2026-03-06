@@ -267,6 +267,8 @@ const Admin = () => {
           setError(`Endpoint principal indisponível (${endpointError}). Exibindo fallback seguro.`);
         }
 
+        const payload = data as AdminMetricsApiResponse;
+
         const parsed = {
           ...EMPTY_METRICS,
           totalUsers: payload.total_users ?? 0,
