@@ -29,6 +29,7 @@ type AdminMetricsResponse = {
   notes_created: number;
   highlights_created: number;
   shares_created: number;
+  questions_asked: number;
   questions: { query: string; created_at: string; user_id: string | null }[];
   top_passages: { passage: string; count: number }[];
   __meta: {
@@ -52,6 +53,7 @@ type AdminMetricsResponse = {
   notesCreated: number;
   highlightsMade: number;
   sharesCount: number;
+  questionsAsked: number;
   recentQueries: { event_data: { query?: string }; created_at: string; user_id: string | null }[];
   topPassages: { passage: string; count: number }[];
 };
@@ -80,6 +82,7 @@ const baseResponse = (): AdminMetricsResponse => ({
   notes_created: 0,
   highlights_created: 0,
   shares_created: 0,
+  questions_asked: 0,
   questions: [],
   top_passages: [],
   __meta: {
@@ -102,6 +105,7 @@ const baseResponse = (): AdminMetricsResponse => ({
   notesCreated: 0,
   highlightsMade: 0,
   sharesCount: 0,
+  questionsAsked: 0,
   recentQueries: [],
   topPassages: [],
 });
@@ -258,11 +262,24 @@ Deno.serve(async (req) => {
 
     const chaptersRead = await countEvents("chapters_read", ["chapter_read", "chapter_opened", "verse_read", "verse_opened"]);
     const revelaUsage = await countEvents("revela_usage", ["revela_search", "revela_used"]);
-    const notesCreated = await countEvents("notes_created", ["note_created"]);
-    const highlightsCreated = await countEvents("highlights_created", ["highlight_set", "highlight_created"]);
-    const sharesCreated = await countEvents("shares_created", ["verse_shared", "share_created"]);
+    const notesCreated = await withMetric("notes_created", 0, "structured_notes", async () => {
+      const { count, error } = await admin.from("structured_notes").select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    });
+    const highlightsCreated = await withMetric("highlights_created", 0, "highlights", async () => {
+      const { count, error } = await admin.from("highlights").select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    });
+    const sharesCreated = await withMetric("shares_created", 0, "shared_verses", async () => {
+      const { count, error } = await admin.from("shared_verses").select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    });
+    const questionsAsked = await countEvents("questions_asked", ["question_asked"]);
 
-    const recentQueries = await withMetric("questions", [], `${eventsTable ?? "events"}.query`, async () => {
+    const recentQueries = await withMetric("recent_questions", [], `${eventsTable ?? "events"}.query`, async () => {
       if (!eventsTable) return [];
       const queryText = eventsTable === "app_events" ? "metadata, created_at, user_id" : "event_data, created_at, user_id";
       const { data, error } = await admin
@@ -282,7 +299,7 @@ Deno.serve(async (req) => {
       });
     }, (rows) => rows.length === 0);
 
-    const topPassages = await withMetric("top_passages", [], `${eventsTable ?? "events"}.book/chapter/verse`, async () => {
+    const topPassages = await withMetric("most_accessed_passages", [], `${eventsTable ?? "events"}.book/chapter/verse`, async () => {
       if (!eventsTable) return [];
       const selectCols = eventsTable === "app_events" ? "book, chapter, verse, metadata" : "event_data";
       const { data, error } = await admin
@@ -315,6 +332,9 @@ Deno.serve(async (req) => {
       events_table_selected: eventsTable,
       required_tables: {
         profiles: metricState.total_users?.status !== "error",
+        structured_notes: metricState.notes_created?.status !== "error",
+        highlights: metricState.highlights_created?.status !== "error",
+        shared_verses: metricState.shares_created?.status !== "error",
         app_events: metricState._source_check_app_events?.status !== "error",
         analytics_events: metricState._source_check_analytics_events?.status !== "error",
       },
@@ -338,6 +358,7 @@ Deno.serve(async (req) => {
       notes_created: notesCreated,
       highlights_created: highlightsCreated,
       shares_created: sharesCreated,
+      questions_asked: questionsAsked,
       questions: recentQueries,
       top_passages: topPassages,
       __meta: {
@@ -356,6 +377,7 @@ Deno.serve(async (req) => {
       notesCreated,
       highlightsMade: highlightsCreated,
       sharesCount: sharesCreated,
+      questionsAsked,
       recentQueries: recentQueries.map((q) => ({
         event_data: { query: q.query },
         created_at: q.created_at,
