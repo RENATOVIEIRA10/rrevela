@@ -73,6 +73,7 @@ const RevelaAgora = () => {
 
       setResponse(data as RevelaResponse);
       track("revela_search", { query: query.trim() });
+      track("revela_used", { query: query.trim() });
     } catch (e: any) {
       toast({
         title: "Erro",

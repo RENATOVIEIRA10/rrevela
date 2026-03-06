@@ -3,15 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
 export type AnalyticsEvent =
+  | "user_signed_in"
   | "verse_read"
+  | "verse_opened"
   | "chapter_read"
+  | "revela_used"
   | "revela_search"
   | "revela_verse"
   | "note_created"
   | "highlight_set"
+  | "share_created"
   | "verse_shared"
   | "verse_pinned"
   | "promise_line_viewed"
+  | "study_opened"
   | "revelation_mode";
 
 export function useAnalytics() {

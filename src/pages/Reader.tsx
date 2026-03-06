@@ -71,6 +71,11 @@ const Reader = () => {
   const chapterNotes = useNotes(selectedBook, selectedChapter);
   const verseNotes = useNotes(selectedBook, selectedChapter, noteVerse ?? desktopNoteVerse);
 
+  const handleVerseOpen = (verse: { number: number; text: string }) => {
+    setSelectedVerse(verse);
+    track("verse_opened", { book: selectedBook, chapter: selectedChapter, verse: verse.number });
+  };
+
   const goToPrev = () => {
     if (selectedChapter > 1) setSelectedChapter((c) => c - 1);
   };
@@ -291,7 +296,7 @@ const Reader = () => {
                       <p
                         key={verse.number}
                         className={`font-scripture text-foreground/90 leading-[1.9] cursor-pointer rounded-sm transition-all hover:bg-secondary/30 px-1 -mx-1 ${hlClass} ${isPinned ? 'ring-1 ring-accent/30 bg-accent/5' : ''}`}
-                        onClick={() => setSelectedVerse(verse)}
+                        onClick={() => handleVerseOpen(verse)}
                       >
                         <sup className="text-xs text-accent font-ui font-semibold mr-1.5 select-none">
                           {verse.number}
@@ -500,7 +505,7 @@ const Reader = () => {
                   <p
                     key={verse.number}
                     className={`verse-line font-scripture text-foreground/90 leading-[1.8] cursor-pointer rounded-sm transition-all active:scale-[0.99] ${hlClass} ${hl ? 'has-highlight' : ''}`}
-                    onClick={() => setSelectedVerse(verse)}
+                    onClick={() => handleVerseOpen(verse)}
                   >
                     <sup className="text-xs text-accent font-ui font-semibold mr-1.5 select-none">
                       {verse.number}

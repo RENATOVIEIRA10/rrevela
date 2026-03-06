@@ -73,6 +73,7 @@ export function useShareVerse() {
         insight_text: insight,
       }).then(() => {});
       track("verse_shared", { book: params.book, chapter: params.chapter, verse: params.verse, method });
+      track("share_created", { book: params.book, chapter: params.chapter, verse: params.verse, method });
     }
 
     if (method === "native" && navigator.share) {

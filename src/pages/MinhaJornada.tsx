@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookMarked, Palette, BookOpen, Clock, RotateCcw, Sparkles } from "lucide-react";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
@@ -5,10 +6,16 @@ import { HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const MinhaJornada = () => {
   const stats = useJourneyStats();
   const navigate = useNavigate();
+  const { track } = useAnalytics();
+
+  useEffect(() => {
+    track("study_opened", { area: "minha_jornada" });
+  }, [track]);
 
   if (stats.loading) {
     return (

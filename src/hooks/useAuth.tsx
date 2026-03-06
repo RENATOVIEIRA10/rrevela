@@ -87,7 +87,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data.user) {
+      supabase.from("analytics_events").insert({
+        user_id: data.user.id,
+        event_type: "user_signed_in",
+        event_data: { email: data.user.email ?? "" },
+      }).then(() => {});
+    }
     return { error: error as Error | null };
   };
 
