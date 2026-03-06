@@ -13,6 +13,7 @@ import { useHighlights, HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { useNotes } from "@/hooks/useNotes";
 import { useBibleVerses, searchBible, type BibleSearchResult } from "@/hooks/useBibleVerses";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import VersePanel from "@/components/VersePanel";
 import HighlightLegend from "@/components/HighlightLegend";
 import NoteEditor from "@/components/NoteEditor";
@@ -26,6 +27,7 @@ import RevealingQuestions from "@/components/RevealingQuestions";
 
 const Reader = () => {
   const isMobile = useIsMobile();
+  const { track } = useAnalytics();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
   const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
@@ -44,6 +46,13 @@ const Reader = () => {
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
 
   const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter);
+
+  // Track chapter reads
+  useEffect(() => {
+    if (!loading && verses.length > 0) {
+      track("chapter_read", { book: selectedBook, chapter: selectedChapter });
+    }
+  }, [selectedBook, selectedChapter, loading, verses.length]);
 
   useEffect(() => {
     const livro = searchParams.get("livro");

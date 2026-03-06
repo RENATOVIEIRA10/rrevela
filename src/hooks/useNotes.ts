@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { useAnalytics } from "./useAnalytics";
 
 export type NoteType = "verse" | "chapter" | "theme";
 
@@ -22,6 +23,7 @@ export interface StructuredNote {
 
 export function useNotes(book?: string, chapter?: number, verse?: number | null) {
   const { user } = useAuth();
+  const { track } = useAnalytics();
   const [notes, setNotes] = useState<StructuredNote[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -86,6 +88,7 @@ export function useNotes(book?: string, chapter?: number, verse?: number | null)
         .single();
       if (!error && data) {
         setNotes((prev) => [data as StructuredNote, ...prev]);
+        track("note_created", { book: note.book, chapter: note.chapter, verse: note.verse, type: note.type });
       }
       return data as StructuredNote | null;
     }

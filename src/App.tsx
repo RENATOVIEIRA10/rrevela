@@ -16,6 +16,7 @@ import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import PublicVerse from "./pages/PublicVerse";
 import InstallPWA from "./pages/InstallPWA";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const AppRoutes = () => {
         <Route path="/promessa" element={<LinhaPromessa />} />
         <Route path="/jornada" element={<MinhaJornada />} />
       </Route>
+      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
