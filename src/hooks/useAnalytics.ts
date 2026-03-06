@@ -9,6 +9,7 @@ export type AnalyticsEvent =
   | "chapter_read"
   | "revela_used"
   | "revela_search"
+  | "question_asked"
   | "revela_verse"
   | "note_created"
   | "highlight_set"
@@ -26,11 +27,25 @@ export function useAnalytics() {
     async (eventType: AnalyticsEvent, eventData: Record<string, unknown> = {}) => {
       if (!user) return;
       try {
-        await supabase.from("analytics_events" as any).insert({
-          user_id: user.id,
-          event_type: eventType,
-          event_data: eventData,
-        });
+        const book = typeof eventData.book === "string" ? eventData.book : null;
+        const chapter = typeof eventData.chapter === "number" ? eventData.chapter : null;
+        const verse = typeof eventData.verse === "number" ? eventData.verse : null;
+
+        await Promise.allSettled([
+          supabase.from("analytics_events" as any).insert({
+            user_id: user.id,
+            event_type: eventType,
+            event_data: eventData,
+          }),
+          supabase.from("app_events" as any).insert({
+            user_id: user.id,
+            event_type: eventType,
+            book,
+            chapter,
+            verse,
+            metadata: eventData,
+          }),
+        ]);
       } catch {
         // silent fail - analytics should never block UX
       }
