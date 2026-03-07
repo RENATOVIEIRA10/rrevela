@@ -177,6 +177,16 @@ const BiblicalPatternsPanel = ({ book, chapter, depth, onNavigate }: BiblicalPat
               <p className="text-[10px] text-muted-foreground text-center">
                 Padrões identificados com base textual. Sem alegorização.
               </p>
+
+              {/* Share study button */}
+              <StudyShareButton
+                book={book}
+                chapter={chapter}
+                mode="padroes"
+                title={`Padrões Bíblicos — ${book} ${chapter}`}
+                summary={`Padrões narrativos identificados em ${book} ${chapter}.`}
+                insightText={data.patterns?.[0]?.description || ""}
+              />
             </div>
           </motion.div>
         )}

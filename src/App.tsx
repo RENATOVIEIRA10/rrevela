@@ -71,6 +71,7 @@ const AppRoutes = () => {
       <Route path="/" element={user ? <Navigate to="/leitor" replace /> : <Onboarding />} />
       <Route path="/auth" element={user ? <Navigate to="/leitor" replace /> : <Auth />} />
       <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
+      <Route path="/study/:book/:chapter" element={<PublicStudy />} />
       <Route path="/install" element={<InstallPWA />} />
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/leitor" element={<Reader />} />
