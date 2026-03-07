@@ -69,8 +69,8 @@ interface AdminMetrics {
     };
     analyticsAudit?: {
       events_table_selected: string | null;
-      required_tables: Record<string, boolean>;
-      missing_or_invalid: { key: string; reason: string; message: string }[];
+      required_tables?: Record<string, boolean>;
+      missing_or_invalid?: { key: string; reason: string; message: string }[];
     };
   };
 }
