@@ -15,6 +15,7 @@ import LinhaPromessa from "./pages/LinhaPromessa";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import PublicVerse from "./pages/PublicVerse";
+import PublicStudy from "./pages/PublicStudy";
 import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
 import { useAdminCheck } from "./hooks/useAdminCheck";
