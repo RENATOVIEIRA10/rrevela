@@ -30,9 +30,10 @@ interface VerseRevealSectionProps {
   verse: number;
   verseText: string;
   onNavigate?: (book: string, chapter: number, verse: number) => void;
+  onRevealLoaded?: (text: string) => void;
 }
 
-const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate }: VerseRevealSectionProps) => {
+const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRevealLoaded }: VerseRevealSectionProps) => {
   const [data, setData] = useState<RevealData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
