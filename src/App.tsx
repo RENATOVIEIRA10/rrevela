@@ -15,6 +15,7 @@ import LinhaPromessa from "./pages/LinhaPromessa";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import PublicVerse from "./pages/PublicVerse";
+import PublicStudy from "./pages/PublicStudy";
 import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
 import { useAdminCheck } from "./hooks/useAdminCheck";
@@ -70,6 +71,7 @@ const AppRoutes = () => {
       <Route path="/" element={user ? <Navigate to="/leitor" replace /> : <Onboarding />} />
       <Route path="/auth" element={user ? <Navigate to="/leitor" replace /> : <Auth />} />
       <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
+      <Route path="/study/:book/:chapter" element={<PublicStudy />} />
       <Route path="/install" element={<InstallPWA />} />
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/leitor" element={<Reader />} />

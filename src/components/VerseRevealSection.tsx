@@ -30,9 +30,10 @@ interface VerseRevealSectionProps {
   verse: number;
   verseText: string;
   onNavigate?: (book: string, chapter: number, verse: number) => void;
+  onRevealLoaded?: (text: string) => void;
 }
 
-const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate }: VerseRevealSectionProps) => {
+const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRevealLoaded }: VerseRevealSectionProps) => {
   const [data, setData] = useState<RevealData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -58,6 +59,11 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate }: Ver
       } else {
         setData(result);
         track("revela_verse", { book, chapter, verse });
+        // Provide reveal text for sharing
+        if (onRevealLoaded && result) {
+          const parts = [result.explanation, result.christocentric_connection].filter(Boolean);
+          onRevealLoaded(parts.join(" "));
+        }
       }
     } catch (e: any) {
       toast({ title: "Erro", description: e?.message || "Falha ao revelar.", variant: "destructive" });

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { X, StickyNote, Pin, Share2, Copy, MessageCircle, Sparkles } from "lucide-react";
+import { X, StickyNote, Pin, Sparkles } from "lucide-react";
 import { HIGHLIGHT_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 import { useShareVerse } from "@/hooks/useShareVerse";
+import ShareMenu from "./ShareMenu";
 import {
   Drawer,
   DrawerContent,
@@ -40,15 +42,18 @@ const VersePanel = ({
   onNavigateToRef,
 }: VersePanelProps) => {
   const { shareVerse } = useShareVerse();
+  const [shareMode, setShareMode] = useState<"verse" | "reveal">("reveal");
+  const [revealText, setRevealText] = useState<string>("");
 
-  const shareParams = { book, chapter, verse: verseNumber, verseText };
+  const shareParams = { book, chapter, verse: verseNumber, verseText, includeReveal: shareMode === "reveal", revealText };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      shareVerse(shareParams, "native");
-    } else {
-      shareVerse(shareParams, "copy");
-    }
+  const handleShare = (method: "copy" | "whatsapp" | "native") => {
+    shareVerse(shareParams, method);
+  };
+
+  // Callback from VerseRevealSection to capture reveal text for sharing
+  const handleRevealLoaded = (text: string) => {
+    setRevealText(text);
   };
 
   const handleRefNavigate = (refBook: string, refChapter: number, refVerse: number) => {
@@ -135,33 +140,33 @@ const VersePanel = ({
           {/* Share */}
           <div className="h-px bg-border" />
 
-          <div>
-            <p className="text-xs text-muted-foreground font-ui mb-2">Compartilhar</p>
-            <div className="flex items-center gap-2">
+          <div className="space-y-3">
+            {/* Share mode toggle */}
+            <div className="flex gap-2">
               <button
-                onClick={handleShare}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border border-border bg-secondary/50 text-foreground/80 hover:bg-secondary transition-colors"
+                onClick={() => setShareMode("verse")}
+                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                  shareMode === "verse"
+                    ? "bg-accent/10 text-accent font-medium border border-accent/20"
+                    : "bg-secondary/40 text-foreground/60 hover:bg-secondary border border-border"
+                }`}
               >
-                <Share2 className="w-3.5 h-3.5" />
-                {navigator.share ? "Compartilhar" : "Copiar"}
+                Só o versículo
               </button>
               <button
-                onClick={() => shareVerse(shareParams, "whatsapp")}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border border-border bg-secondary/50 text-foreground/80 hover:bg-secondary transition-colors"
+                onClick={() => setShareMode("reveal")}
+                className={`text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${
+                  shareMode === "reveal"
+                    ? "bg-accent/10 text-accent font-medium border border-accent/20"
+                    : "bg-secondary/40 text-foreground/60 hover:bg-secondary border border-border"
+                }`}
               >
-                <MessageCircle className="w-3.5 h-3.5" />
-                WhatsApp
+                <Sparkles className="w-3 h-3" />
+                Versículo + revelação
               </button>
-              {navigator.share && (
-                <button
-                  onClick={() => shareVerse(shareParams, "copy")}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border border-border bg-secondary/50 text-foreground/80 hover:bg-secondary transition-colors"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  Copiar
-                </button>
-              )}
             </div>
+
+            <ShareMenu onShare={handleShare} />
           </div>
 
           {/* Separator */}
@@ -174,6 +179,7 @@ const VersePanel = ({
             verse={verseNumber}
             verseText={verseText}
             onNavigate={handleRefNavigate}
+            onRevealLoaded={handleRevealLoaded}
           />
 
           {/* Separator */}
