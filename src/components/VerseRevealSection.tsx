@@ -59,6 +59,11 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
       } else {
         setData(result);
         track("revela_verse", { book, chapter, verse });
+        // Provide reveal text for sharing
+        if (onRevealLoaded && result) {
+          const parts = [result.explanation, result.christocentric_connection].filter(Boolean);
+          onRevealLoaded(parts.join(" "));
+        }
       }
     } catch (e: any) {
       toast({ title: "Erro", description: e?.message || "Falha ao revelar.", variant: "destructive" });
