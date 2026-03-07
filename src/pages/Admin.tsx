@@ -220,7 +220,7 @@ const Admin = () => {
           throw new Error(endpointError);
         }
 
-        const parsed = {
+        const parsed: AdminMetrics = {
           ...EMPTY_METRICS,
           totalUsers: payload.total_users ?? 0,
           activeTodayCount: payload.active_today ?? 0,
@@ -231,13 +231,26 @@ const Admin = () => {
           notesCreated: payload.notes_created ?? 0,
           highlightsMade: payload.highlights_created ?? 0,
           sharesCount: payload.shares_created ?? 0,
-          questionsAsked: payload.questions_asked ?? (payload.questions ?? []).length,
+          questionsAsked: payload.questions_asked ?? 0,
+          revelationMode: payload.revelation_mode ?? 0,
+          revelaVerse: payload.revela_verse ?? 0,
+          totalNotes: payload.notes_created ?? 0,
+          noteUserPct: payload.note_user_pct ?? 0,
           recentQueries: (payload.questions ?? []).map((q) => ({
             event_data: { query: q.query ?? "" },
             created_at: q.created_at ?? new Date(0).toISOString(),
             user_id: q.user_id ?? null,
           })),
           topPassages: payload.top_passages ?? [],
+          recentShares: (payload.recent_shares ?? []).map((s) => ({
+            book: s.book,
+            chapter: s.chapter,
+            verse: s.verse,
+            share_text: s.share_text,
+            created_at: s.created_at,
+          })),
+          growthData: payload.growth_data ?? [],
+          users: payload.users ?? [],
           __meta: {
             status: (payload.__meta?.status ?? "ok") as "ok" | "partial",
             httpStatus: payload.__meta?.httpStatus ?? statusCode,
