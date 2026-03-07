@@ -164,6 +164,48 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_studies: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          insight_text: string
+          mode: string
+          share_text: string
+          share_type: string
+          title: string
+          user_id: string | null
+          verse: number | null
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          insight_text?: string
+          mode?: string
+          share_text: string
+          share_type?: string
+          title?: string
+          user_id?: string | null
+          verse?: number | null
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          insight_text?: string
+          mode?: string
+          share_text?: string
+          share_type?: string
+          title?: string
+          user_id?: string | null
+          verse?: number | null
+        }
+        Relationships: []
+      }
       shared_verses: {
         Row: {
           book: string
