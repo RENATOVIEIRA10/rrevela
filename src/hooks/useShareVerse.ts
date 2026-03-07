@@ -9,6 +9,8 @@ interface ShareParams {
   chapter: number;
   verse: number;
   verseText: string;
+  includeReveal?: boolean;
+  revealText?: string;
 }
 
 function buildPublicLink(book: string, chapter: number, verse: number) {
@@ -17,6 +19,12 @@ function buildPublicLink(book: string, chapter: number, verse: number) {
 }
 
 async function generateInsight(params: ShareParams, userId?: string): Promise<string> {
+  // If user provided explicit reveal text, use it
+  if (params.revealText?.trim()) {
+    const text = params.revealText.trim();
+    return text.length > 300 ? text.slice(0, 297) + "…" : text;
+  }
+
   // 1. Try user's structured note (christocentric + application)
   if (userId) {
     const { data: notes } = await supabase
@@ -36,7 +44,7 @@ async function generateInsight(params: ShareParams, userId?: string): Promise<st
       if (note.application?.trim()) parts.push(note.application.trim());
       if (parts.length > 0) {
         const combined = parts.join(" ");
-        return combined.length > 200 ? combined.slice(0, 197) + "…" : combined;
+        return combined.length > 300 ? combined.slice(0, 297) + "…" : combined;
       }
     }
   }
@@ -49,9 +57,14 @@ async function generateInsight(params: ShareParams, userId?: string): Promise<st
   return `O verso apresenta uma verdade central da Escritura.`;
 }
 
-function buildShareText(params: ShareParams, insight: string): string {
+function buildShareText(params: ShareParams, insight: string, includeReveal: boolean): string {
   const link = buildPublicLink(params.book, params.chapter, params.verse);
-  return `${params.book} ${params.chapter}:${params.verse} (Almeida)\n"${params.verseText}"\n\nRevela: ${insight}\n\n🔎 Ver no Revela: ${link}`;
+  
+  if (includeReveal) {
+    return `${params.book} ${params.chapter}:${params.verse} (Almeida)\n"${params.verseText}"\n\nRevela: ${insight}\n\n🔎 Ver no Revela: ${link}`;
+  }
+  
+  return `${params.book} ${params.chapter}:${params.verse} (Almeida)\n"${params.verseText}"\n\n🔎 Ver no Revela: ${link}`;
 }
 
 export function useShareVerse() {
@@ -59,8 +72,9 @@ export function useShareVerse() {
   const { track } = useAnalytics();
 
   const shareVerse = useCallback(async (params: ShareParams, method: "copy" | "whatsapp" | "native") => {
-    const insight = await generateInsight(params, user?.id);
-    const shareText = buildShareText(params, insight);
+    const includeReveal = params.includeReveal ?? true;
+    const insight = includeReveal ? await generateInsight(params, user?.id) : "";
+    const shareText = buildShareText(params, insight, includeReveal);
 
     // Save to shared_verses
     if (user) {
@@ -72,7 +86,7 @@ export function useShareVerse() {
         share_text: shareText,
         insight_text: insight,
       }).then(() => {});
-      track("verse_shared", { book: params.book, chapter: params.chapter, verse: params.verse, method });
+      track("verse_shared", { book: params.book, chapter: params.chapter, verse: params.verse, method, includeReveal });
       track("share_created", { book: params.book, chapter: params.chapter, verse: params.verse, method });
     }
 
