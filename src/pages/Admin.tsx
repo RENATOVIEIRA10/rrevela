@@ -86,8 +86,14 @@ interface AdminMetricsApiResponse {
   highlights_created?: number;
   shares_created?: number;
   questions_asked?: number;
+  revelation_mode?: number;
+  revela_verse?: number;
+  note_user_pct?: number;
   questions?: { query?: string; created_at?: string; user_id?: string | null }[];
   top_passages?: { passage: string; count: number }[];
+  recent_shares?: { book: string; chapter: number; verse: number; share_text: string; created_at: string }[];
+  growth_data?: { date: string; count: number }[];
+  users?: { user_id: string; display_name: string; email: string; created_at: string; last_sign_in: string | null }[];
   __meta?: {
     endpoint?: string;
     status?: "ok" | "partial";
@@ -105,8 +111,8 @@ interface AdminMetricsApiResponse {
     };
     analyticsAudit?: {
       events_table_selected: string | null;
-      required_tables: Record<string, boolean>;
-      missing_or_invalid: { key: string; reason: string; message: string }[];
+      required_tables?: Record<string, boolean>;
+      missing_or_invalid?: { key: string; reason: string; message: string }[];
     };
   };
 }
