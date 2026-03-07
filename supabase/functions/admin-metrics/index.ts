@@ -10,79 +10,13 @@ const FORCED_ADMIN_EMAIL = "renatovieiraaurelio@gmail.com";
 const ENDPOINT_NAME = "admin-metrics";
 
 type MetricStatus = "ok" | "empty" | "error";
-
-type MetricResult<T> = {
-  key: string;
-  status: MetricStatus;
-  value: T;
-  message?: string;
-  source?: string;
-};
-
-type AdminMetricsResponse = {
-  total_users: number;
-  active_today: number;
-  active_week: number;
-  active_month: number;
-  chapters_read: number;
-  revela_usage: number;
-  notes_created: number;
-  highlights_created: number;
-  shares_created: number;
-  questions_asked: number;
-  questions: { query: string; created_at: string; user_id: string | null }[];
-  top_passages: { passage: string; count: number }[];
-  __meta: {
-    endpoint: string;
-    status: "ok" | "partial";
-    httpStatus: number;
-    metricErrors: Record<string, string>;
-    metricState: Record<string, Omit<MetricResult<unknown>, "value">>;
-    requestAudit: {
-      metrics: {
-        key: string;
-        source: string;
-        query: string;
-        status: "ok" | "empty" | "error";
-        error: string | null;
-      }[];
-      auth: {
-        hasAuthorizationHeader: boolean;
-        userId: string | null;
-        email: string | null;
-        adminCheck: "ok" | "forced_admin_email" | "failed";
-      };
-    };
-    analyticsAudit: {
-      events_table_selected: string | null;
-      required_tables: Record<string, boolean>;
-      missing_or_invalid: { key: string; reason: string; message: string }[];
-    };
-  };
-  // legacy fields used by current UI sections
-  totalUsers: number;
-  activeTodayCount: number;
-  activeWeekCount: number;
-  activeMonthCount: number;
-  versesRead: number;
-  revelaUsage: number;
-  notesCreated: number;
-  highlightsMade: number;
-  sharesCount: number;
-  questionsAsked: number;
-  recentQueries: { event_data: { query?: string }; created_at: string; user_id: string | null }[];
-  topPassages: { passage: string; count: number }[];
-};
+type MetricResult<T> = { key: string; status: MetricStatus; value: T; message?: string; source?: string };
 
 const normalizeError = (error: unknown): string => {
   if (!error) return "Erro desconhecido";
   if (typeof error === "string") return error;
   if (error instanceof Error) return error.message;
-  try {
-    return JSON.stringify(error);
-  } catch {
-    return "Erro sem detalhes serializáveis";
-  }
+  try { return JSON.stringify(error); } catch { return "Erro sem detalhes"; }
 };
 
 const getRequiredEnv = (key: string): string => {
@@ -91,73 +25,36 @@ const getRequiredEnv = (key: string): string => {
   return value;
 };
 
-const looksMissingRelation = (message: string) =>
-  /relation .* does not exist|column .* does not exist|schema cache|PGRST204|42P01|42703/i.test(message);
-
-const baseResponse = (): AdminMetricsResponse => ({
-  total_users: 0,
-  active_today: 0,
-  active_week: 0,
-  active_month: 0,
-  chapters_read: 0,
-  revela_usage: 0,
-  notes_created: 0,
-  highlights_created: 0,
-  shares_created: 0,
-  questions_asked: 0,
-  questions: [],
-  top_passages: [],
-  __meta: {
-    endpoint: ENDPOINT_NAME,
-    status: "ok",
-    httpStatus: 200,
-    metricErrors: {},
-    metricState: {},
-    requestAudit: {
-      metrics: [],
-      auth: {
-        hasAuthorizationHeader: false,
-        userId: null,
-        email: null,
-        adminCheck: "failed",
-      },
-    },
-    analyticsAudit: {
-      events_table_selected: null,
-      required_tables: {},
-      missing_or_invalid: [],
-    },
-  },
-  totalUsers: 0,
-  activeTodayCount: 0,
-  activeWeekCount: 0,
-  activeMonthCount: 0,
-  versesRead: 0,
-  revelaUsage: 0,
-  notesCreated: 0,
-  highlightsMade: 0,
-  sharesCount: 0,
-  questionsAsked: 0,
-  recentQueries: [],
-  topPassages: [],
-});
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const metricState: Record<string, Omit<MetricResult<unknown>, "value">> = {};
+  const metricErrors: Record<string, string> = {};
+  const auditMetrics: { key: string; source: string; query: string; status: string; error: string | null }[] = [];
+
+  const register = <T>(r: MetricResult<T>): T => {
+    metricState[r.key] = { key: r.key, status: r.status, message: r.message, source: r.source };
+    if (r.status === "error") metricErrors[r.key] = r.message || "Erro";
+    return r.value;
+  };
+
+  const withMetric = async <T>(key: string, fallback: T, source: string, query: string, action: () => Promise<T>, isEmpty?: (v: T) => boolean): Promise<T> => {
+    try {
+      const value = await action();
+      const empty = isEmpty ? isEmpty(value) : false;
+      auditMetrics.push({ key, source, query, status: empty ? "empty" : "ok", error: null });
+      return register({ key, status: empty ? "empty" : "ok", value, source, message: empty ? "Sem dados" : "ok" });
+    } catch (error) {
+      const message = normalizeError(error);
+      auditMetrics.push({ key, source, query, status: "error", error: message });
+      return register({ key, status: "error", value: fallback, source, message });
+    }
+  };
+
   try {
     const authHeader = req.headers.get("authorization");
-    const requestAudit: AdminMetricsResponse["__meta"]["requestAudit"] = {
-      metrics: [],
-      auth: {
-        hasAuthorizationHeader: Boolean(authHeader),
-        userId: null,
-        email: null,
-        adminCheck: "failed",
-      },
-    };
     if (!authHeader) throw new Error("Unauthorized");
 
     const supabaseUrl = getRequiredEnv("SUPABASE_URL");
@@ -167,253 +64,191 @@ Deno.serve(async (req) => {
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-
-    const {
-      data: { user },
-    } = await userClient.auth.getUser();
+    const { data: { user } } = await userClient.auth.getUser();
     if (!user) throw new Error("Unauthorized");
-    requestAudit.auth.userId = user.id;
-    requestAudit.auth.email = user.email ?? null;
 
     const admin = createClient(supabaseUrl, serviceKey);
 
+    // Admin check
     const { data: roleData, error: roleError } = await admin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
+      .from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
 
-    const isForcedAdminEmail = (user.email || "").toLowerCase() === FORCED_ADMIN_EMAIL;
-
-    if (roleError && !isForcedAdminEmail) {
-      throw new Error(`Erro ao validar role admin: ${roleError.message}`);
+    const isForcedAdmin = (user.email || "").toLowerCase() === FORCED_ADMIN_EMAIL;
+    if (roleError && !isForcedAdmin) throw new Error("Erro ao validar admin");
+    if (!roleData && !isForcedAdmin) throw new Error("Forbidden");
+    if (!roleData && isForcedAdmin) {
+      await admin.from("user_roles").upsert({ user_id: user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true });
     }
-
-    if (roleError && isForcedAdminEmail) {
-      console.warn(`[admin-metrics] role check warning ignored for forced admin email: ${roleError.message}`);
-    }
-
-    if (!roleData && isForcedAdminEmail) {
-      const { error: insertRoleError } = await admin
-        .from("user_roles")
-        .upsert({ user_id: user.id, role: "admin" }, { onConflict: "user_id,role", ignoreDuplicates: true })
-        .select("id")
-        .maybeSingle();
-      if (insertRoleError) throw new Error(`Erro ao conceder admin por email forçado: ${insertRoleError.message}`);
-    }
-
-    if (!roleData && !isForcedAdminEmail) throw new Error("Forbidden");
-    requestAudit.auth.adminCheck = isForcedAdminEmail && !roleData ? "forced_admin_email" : "ok";
 
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString();
     const monthStart = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-    const metricState: Record<string, Omit<MetricResult<unknown>, "value">> = {};
-    const metricErrors: Record<string, string> = {};
-
-    const register = <T>(result: MetricResult<T>): T => {
-      metricState[result.key] = {
-        key: result.key,
-        status: result.status,
-        message: result.message,
-        source: result.source,
-      };
-      if (result.status === "error") metricErrors[result.key] = result.message || "Erro desconhecido";
-      return result.value;
+    // Resolve events table
+    let eventsTable: string | null = null;
+    const checkTable = async (table: string) => {
+      const { error } = await admin.from(table).select("id", { count: "exact", head: true }).limit(1);
+      return !error;
     };
+    if (await checkTable("analytics_events")) eventsTable = "analytics_events";
 
-    const withMetric = async <T>(
-      key: string,
-      fallback: T,
-      source: string,
-      query: string,
-      action: () => Promise<T>,
-      isEmpty?: (value: T) => boolean,
-    ): Promise<T> => {
-      try {
-        const value = await action();
-        const empty = isEmpty ? isEmpty(value) : false;
-        requestAudit.metrics.push({
-          key,
-          source,
-          query,
-          status: empty ? "empty" : "ok",
-          error: null,
-        });
-        console.log(`[admin-metrics] metric=${key} table=${source} query="${query}" status=${empty ? "empty" : "ok"}`);
-        return register({
-          key,
-          status: empty ? "empty" : "ok",
-          value,
-          source,
-          message: empty ? "Sem dados ainda" : "ok",
-        });
-      } catch (error) {
-        const message = normalizeError(error);
-        requestAudit.metrics.push({
-          key,
-          source,
-          query,
-          status: "error",
-          error: message,
-        });
-        console.error(`[admin-metrics] metric=${key} table=${source} query="${query}" status=error error=${message}`);
-        return register({
-          key,
-          status: "error",
-          value: fallback,
-          source,
-          message,
-        });
-      }
-    };
-
-    const resolveEventsSource = async () => {
-      const appEvents = await withMetric("_source_check_app_events", false, "app_events", "select id head count exact limit 1", async () => {
-        const { error } = await admin.from("app_events").select("id", { count: "exact", head: true }).limit(1);
-        if (error) throw error;
-        return true;
-      });
-      if (appEvents) return "app_events";
-
-      const analyticsEvents = await withMetric("_source_check_analytics_events", false, "analytics_events", "select id head count exact limit 1", async () => {
-        const { error } = await admin.from("analytics_events").select("id", { count: "exact", head: true }).limit(1);
-        if (error) throw error;
-        return true;
-      });
-      return analyticsEvents ? "analytics_events" : null;
-    };
-
-    const eventsTable = await resolveEventsSource();
-
-    if (!eventsTable) {
-      metricErrors.events_source = "Nenhuma fonte de eventos encontrada (app_events/analytics_events).";
-    }
-
-    const totalUsers = await withMetric("total_users", 0, "profiles", "select * head count exact", async () => {
+    // 1. Total users
+    const totalUsers = await withMetric("total_users", 0, "profiles", "count", async () => {
       const { count, error } = await admin.from("profiles").select("*", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     });
 
-    const uniqueActiveInRange = async (key: string, sinceIso: string) => {
-      if (!eventsTable) {
-        return register({ key, status: "error", value: 0, source: "events_source", message: "Fonte de eventos indisponível" });
-      }
-      return withMetric(key, 0, `${eventsTable}.user_id`, `select user_id where created_at >= ${sinceIso}`, async () => {
-        const { data, error } = await admin.from(eventsTable).select("user_id").gte("created_at", sinceIso);
+    // 2. Active users
+    const uniqueActive = async (key: string, since: string) => {
+      if (!eventsTable) return register({ key, status: "empty", value: 0, source: "events", message: "Sem tabela" });
+      return withMetric(key, 0, eventsTable, `distinct user_id since ${since}`, async () => {
+        const { data, error } = await admin.from(eventsTable!).select("user_id").gte("created_at", since);
         if (error) throw error;
-        return new Set((data || []).map((row: any) => row.user_id).filter(Boolean)).size;
+        return new Set((data || []).map((r: any) => r.user_id).filter(Boolean)).size;
       });
     };
+    const activeToday = await uniqueActive("active_today", todayStart);
+    const activeWeek = await uniqueActive("active_week", weekStart);
+    const activeMonth = await uniqueActive("active_month", monthStart);
 
+    // 3. Event counts
     const countEvents = async (key: string, types: string[]) => {
-      if (!eventsTable) {
-        return register({ key, status: "error", value: 0, source: "events_source", message: "Fonte de eventos indisponível" });
-      }
-      return withMetric(key, 0, `${eventsTable}.event_type`, `count where event_type in (${types.join(",")})`, async () => {
-        const { count, error } = await admin.from(eventsTable).select("*", { count: "exact", head: true }).in("event_type", types);
+      if (!eventsTable) return register({ key, status: "empty", value: 0, source: "events", message: "Sem tabela" });
+      return withMetric(key, 0, eventsTable, `count ${types.join(",")}`, async () => {
+        const { count, error } = await admin.from(eventsTable!).select("*", { count: "exact", head: true }).in("event_type", types);
         if (error) throw error;
         return count ?? 0;
       });
     };
 
-    const activeToday = await uniqueActiveInRange("active_today", todayStart);
-    const activeWeek = await uniqueActiveInRange("active_week", weekStart);
-    const activeMonth = await uniqueActiveInRange("active_month", monthStart);
-
     const chaptersRead = await countEvents("chapters_read", ["chapter_read", "chapter_opened", "verse_read", "verse_opened"]);
     const revelaUsage = await countEvents("revela_usage", ["revela_search", "revela_used"]);
-    const notesCreated = await withMetric("notes_created", 0, "structured_notes", "select id head count exact", async () => {
+    const questionsAsked = await countEvents("questions_asked", ["question_asked"]);
+    const revelationMode = await countEvents("revelation_mode", ["revelation_mode", "revelation_mode_opened"]);
+    const revelaVerse = await countEvents("revela_verse", ["verse_reveal", "verse_reveal_used"]);
+
+    // 4. Table counts
+    const notesCreated = await withMetric("notes_created", 0, "structured_notes", "count", async () => {
       const { count, error } = await admin.from("structured_notes").select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     });
-    const highlightsCreated = await withMetric("highlights_created", 0, "highlights", "select id head count exact", async () => {
+    const highlightsCreated = await withMetric("highlights_created", 0, "highlights", "count", async () => {
       const { count, error } = await admin.from("highlights").select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     });
-    const sharesCreated = await withMetric("shares_created", 0, "shared_verses", "select id head count exact", async () => {
+    const sharesCreated = await withMetric("shares_created", 0, "shared_verses", "count", async () => {
       const { count, error } = await admin.from("shared_verses").select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     });
-    const questionsAsked = await countEvents("questions_asked", ["question_asked"]);
 
-    const recentQueries = await withMetric("recent_questions", [], `${eventsTable ?? "events"}.query`, "latest 30 where event_type in (question_asked,revela_search,revela_used)", async () => {
+    // 5. Note user percentage
+    const noteUserPct = await withMetric("note_user_pct", 0, "structured_notes", "distinct user_id / total_users", async () => {
+      const { data, error } = await admin.from("structured_notes").select("user_id");
+      if (error) throw error;
+      const uniqueNoteUsers = new Set((data || []).map((r: any) => r.user_id)).size;
+      return totalUsers > 0 ? Math.round((uniqueNoteUsers / totalUsers) * 100) : 0;
+    });
+
+    // 6. Recent queries
+    const questions = await withMetric("recent_questions", [], eventsTable ?? "events", "latest 30 questions", async () => {
       if (!eventsTable) return [];
-      const queryText = eventsTable === "app_events" ? "metadata, created_at, user_id" : "event_data, created_at, user_id";
-      const { data, error } = await admin
-        .from(eventsTable)
-        .select(queryText)
+      const { data, error } = await admin.from(eventsTable)
+        .select("event_data, created_at, user_id")
         .in("event_type", ["question_asked", "revela_search", "revela_used"])
         .order("created_at", { ascending: false })
         .limit(30);
       if (error) throw error;
-      return (data || []).map((row: any) => {
-        const payload = row.event_data ?? row.metadata ?? {};
-        return {
-          query: payload.query ?? payload.prompt ?? "",
-          created_at: row.created_at,
-          user_id: row.user_id ?? null,
-        };
-      });
+      return (data || []).map((row: any) => ({
+        query: row.event_data?.query ?? row.event_data?.prompt ?? "",
+        created_at: row.created_at,
+        user_id: row.user_id ?? null,
+      }));
     }, (rows) => rows.length === 0);
 
-    const topPassages = await withMetric("most_accessed_passages", [], `${eventsTable ?? "events"}.book/chapter/verse`, "latest 1500 where event_type in (chapter_read,chapter_opened,verse_read,verse_opened)", async () => {
+    // 7. Top passages
+    const topPassages = await withMetric("most_accessed_passages", [], eventsTable ?? "events", "top passages", async () => {
       if (!eventsTable) return [];
-      const selectCols = eventsTable === "app_events" ? "book, chapter, verse, metadata" : "event_data";
-      const { data, error } = await admin
-        .from(eventsTable)
-        .select(selectCols)
+      const { data, error } = await admin.from(eventsTable)
+        .select("event_data")
         .in("event_type", ["chapter_read", "chapter_opened", "verse_read", "verse_opened"])
         .order("created_at", { ascending: false })
         .limit(1500);
       if (error) throw error;
-
       const counts: Record<string, number> = {};
       (data || []).forEach((e: any) => {
-        const payload =
-          eventsTable === "app_events"
-            ? { book: e.book ?? e.metadata?.book, chapter: e.chapter ?? e.metadata?.chapter, verse: e.verse ?? e.metadata?.verse }
-            : { book: e.event_data?.book, chapter: e.event_data?.chapter, verse: e.event_data?.verse };
-
-        if (!payload.book || !payload.chapter) return;
-        const label = payload.verse ? `${payload.book} ${payload.chapter}:${payload.verse}` : `${payload.book} ${payload.chapter}`;
+        const p = e.event_data ?? {};
+        if (!p.book || !p.chapter) return;
+        const label = p.verse ? `${p.book} ${p.chapter}:${p.verse}` : `${p.book} ${p.chapter}`;
         counts[label] = (counts[label] || 0) + 1;
       });
-
-      return Object.entries(counts)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 15)
-        .map(([passage, count]) => ({ passage, count }));
+      return Object.entries(counts).sort(([, a], [, b]) => b - a).slice(0, 15).map(([passage, count]) => ({ passage, count }));
     }, (rows) => rows.length === 0);
 
-    const analyticsAudit = {
-      events_table_selected: eventsTable,
-      required_tables: {
-        profiles: metricState.total_users?.status !== "error",
-        structured_notes: metricState.notes_created?.status !== "error",
-        highlights: metricState.highlights_created?.status !== "error",
-        shared_verses: metricState.shares_created?.status !== "error",
-        app_events: metricState._source_check_app_events?.status !== "error",
-        analytics_events: metricState._source_check_analytics_events?.status !== "error",
-      },
-      missing_or_invalid: Object.entries(metricErrors).map(([key, message]) => ({
-        key,
-        reason: looksMissingRelation(message) ? "tabela/coluna não existe ou nome divergente" : message,
-        message,
-      })),
-    };
+    // 8. Recent shares
+    const recentShares = await withMetric("recent_shares", [], "shared_verses", "latest 20", async () => {
+      const { data, error } = await admin.from("shared_verses")
+        .select("book, chapter, verse, share_text, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data || [];
+    }, (rows) => rows.length === 0);
 
-    const nonCheckFailures = Object.keys(metricErrors).filter((k) => !k.startsWith("_source_check_"));
+    // 9. Growth data (new users per day, last 30 days)
+    const growthData = await withMetric("growth_data", [], "profiles", "group by date last 30d", async () => {
+      const { data, error } = await admin.from("profiles")
+        .select("created_at")
+        .gte("created_at", monthStart)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data || []).forEach((row: any) => {
+        const date = row.created_at?.slice(0, 10);
+        if (date) counts[date] = (counts[date] || 0) + 1;
+      });
+      // Fill all 30 days
+      const result: { date: string; count: number }[] = [];
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 86400000);
+        const dateStr = d.toISOString().slice(0, 10);
+        result.push({ date: dateStr, count: counts[dateStr] || 0 });
+      }
+      return result;
+    }, (rows) => rows.length === 0);
 
-    const result: AdminMetricsResponse = {
-      ...baseResponse(),
+    // 10. Users list (from profiles + auth admin API)
+    const users = await withMetric("users_list", [], "profiles+auth", "list all users", async () => {
+      const { data: profiles, error: pErr } = await admin.from("profiles").select("user_id, display_name, created_at").order("created_at", { ascending: false });
+      if (pErr) throw pErr;
+
+      // Get auth users via admin API for email and last_sign_in
+      let authUsers: Record<string, { email: string; last_sign_in_at: string | null }> = {};
+      try {
+        const { data: authData, error: authErr } = await admin.auth.admin.listUsers({ perPage: 1000 });
+        if (!authErr && authData?.users) {
+          authData.users.forEach((u: any) => {
+            authUsers[u.id] = { email: u.email ?? "", last_sign_in_at: u.last_sign_in_at ?? null };
+          });
+        }
+      } catch { /* ignore auth list error */ }
+
+      return (profiles || []).map((p: any) => ({
+        user_id: p.user_id,
+        display_name: p.display_name ?? "",
+        email: authUsers[p.user_id]?.email ?? "",
+        created_at: p.created_at,
+        last_sign_in: authUsers[p.user_id]?.last_sign_in_at ?? null,
+      }));
+    }, (rows) => rows.length === 0);
+
+    const nonCheckFailures = Object.keys(metricErrors).filter((k) => !k.startsWith("_"));
+
+    const result = {
       total_users: totalUsers,
       active_today: activeToday,
       active_week: activeWeek,
@@ -424,47 +259,41 @@ Deno.serve(async (req) => {
       highlights_created: highlightsCreated,
       shares_created: sharesCreated,
       questions_asked: questionsAsked,
-      questions: recentQueries,
+      revelation_mode: revelationMode,
+      revela_verse: revelaVerse,
+      note_user_pct: noteUserPct,
+      questions,
       top_passages: topPassages,
+      recent_shares: recentShares,
+      growth_data: growthData,
+      users,
       __meta: {
         endpoint: ENDPOINT_NAME,
         status: nonCheckFailures.length === 0 ? "ok" : "partial",
         httpStatus: 200,
         metricErrors,
         metricState,
-        requestAudit,
-        analyticsAudit,
+        requestAudit: {
+          metrics: auditMetrics,
+          auth: {
+            hasAuthorizationHeader: true,
+            userId: user.id,
+            email: user.email ?? null,
+            adminCheck: isForcedAdmin && !roleData ? "forced_admin_email" : "ok",
+          },
+        },
+        analyticsAudit: { events_table_selected: eventsTable },
       },
-      totalUsers,
-      activeTodayCount: activeToday,
-      activeWeekCount: activeWeek,
-      activeMonthCount: activeMonth,
-      versesRead: chaptersRead,
-      revelaUsage,
-      notesCreated,
-      highlightsMade: highlightsCreated,
-      sharesCount: sharesCreated,
-      questionsAsked,
-      recentQueries: recentQueries.map((q) => ({
-        event_data: { query: q.query },
-        created_at: q.created_at,
-        user_id: q.user_id,
-      })),
-      topPassages: topPassages,
     };
-
-    console.log(`[admin-metrics] response status=200 endpoint=${ENDPOINT_NAME} metric_errors=${Object.keys(metricErrors).length}`);
 
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     const message = normalizeError(e);
-    console.error("[admin-metrics] fatal error:", message);
-    const status = message === "Forbidden" ? 403 : message === "Unauthorized" ? 401 : 200;
-    console.log(`[admin-metrics] response status=${status} endpoint=${ENDPOINT_NAME} fatal_error=${message}`);
-    return new Response(JSON.stringify({ ...baseResponse(), error: message, __meta: { ...baseResponse().__meta, status: "partial", httpStatus: status, metricErrors: { fatal: message } } }), {
+    const status = message === "Forbidden" ? 403 : message === "Unauthorized" ? 401 : 500;
+    return new Response(JSON.stringify({ error: message, __meta: { status: "partial", httpStatus: status, metricErrors: { fatal: message }, metricState, requestAudit: { metrics: auditMetrics, auth: { hasAuthorizationHeader: false, userId: null, email: null, adminCheck: "failed" } } } }), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
