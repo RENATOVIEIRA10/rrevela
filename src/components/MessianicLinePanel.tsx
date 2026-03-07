@@ -8,6 +8,7 @@ import RichText from "./RichText";
 import { parseReferences } from "@/lib/reference-parser";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import StudyShareButton from "./StudyShareButton";
 
 interface MessianicConnection {
   verse_range: string;
