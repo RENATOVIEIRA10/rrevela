@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import SplashScreen from "./components/SplashScreen";
+import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
 import Reader from "./pages/Reader";
@@ -95,6 +96,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
+        <PWAUpdatePrompt />
         <BrowserRouter>
           <AuthProvider>
             <AppRoutes />
