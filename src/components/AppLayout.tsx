@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Search, Footprints, LogOut, Sparkles, Shield } from "lucide-react";
+import { BookOpen, Search, Footprints, LogOut, Sparkles, Shield, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -7,6 +7,7 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 const baseTabs = [
   { to: "/leitor", icon: BookOpen, label: "Palavra" },
   { to: "/revela", icon: Search, label: "Revela" },
+  { to: "/devocional", icon: Heart, label: "Devocional" },
   { to: "/promessa", icon: Sparkles, label: "Promessa" },
   { to: "/jornada", icon: Footprints, label: "Jornada" },
 ];
