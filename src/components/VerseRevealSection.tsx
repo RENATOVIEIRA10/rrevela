@@ -162,6 +162,16 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
               </div>
             )}
 
+            {/* Open in Revelation Mode */}
+            <button
+              onClick={() => navigate(`/revela`)}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/15 transition-colors text-xs font-medium border border-accent/15"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Abrir no Modo Revelação
+              <ArrowRight className="w-3 h-3" />
+            </button>
+
             <p className="text-[10px] text-muted-foreground text-center">
               Baseado exclusivamente no texto bíblico.
             </p>
