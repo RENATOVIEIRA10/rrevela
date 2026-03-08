@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight } from "lucide-react";
+import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import ShareMenu from "@/components/ShareMenu";
 import { CONNECTION_TYPE_LABELS, type ConnectionType } from "@/lib/christocentric-index";
 import ReferenceChip from "@/components/ReferenceChip";
 import RichText from "@/components/RichText";
@@ -251,6 +252,8 @@ const RevelaAgora = () => {
                 )}
               </div>
 
+              <RevelaShareSection query={query} response={response} />
+
               <p className="text-xs text-muted-foreground text-center pt-4">
                 Todas as respostas são fundamentadas exclusivamente na Escritura.
               </p>
@@ -359,6 +362,67 @@ const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
         </div>
         <RichText text={anchor.nt_summary} className="text-sm text-foreground/80 font-scripture" />
       </div>
+    </div>
+  );
+};
+
+const RevelaShareSection = ({ query, response }: { query: string; response: RevelaResponse }) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const { toast } = useToast();
+
+  const buildShareText = () => {
+    const parts: string[] = [`Revela Agora — "${query}"`];
+    if (response.theme) parts.push(`\nTema: ${response.theme}`);
+    if (response.passages?.length) {
+      parts.push("\nPassagens:");
+      response.passages.forEach((p) => parts.push(`• ${p.reference}: "${p.text}"`));
+    }
+    if (response.christocentric_connection) parts.push(`\nConexão cristocêntrica: ${response.christocentric_connection}`);
+    if (response.application) parts.push(`\nAplicação: ${response.application}`);
+    parts.push(`\n📖 Descubra mais no Revela: ${window.location.origin}`);
+    return parts.join("\n");
+  };
+
+  const handleShare = async (method: "copy" | "whatsapp" | "native") => {
+    const text = buildShareText();
+    setShowMenu(false);
+
+    if (method === "native" && navigator.share) {
+      try { await navigator.share({ title: `Revela — "${query}"`, text }); return; } catch { /* cancelled */ }
+    }
+    if (method === "whatsapp") {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copiado!", description: "Revelação copiada para a área de transferência." });
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível copiar.", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={() => setShowMenu(!showMenu)}
+        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors"
+      >
+        <Share2 className="w-3.5 h-3.5" />
+        Compartilhar revelação
+      </button>
+      <AnimatePresence>
+        {showMenu && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <ShareMenu onShare={handleShare} label="Compartilhar revelação" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
