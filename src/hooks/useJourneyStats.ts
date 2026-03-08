@@ -48,6 +48,7 @@ export function useJourneyStats(): JourneyStats {
     ntCount: 0,
     studiedChapters: [],
     recentNotes: [],
+    rawHighlights: [],
     loading: true,
   });
 
