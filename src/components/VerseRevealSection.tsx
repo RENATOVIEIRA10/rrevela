@@ -40,6 +40,7 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
   const fetchReveal = async () => {
     if (data) {
