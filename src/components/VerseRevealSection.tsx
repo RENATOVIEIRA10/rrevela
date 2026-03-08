@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, BookOpen } from "lucide-react";
+import { Loader2, Sparkles, BookOpen, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ConfidenceBadge } from "./ConfidenceBadge";
@@ -8,6 +8,7 @@ import ReferenceChip from "./ReferenceChip";
 import RichText from "./RichText";
 import { parseReferences } from "@/lib/reference-parser";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface CrossRef {
   reference: string;
