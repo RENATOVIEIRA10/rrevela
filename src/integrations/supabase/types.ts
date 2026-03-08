@@ -74,6 +74,57 @@ export type Database = {
         }
         Relationships: []
       }
+      devotional_entries: {
+        Row: {
+          book: string
+          chapter_end: number | null
+          chapter_start: number
+          christocentric_connection: string
+          created_at: string
+          era_key: string
+          gospel_revelation: string
+          id: string
+          order_index: number
+          reflection_questions: Json
+          subtitle: string
+          title: string
+          verse_end: number | null
+          verse_start: number | null
+        }
+        Insert: {
+          book: string
+          chapter_end?: number | null
+          chapter_start?: number
+          christocentric_connection: string
+          created_at?: string
+          era_key: string
+          gospel_revelation: string
+          id?: string
+          order_index: number
+          reflection_questions?: Json
+          subtitle: string
+          title: string
+          verse_end?: number | null
+          verse_start?: number | null
+        }
+        Update: {
+          book?: string
+          chapter_end?: number | null
+          chapter_start?: number
+          christocentric_connection?: string
+          created_at?: string
+          era_key?: string
+          gospel_revelation?: string
+          id?: string
+          order_index?: number
+          reflection_questions?: Json
+          subtitle?: string
+          title?: string
+          verse_end?: number | null
+          verse_start?: number | null
+        }
+        Relationships: []
+      }
       highlights: {
         Row: {
           book: string
@@ -292,6 +343,47 @@ export type Database = {
           verse?: number | null
         }
         Relationships: []
+      }
+      user_devotional_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          devotional_id: string
+          favorited: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          devotional_id: string
+          favorited?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          devotional_id?: string
+          favorited?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_devotional_progress_devotional_id_fkey"
+            columns: ["devotional_id"]
+            isOneToOne: false
+            referencedRelation: "devotional_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
