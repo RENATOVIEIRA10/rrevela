@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import RedemptionTimeline from "./RedemptionTimeline";
 import { Pin, StickyNote, Cross, Repeat, HelpCircle, BookOpen } from "lucide-react";
 import NoteEditor from "./NoteEditor";
 import MessianicLinePanel from "./MessianicLinePanel";
