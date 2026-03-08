@@ -70,6 +70,22 @@ const MinhaJornada = () => {
                 <StatCard label="Capítulos" value={stats.studiedChapters.length} icon="📖" />
               </motion.div>
 
+              {/* Espelho Espiritual */}
+              <SectionCard
+                icon={<Eye className="w-4 h-4" />}
+                title="Espelho espiritual"
+                delay={0.12}
+              >
+                <SpiritualMirror
+                  totalHighlights={stats.totalHighlights}
+                  totalNotes={stats.totalNotes}
+                  colorDistribution={stats.colorDistribution}
+                  studiedChapters={stats.studiedChapters}
+                  atCount={stats.atCount}
+                  ntCount={stats.ntCount}
+                />
+              </SectionCard>
+
               {/* (5) Equilíbrio Espiritual — Color distribution */}
               {stats.colorDistribution.length > 0 && (
                 <SectionCard
