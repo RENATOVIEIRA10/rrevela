@@ -1,6 +1,9 @@
-import { motion } from "framer-motion";
-import { Sun, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sun, ArrowRight, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ShareMenu from "@/components/ShareMenu";
+import { useToast } from "@/hooks/use-toast";
 
 interface VerseOfDayCardProps {
   verse: { book: string; chapter: number; verse: number; text: string } | null;
@@ -9,6 +12,8 @@ interface VerseOfDayCardProps {
 
 const VerseOfDayCard = ({ verse, loading }: VerseOfDayCardProps) => {
   const navigate = useNavigate();
+  const [showShare, setShowShare] = useState(false);
+  const { toast } = useToast();
 
   if (loading) {
     return (
@@ -21,6 +26,22 @@ const VerseOfDayCard = ({ verse, loading }: VerseOfDayCardProps) => {
   }
 
   if (!verse) return null;
+
+  const ref = `${verse.book} ${verse.chapter}:${verse.verse}`;
+  const shareText = `☀️ Versículo do dia\n\n"${verse.text}"\n\n— ${ref}\n\n📖 Revela: O Evangelho nas Escrituras`;
+  const url = window.location.origin;
+
+  const handleShare = (method: "copy" | "whatsapp" | "native") => {
+    if (method === "native" && navigator.share) {
+      navigator.share({ title: `Versículo do dia — ${ref}`, text: shareText, url });
+    } else if (method === "whatsapp") {
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText + "\n" + url)}`, "_blank");
+    } else {
+      navigator.clipboard.writeText(shareText + "\n" + url);
+      toast({ title: "Copiado!", description: "Versículo copiado para a área de transferência." });
+    }
+    setShowShare(false);
+  };
 
   return (
     <motion.div
@@ -40,17 +61,37 @@ const VerseOfDayCard = ({ verse, loading }: VerseOfDayCardProps) => {
       </p>
 
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-accent">
-          {verse.book} {verse.chapter}:{verse.verse}
-        </span>
-        <button
-          onClick={() => navigate("/revela")}
-          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-accent transition-colors"
-        >
-          Aprofundar no Revela
-          <ArrowRight className="w-3 h-3" />
-        </button>
+        <span className="text-xs font-medium text-accent">{ref}</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowShare(!showShare)}
+            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-accent transition-colors"
+          >
+            <Share2 className="w-3 h-3" />
+            Compartilhar
+          </button>
+          <button
+            onClick={() => navigate("/revela")}
+            className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-accent transition-colors"
+          >
+            Aprofundar no Revela
+            <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
       </div>
+
+      <AnimatePresence>
+        {showShare && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <ShareMenu onShare={handleShare} label="Compartilhar versículo do dia" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
