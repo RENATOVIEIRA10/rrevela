@@ -96,6 +96,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
+        <PWAUpdatePrompt />
         <BrowserRouter>
           <AuthProvider>
             <AppRoutes />
