@@ -19,6 +19,13 @@ export interface StudiedChapter {
   last_studied: string;
 }
 
+export interface RawHighlight {
+  book: string;
+  chapter: number;
+  verse: number;
+  color_key: HighlightColor;
+}
+
 export interface JourneyStats {
   totalHighlights: number;
   totalNotes: number;
@@ -27,6 +34,7 @@ export interface JourneyStats {
   ntCount: number;
   studiedChapters: StudiedChapter[];
   recentNotes: StructuredNote[];
+  rawHighlights: RawHighlight[];
   loading: boolean;
 }
 
