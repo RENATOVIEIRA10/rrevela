@@ -154,6 +154,12 @@ export function useJourneyStats(): JourneyStats {
       ntCount,
       studiedChapters,
       recentNotes: notes.slice(0, 10),
+      rawHighlights: highlights.map((h) => ({
+        book: h.book,
+        chapter: h.chapter,
+        verse: h.verse,
+        color_key: h.color_key,
+      })),
       loading: false,
     });
   }, [user]);
