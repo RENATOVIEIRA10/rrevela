@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight } from "lucide-react";
+import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import ShareMenu from "@/components/ShareMenu";
 import { CONNECTION_TYPE_LABELS, type ConnectionType } from "@/lib/christocentric-index";
 import ReferenceChip from "@/components/ReferenceChip";
 import RichText from "@/components/RichText";
