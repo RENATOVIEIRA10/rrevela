@@ -252,6 +252,8 @@ const RevelaAgora = () => {
                 )}
               </div>
 
+              <RevelaShareSection query={query} response={response} />
+
               <p className="text-xs text-muted-foreground text-center pt-4">
                 Todas as respostas são fundamentadas exclusivamente na Escritura.
               </p>
