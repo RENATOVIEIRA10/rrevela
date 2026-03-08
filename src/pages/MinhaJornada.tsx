@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookMarked, Palette, BookOpen, Clock, RotateCcw, Sparkles } from "lucide-react";
+import { BookMarked, Palette, BookOpen, Clock, RotateCcw, Sparkles, Eye, Map } from "lucide-react";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import SpiritualMirror from "@/components/SpiritualMirror";
+import DoctrinalMap from "@/components/DoctrinalMap";
 
 const MinhaJornada = () => {
   const stats = useJourneyStats();
@@ -67,6 +69,22 @@ const MinhaJornada = () => {
                 <StatCard label="Anotações" value={stats.totalNotes} icon="📝" />
                 <StatCard label="Capítulos" value={stats.studiedChapters.length} icon="📖" />
               </motion.div>
+
+              {/* Espelho Espiritual */}
+              <SectionCard
+                icon={<Eye className="w-4 h-4" />}
+                title="Espelho espiritual"
+                delay={0.12}
+              >
+                <SpiritualMirror
+                  totalHighlights={stats.totalHighlights}
+                  totalNotes={stats.totalNotes}
+                  colorDistribution={stats.colorDistribution}
+                  studiedChapters={stats.studiedChapters}
+                  atCount={stats.atCount}
+                  ntCount={stats.ntCount}
+                />
+              </SectionCard>
 
               {/* (5) Equilíbrio Espiritual — Color distribution */}
               {stats.colorDistribution.length > 0 && (
@@ -165,23 +183,34 @@ const MinhaJornada = () => {
                 </SectionCard>
               )}
 
-              {/* (4) Mapa Doutrinário Pessoal — Studied chapters organized */}
-              {stats.studiedChapters.length > 0 && (
+              {/* Mapa Doutrinário Pessoal — by theme */}
+              {stats.rawHighlights.length > 0 && (
                 <SectionCard
-                  icon={<BookMarked className="w-4 h-4" />}
+                  icon={<Map className="w-4 h-4" />}
                   title="Mapa doutrinário pessoal"
                   delay={0.25}
                 >
+                  <p className="text-[10px] text-muted-foreground mb-2">
+                    Textos estudados, organizados por tema teológico.
+                  </p>
+                  <DoctrinalMap highlights={stats.rawHighlights} />
+                </SectionCard>
+              )}
+
+              {/* Studied chapters organized */}
+              {stats.studiedChapters.length > 0 && (
+                <SectionCard
+                  icon={<BookMarked className="w-4 h-4" />}
+                  title="Capítulos estudados"
+                  delay={0.3}
+                >
                   <div className="space-y-1.5">
-                    <p className="text-[10px] text-muted-foreground mb-2">
-                      Versos estudados, marcações aplicadas e anotações — organizados por capítulo.
-                    </p>
                     {stats.studiedChapters.slice(0, 15).map((ch, i) => (
                       <motion.button
                         key={`${ch.book}-${ch.chapter}`}
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + i * 0.03 }}
+                        transition={{ delay: 0.35 + i * 0.03 }}
                         onClick={() => navigate(`/leitor?livro=${encodeURIComponent(ch.book)}&cap=${ch.chapter}`)}
                         className="w-full flex items-center justify-between p-2.5 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/30 transition-colors text-left"
                       >

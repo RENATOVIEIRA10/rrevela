@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, BookOpen } from "lucide-react";
+import { Loader2, Sparkles, BookOpen, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ConfidenceBadge } from "./ConfidenceBadge";
@@ -8,6 +8,7 @@ import ReferenceChip from "./ReferenceChip";
 import RichText from "./RichText";
 import { parseReferences } from "@/lib/reference-parser";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface CrossRef {
   reference: string;
@@ -39,6 +40,7 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
   const fetchReveal = async () => {
     if (data) {
@@ -159,6 +161,16 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
                 })}
               </div>
             )}
+
+            {/* Open in Revelation Mode */}
+            <button
+              onClick={() => navigate(`/revela`)}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/15 transition-colors text-xs font-medium border border-accent/15"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Abrir no Modo Revelação
+              <ArrowRight className="w-3 h-3" />
+            </button>
 
             <p className="text-[10px] text-muted-foreground text-center">
               Baseado exclusivamente no texto bíblico.
