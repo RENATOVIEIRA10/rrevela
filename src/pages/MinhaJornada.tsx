@@ -167,23 +167,34 @@ const MinhaJornada = () => {
                 </SectionCard>
               )}
 
-              {/* (4) Mapa Doutrinário Pessoal — Studied chapters organized */}
-              {stats.studiedChapters.length > 0 && (
+              {/* Mapa Doutrinário Pessoal — by theme */}
+              {stats.rawHighlights.length > 0 && (
                 <SectionCard
-                  icon={<BookMarked className="w-4 h-4" />}
+                  icon={<Map className="w-4 h-4" />}
                   title="Mapa doutrinário pessoal"
                   delay={0.25}
                 >
+                  <p className="text-[10px] text-muted-foreground mb-2">
+                    Textos estudados, organizados por tema teológico.
+                  </p>
+                  <DoctrinalMap highlights={stats.rawHighlights} />
+                </SectionCard>
+              )}
+
+              {/* Studied chapters organized */}
+              {stats.studiedChapters.length > 0 && (
+                <SectionCard
+                  icon={<BookMarked className="w-4 h-4" />}
+                  title="Capítulos estudados"
+                  delay={0.3}
+                >
                   <div className="space-y-1.5">
-                    <p className="text-[10px] text-muted-foreground mb-2">
-                      Versos estudados, marcações aplicadas e anotações — organizados por capítulo.
-                    </p>
                     {stats.studiedChapters.slice(0, 15).map((ch, i) => (
                       <motion.button
                         key={`${ch.book}-${ch.chapter}`}
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + i * 0.03 }}
+                        transition={{ delay: 0.35 + i * 0.03 }}
                         onClick={() => navigate(`/leitor?livro=${encodeURIComponent(ch.book)}&cap=${ch.chapter}`)}
                         className="w-full flex items-center justify-between p-2.5 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/30 transition-colors text-left"
                       >
