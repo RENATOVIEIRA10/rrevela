@@ -182,9 +182,9 @@ const BuscaAvancada = () => {
           </h1>
           <Link
             to="/revela"
-            className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors font-ui px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/15"
+            className="flex items-center gap-2 text-sm text-accent-foreground font-medium transition-all font-ui px-4 py-2.5 rounded-xl bg-accent shadow-sm active:scale-95 min-h-[44px]"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-4 h-4" />
             Revela
           </Link>
         </div>

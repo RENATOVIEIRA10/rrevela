@@ -93,9 +93,9 @@ const RevelaAgora = () => {
         <div className="flex items-center justify-between">
           <Link
             to="/busca"
-            className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors font-ui px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/15"
+            className="flex items-center gap-2 text-sm text-accent-foreground font-medium transition-all font-ui px-4 py-2.5 rounded-xl bg-accent shadow-sm active:scale-95 min-h-[44px]"
           >
-            <SearchCheck className="w-3.5 h-3.5" />
+            <SearchCheck className="w-4 h-4" />
             Busca
           </Link>
           <h1 className="font-scripture text-base font-semibold text-foreground tracking-wide">
