@@ -1,8 +1,9 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Search, Footprints, LogOut, Calendar, Shield, Heart } from "lucide-react";
+import { BookOpen, Search, Footprints, LogOut, Calendar, Shield, Heart, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useTheme } from "@/hooks/useTheme";
 
 const baseTabs = [
   { to: "/leitor", icon: BookOpen, label: "Palavra" },
