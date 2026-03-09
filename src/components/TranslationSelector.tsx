@@ -2,7 +2,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const TRANSLATIONS = [
   { value: "acf", label: "ACF" },
-  { value: "arc", label: "ARC" },
   { value: "aa", label: "AA" },
 ] as const;
 
