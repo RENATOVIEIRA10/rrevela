@@ -14,7 +14,7 @@ export interface BibleSearchResult {
   rank: number;
 }
 
-export function useBibleVerses(book: string, chapter: number) {
+export function useBibleVerses(book: string, chapter: number, translation: string = "acf") {
   const [verses, setVerses] = useState<BibleVerse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
