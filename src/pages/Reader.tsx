@@ -43,7 +43,14 @@ const Reader = () => {
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
-  const [translation, setTranslation] = useState<TranslationKey>("acf");
+  const [translation, setTranslation] = useState<TranslationKey>(
+    () => (localStorage.getItem("revela-translation") as TranslationKey) || "acf"
+  );
+
+  const handleTranslationChange = (v: TranslationKey) => {
+    setTranslation(v);
+    localStorage.setItem("revela-translation", v);
+  };
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
