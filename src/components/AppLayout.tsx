@@ -1,8 +1,9 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Search, Footprints, LogOut, Calendar, Shield, Heart } from "lucide-react";
+import { BookOpen, Search, Footprints, LogOut, Calendar, Shield, Heart, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useTheme } from "@/hooks/useTheme";
 
 const baseTabs = [
   { to: "/leitor", icon: BookOpen, label: "Palavra" },
@@ -16,6 +17,7 @@ const AppLayout = () => {
   const location = useLocation();
   const { signOut } = useAuth();
   const { isAdmin } = useAdminCheck();
+  const { theme, toggleTheme } = useTheme();
 
   const tabs = isAdmin
     ? [...baseTabs, { to: "/admin", icon: Shield, label: "Admin" }]
@@ -60,6 +62,17 @@ const AppLayout = () => {
               </NavLink>
             );
           })}
+          <button
+            onClick={toggleTheme}
+            className="flex flex-col items-center gap-0.5 py-2 px-3 min-w-0 text-muted-foreground/70 hover:text-accent transition-colors"
+          >
+            {theme === "dark" ? (
+              <Sun className="w-[18px] h-[18px]" strokeWidth={1.5} />
+            ) : (
+              <Moon className="w-[18px] h-[18px]" strokeWidth={1.5} />
+            )}
+            <span className="text-[9px] leading-tight tracking-wide font-ui">Tema</span>
+          </button>
           <button
             onClick={signOut}
             className="flex flex-col items-center gap-0.5 py-2 px-3 min-w-0 text-muted-foreground/70 hover:text-destructive/80 transition-colors"
