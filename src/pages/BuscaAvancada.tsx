@@ -398,7 +398,7 @@ const BuscaAvancada = () => {
                     </div>
 
                     <p className="text-sm font-scripture text-foreground/80 leading-relaxed line-clamp-3">
-                      {r.text}
+                      {highlightTerms(r.text, query)}
                     </p>
                   </motion.button>
                 );
