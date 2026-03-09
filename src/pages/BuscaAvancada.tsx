@@ -158,6 +158,20 @@ const BuscaAvancada = () => {
     setHighlightFilter("");
   };
 
+  const highlightTerms = (text: string, searchQuery: string) => {
+    if (!searchQuery.trim()) return text;
+    const words = searchQuery.trim().split(/\s+/).filter(Boolean);
+    const pattern = new RegExp(`(${words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi");
+    const parts = text.split(pattern);
+    return parts.map((part, i) =>
+      pattern.test(part) ? (
+        <mark key={i} className="bg-accent/25 text-foreground rounded-sm px-0.5">{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
