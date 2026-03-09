@@ -122,6 +122,18 @@ const VersePanel = ({
             )}
 
             <div className="flex items-center gap-4 ml-auto">
+              {onToggleFavorite && (
+                <button
+                  onClick={onToggleFavorite}
+                  className={`flex items-center gap-1.5 text-xs transition-colors font-ui ${
+                    isFavorite ? "text-accent" : "text-muted-foreground hover:text-accent"
+                  }`}
+                >
+                  <Heart className={`w-3.5 h-3.5 ${isFavorite ? "fill-current" : ""}`} />
+                  {isFavorite ? "Favorito" : "Favoritar"}
+                </button>
+              )}
+
               {onPinVerse && (
                 <button
                   onClick={onPinVerse}
