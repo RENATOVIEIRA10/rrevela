@@ -73,6 +73,18 @@ const MinhaJornada = () => {
                 <StatCard label="Capítulos" value={stats.studiedChapters.length} icon="📖" />
               </motion.div>
 
+              {/* Versículos favoritos */}
+              <SectionCard icon={<Heart className="w-4 h-4" />} title="Versículos favoritos" delay={0.12}>
+                <FavoritesList
+                  favorites={favorites}
+                  loading={favsLoading}
+                  onGoTo={(book, chapter, verse) =>
+                    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`)
+                  }
+                  onRemove={(book, chapter, verse) => toggleFavorite(book, chapter, verse)}
+                />
+              </SectionCard>
+
               {/* Espelho Espiritual */}
               <SectionCard icon={<Eye className="w-4 h-4" />} title="Espelho espiritual" delay={0.12}>
                 <SpiritualMirror
