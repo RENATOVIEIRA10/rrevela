@@ -62,6 +62,7 @@ const Reader = () => {
     }
   };
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
