@@ -583,7 +583,7 @@ const Reader = () => {
                 return (
                   <p
                     key={verse.number}
-                    className={`verse-line font-scripture text-foreground/85 leading-[2] cursor-pointer transition-colors active:text-foreground ${hlClass} ${hl ? 'has-highlight' : ''}`}
+                    className={`verse-line font-scripture ${getFontSizeClass()} text-foreground/85 leading-[2] cursor-pointer transition-colors active:text-foreground ${hlClass} ${hl ? 'has-highlight' : ''}`}
                     onClick={() => handleVerseOpen(verse)}
                   >
                     <sup className="verse-num">
