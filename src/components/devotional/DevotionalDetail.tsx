@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Check, Star, Sparkles, Share2, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Star, Sparkles, Share2, Loader2, ArrowRight, BookOpen, Heart } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import RedemptionTimeline from "@/components/RedemptionTimeline";
 import ShareMenu from "@/components/ShareMenu";
 import { supabase } from "@/integrations/supabase/client";
