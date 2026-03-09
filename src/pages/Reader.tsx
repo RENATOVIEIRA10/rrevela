@@ -387,6 +387,8 @@ const Reader = () => {
             </Button>
           </div>
 
+          <TranslationSelector value={translation} onChange={setTranslation} />
+
           <div className="flex items-center gap-1">
             <HighlightLegend />
             <button
