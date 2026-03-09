@@ -50,7 +50,11 @@ const Auth = () => {
         } else {
           toast({ title: "Erro ao entrar", description: "Algo deu errado. Tente novamente em alguns instantes.", variant: "destructive" });
         }
+        return;
       }
+
+      // Login bem-sucedido - verificar se é primeiro acesso
+      // O redirecionamento será feito após o AuthProvider detectar a sessão
     } catch {
       toast({ title: "Erro inesperado", description: "Não foi possível conectar. Verifique sua internet.", variant: "destructive" });
     } finally {
