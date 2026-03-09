@@ -125,6 +125,36 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_verses: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          translation: string
+          user_id: string
+          verse: number
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          translation?: string
+          user_id: string
+          verse: number
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          translation?: string
+          user_id?: string
+          verse?: number
+        }
+        Relationships: []
+      }
       highlights: {
         Row: {
           book: string
