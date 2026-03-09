@@ -345,7 +345,7 @@ const Reader = () => {
                     return (
                       <p
                         key={verse.number}
-                        className={`font-scripture text-foreground/85 leading-[2.2] cursor-pointer transition-all duration-200 hover:text-foreground py-0.5 ${hlClass} ${isPinned ? 'bg-accent/5 -mx-3 px-3 rounded' : ''}`}
+                        className={`font-scripture ${getFontSizeClass()} text-foreground/85 leading-[2.2] cursor-pointer transition-all duration-200 hover:text-foreground py-0.5 ${hlClass} ${isPinned ? 'bg-accent/5 -mx-3 px-3 rounded' : ''}`}
                         onClick={() => handleVerseOpen(verse)}
                       >
                         <sup className="verse-num">
