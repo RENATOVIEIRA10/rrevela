@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown, Loader2, AlertTriangle, X, Pin, PanelLeftClose, PanelRightClose } from "lucide-react";
 import { usePinnedVerse } from "@/hooks/usePinnedVerse";
 import PinnedVerseCard from "@/components/PinnedVerseCard";
@@ -51,7 +51,6 @@ const Reader = () => {
 
   const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter, translation);
 
-  // Track chapter reads
   useEffect(() => {
     if (!loading && verses.length > 0) {
       track("chapter_read", { book: selectedBook, chapter: selectedChapter });
@@ -172,172 +171,210 @@ const Reader = () => {
     const parts = text.split(regex);
     return parts.map((part, i) =>
       regex.test(part) ? (
-        <mark key={i} className="bg-accent/30 text-foreground rounded-sm px-0.5">{part}</mark>
+        <mark key={i} className="bg-accent/20 text-foreground rounded-sm px-0.5">{part}</mark>
       ) : part
     );
   };
 
-  // ─── DESKTOP LAYOUT ───
+  // ─── DESKTOP LAYOUT — Premium Study Bible ───
   if (!isMobile) {
     return (
-      <div className="flex h-full">
+      <div className="flex h-full bg-background">
         {/* Left: Navigation Sidebar */}
-        {showLeftPanel && (
-          <div className="w-56 xl:w-64 shrink-0">
-            <DesktopNavSidebar
-              currentBook={selectedBook}
-              currentChapter={selectedChapter}
-              onSelect={(book, ch) => {
-                setSelectedBook(book);
-                setSelectedChapter(ch);
-              }}
-              onSearch={setSearchQuery}
-              searchQuery={searchQuery}
-            />
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {showLeftPanel && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="w-60 xl:w-64 shrink-0"
+            >
+              <DesktopNavSidebar
+                currentBook={selectedBook}
+                currentChapter={selectedChapter}
+                onSelect={(book, ch) => {
+                  setSelectedBook(book);
+                  setSelectedChapter(ch);
+                }}
+                onSearch={setSearchQuery}
+                searchQuery={searchQuery}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Center: Scripture Text */}
+        {/* Center: Scripture Text — Protagonist */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Top bar */}
-          <div className="border-b border-border bg-card/80 backdrop-blur-sm">
-            <div className="flex items-center justify-between px-4 py-2">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
+          {/* Minimal top bar */}
+          <div className="border-b border-border/60 bg-background/95 backdrop-blur-sm">
+            <div className="flex items-center justify-between px-6 py-3">
+              <div className="flex items-center gap-3">
+                <button
                   onClick={() => setShowLeftPanel(!showLeftPanel)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
                 >
-                  <PanelLeftClose className={`w-4 h-4 ${!showLeftPanel ? 'rotate-180' : ''} transition-transform`} />
-                </Button>
-                <h2 className="font-scripture text-base font-semibold text-foreground">
-                  {selectedBook} {selectedChapter}
-                </h2>
+                  <PanelLeftClose className={`w-4 h-4 transition-transform duration-200 ${!showLeftPanel ? 'rotate-180' : ''}`} />
+                </button>
+                <div className="h-4 w-px bg-border/60" />
+                <h1 className="font-scripture text-lg font-medium text-foreground tracking-tight">
+                  {selectedBook}
+                </h1>
                 <TranslationSelector value={translation} onChange={setTranslation} />
               </div>
 
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" onClick={goToPrev} disabled={selectedChapter <= 1} className="h-7 w-7">
+                <button
+                  onClick={goToPrev}
+                  disabled={selectedChapter <= 1}
+                  className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                >
                   <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <span className="text-sm font-semibold min-w-[2rem] text-center tabular-nums">{selectedChapter}</span>
-                <Button variant="ghost" size="icon" onClick={goToNext} disabled={selectedChapter >= chapters} className="h-7 w-7">
+                </button>
+                <span className="text-sm font-medium min-w-[2.5rem] text-center tabular-nums text-foreground/80">
+                  {selectedChapter}
+                </span>
+                <button
+                  onClick={goToNext}
+                  disabled={selectedChapter >= chapters}
+                  className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                >
                   <ChevronRight className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <HighlightLegend />
                 <button
                   onClick={openChapterNote}
-                  className="flex items-center justify-center w-7 h-7 text-muted-foreground hover:text-accent transition-colors rounded hover:bg-secondary/50"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-accent hover:bg-accent/5 transition-colors"
+                  title="Anotações do capítulo"
                 >
                   <StickyNote className="w-4 h-4" />
                 </button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
+                <button
                   onClick={() => setShowRightPanel(!showRightPanel)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
                 >
-                  <PanelRightClose className={`w-4 h-4 ${!showRightPanel ? 'rotate-180' : ''} transition-transform`} />
-                </Button>
+                  <PanelRightClose className={`w-4 h-4 transition-transform duration-200 ${!showRightPanel ? 'rotate-180' : ''}`} />
+                </button>
               </div>
             </div>
 
             {/* Search results dropdown */}
             {showSearchResults && searchResults.length > 0 && (
-              <div className="mx-4 mb-2 bg-card border border-border rounded-xl shadow-lg max-h-[40vh] overflow-y-auto">
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mx-6 mb-3 bg-card border border-border/60 rounded-xl shadow-elevated max-h-[40vh] overflow-y-auto"
+              >
                 <div className="p-2">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 py-1">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-1.5">
                     {searchResults.length} resultados
                   </p>
                   {searchResults.map((r, i) => (
                     <button
                       key={`${r.book}-${r.chapter}-${r.verse}-${i}`}
                       onClick={() => navigateToSearchResult(r)}
-                      className="w-full text-left px-3 py-2 rounded-lg hover:bg-secondary/60 transition-colors"
+                      className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-secondary/60 transition-colors"
                     >
-                      <span className="text-xs font-semibold text-accent">{r.book} {r.chapter}:{r.verse}</span>
-                      <p className="text-xs text-foreground/80 font-scripture mt-0.5 line-clamp-1">
+                      <span className="text-xs font-medium text-accent">{r.book} {r.chapter}:{r.verse}</span>
+                      <p className="text-sm text-foreground/75 font-scripture mt-0.5 line-clamp-1">
                         {highlightMatch(r.text, searchQuery)}
                       </p>
                     </button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
 
-          {/* Scripture body */}
+          {/* Scripture body — Editorial layout */}
           <ScrollArea className="flex-1">
-            <motion.div
+            <motion.article
               key={`${selectedBook}-${selectedChapter}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="px-8 lg:px-12 xl:px-16 py-8 max-w-3xl mx-auto"
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="px-12 lg:px-20 xl:px-28 py-12 max-w-4xl mx-auto"
             >
+              {/* Chapter heading */}
+              <header className="mb-10 text-center">
+                <h2 className="font-scripture text-3xl font-light text-foreground/90 tracking-tight">
+                  {selectedBook}
+                </h2>
+                <p className="font-scripture text-6xl font-light text-accent/60 mt-1">
+                  {selectedChapter}
+                </p>
+              </header>
+
               {loading && (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-6 h-6 text-accent animate-spin" />
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-5 h-5 text-accent/60 animate-spin" />
                 </div>
               )}
 
               {error && !loading && (
-                <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-                  <AlertTriangle className="w-8 h-8 text-destructive/70" />
+                <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+                  <AlertTriangle className="w-6 h-6 text-destructive/60" />
                   <p className="text-sm text-muted-foreground">{error}</p>
                 </div>
               )}
 
               {!loading && !error && (
-                <div className="space-y-0.5">
+                <div className="space-y-0">
                   {verses.map((verse) => {
                     const hlClass = getHighlightClass(verse.number);
                     const isPinned = pinnedVerse?.verse === verse.number && pinnedVerse?.book === selectedBook && pinnedVerse?.chapter === selectedChapter;
                     return (
                       <p
                         key={verse.number}
-                        className={`font-scripture text-foreground/90 leading-[1.9] cursor-pointer rounded-sm transition-all hover:bg-secondary/30 px-1 -mx-1 ${hlClass} ${isPinned ? 'ring-1 ring-accent/30 bg-accent/5' : ''}`}
+                        className={`font-scripture text-foreground/85 leading-[2.2] cursor-pointer transition-all duration-200 hover:text-foreground py-0.5 ${hlClass} ${isPinned ? 'bg-accent/5 -mx-3 px-3 rounded' : ''}`}
                         onClick={() => handleVerseOpen(verse)}
                       >
-                        <sup className="text-xs text-accent font-ui font-semibold mr-1.5 select-none">
+                        <sup className="verse-num">
                           {verse.number}
                         </sup>
                         {verse.text}
-                        {isPinned && <Pin className="inline w-3 h-3 text-accent ml-1" />}
+                        {isPinned && <Pin className="inline w-3 h-3 text-accent/50 ml-1.5" />}
                       </p>
                     );
                   })}
                 </div>
               )}
-            </motion.div>
+            </motion.article>
           </ScrollArea>
         </div>
 
-        {/* Right: Study Margin */}
-        {showRightPanel && (
-          <div className="w-72 xl:w-80 shrink-0">
-            <DesktopStudyMargin
-              book={selectedBook}
-              chapter={selectedChapter}
-              depth={depth}
-              onDepthChange={setDepth}
-              pinnedVerse={pinnedVerse}
-              onUnpin={unpinVerse}
-              onGoToPinned={handleGoToPinned}
-              onNavigateToRef={handleNavigateToRef}
-              chapterNotes={chapterNotes}
-              verseNotes={verseNotes}
-              selectedVerseForNote={desktopNoteVerse}
-              onSelectVerseForNote={setDesktopNoteVerse}
-            />
-          </div>
-        )}
+        {/* Right: Study Margin — Elegant sidebar */}
+        <AnimatePresence mode="wait">
+          {showRightPanel && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="w-80 xl:w-88 shrink-0"
+            >
+              <DesktopStudyMargin
+                book={selectedBook}
+                chapter={selectedChapter}
+                depth={depth}
+                onDepthChange={setDepth}
+                pinnedVerse={pinnedVerse}
+                onUnpin={unpinVerse}
+                onGoToPinned={handleGoToPinned}
+                onNavigateToRef={handleNavigateToRef}
+                chapterNotes={chapterNotes}
+                verseNotes={verseNotes}
+                selectedVerseForNote={desktopNoteVerse}
+                onSelectVerseForNote={setDesktopNoteVerse}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Desktop Verse Panel (uses same Drawer) */}
+        {/* Desktop Verse Panel */}
         {selectedVerse && (
           <VersePanel
             open={!!selectedVerse}
@@ -360,41 +397,47 @@ const Reader = () => {
     );
   }
 
-  // ─── MOBILE LAYOUT ───
+  // ─── MOBILE LAYOUT — Intimate Bible Experience ───
   return (
-    <div className="flex flex-col h-full">
-      {/* Mobile navigation bar */}
-      <div className="border-b border-border bg-card/95 backdrop-blur-md safe-top">
-        <div className="flex items-center justify-between px-3 py-2">
+    <div className="flex flex-col h-full bg-background">
+      {/* Minimal, elegant navigation bar */}
+      <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top">
+        <div className="flex items-center justify-between px-4 py-2.5">
           <button
             onClick={() => setBookPickerOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-secondary/60 active:bg-secondary transition-colors min-w-0"
+            className="flex items-center gap-1.5 py-1 text-foreground/90 active:opacity-70 transition-opacity"
           >
-            <span className="font-scripture text-sm font-medium text-foreground truncate max-w-[120px]">
+            <span className="font-scripture text-base font-medium truncate max-w-[140px]">
               {selectedBook}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/70" />
           </button>
 
-          <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" onClick={goToPrev} disabled={selectedChapter <= 1} className="h-8 w-8">
+          <div className="flex items-center">
+            <button
+              onClick={goToPrev}
+              disabled={selectedChapter <= 1}
+              className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"
+            >
               <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <span className="text-sm font-semibold min-w-[2rem] text-center text-foreground tabular-nums">
+            </button>
+            <span className="text-sm font-medium min-w-[2rem] text-center text-foreground/80 tabular-nums">
               {selectedChapter}
             </span>
-            <Button variant="ghost" size="icon" onClick={goToNext} disabled={selectedChapter >= chapters} className="h-8 w-8">
+            <button
+              onClick={goToNext}
+              disabled={selectedChapter >= chapters}
+              className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"
+            >
               <ChevronRight className="w-4 h-4" />
-            </Button>
+            </button>
           </div>
 
-          <TranslationSelector value={translation} onChange={setTranslation} />
-
           <div className="flex items-center gap-1">
-            <HighlightLegend />
+            <TranslationSelector value={translation} onChange={setTranslation} />
             <button
               onClick={openChapterNote}
-              className="flex items-center justify-center w-8 h-8 text-muted-foreground hover:text-accent transition-colors rounded-lg hover:bg-secondary/50"
+              className="p-2 text-muted-foreground active:text-accent transition-colors"
               aria-label="Caderno"
             >
               <StickyNote className="w-4 h-4" />
@@ -402,60 +445,67 @@ const Reader = () => {
           </div>
         </div>
 
-        {/* Search bar */}
-        <div className="px-3 pb-2 relative">
+        {/* Subtle search bar */}
+        <div className="px-4 pb-2.5 relative">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
             <Input
-              placeholder="Buscar palavra na Bíblia..."
+              placeholder="Buscar na Bíblia..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-8 bg-secondary/40 border-0 text-sm h-8 rounded-lg"
+              className="pl-9 pr-8 bg-secondary/30 border-0 text-sm h-9 rounded-xl placeholder:text-muted-foreground/50"
             />
             {searchQuery && (
               <button
                 onClick={() => { setSearchQuery(""); setShowSearchResults(false); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
             {searching && (
-              <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground animate-spin" />
+              <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60 animate-spin" />
             )}
           </div>
 
-          {showSearchResults && searchResults.length > 0 && (
-            <div className="absolute left-3 right-3 top-full z-50 mt-1 bg-card border border-border rounded-xl shadow-lg max-h-[50vh] overflow-y-auto">
-              <div className="p-2">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 py-1">
-                  {searchResults.length} resultados
-                </p>
-                {searchResults.map((r, i) => (
-                  <button
-                    key={`${r.book}-${r.chapter}-${r.verse}-${i}`}
-                    onClick={() => navigateToSearchResult(r)}
-                    className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-secondary/60 active:bg-secondary transition-colors"
-                  >
-                    <span className="text-xs font-semibold text-accent">{r.book} {r.chapter}:{r.verse}</span>
-                    <p className="text-xs text-foreground/80 font-scripture mt-0.5 line-clamp-2">
-                      {highlightMatch(r.text, searchQuery)}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {showSearchResults && searchResults.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute left-4 right-4 top-full z-50 mt-2 bg-card border border-border/60 rounded-2xl shadow-premium max-h-[55vh] overflow-y-auto"
+              >
+                <div className="p-2">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-3 py-1.5">
+                    {searchResults.length} resultados
+                  </p>
+                  {searchResults.map((r, i) => (
+                    <button
+                      key={`${r.book}-${r.chapter}-${r.verse}-${i}`}
+                      onClick={() => navigateToSearchResult(r)}
+                      className="w-full text-left px-3 py-3 rounded-xl active:bg-secondary/70 transition-colors"
+                    >
+                      <span className="text-xs font-medium text-accent">{r.book} {r.chapter}:{r.verse}</span>
+                      <p className="text-sm text-foreground/75 font-scripture mt-0.5 line-clamp-2">
+                        {highlightMatch(r.text, searchQuery)}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {showSearchResults && searchResults.length === 0 && !searching && searchQuery.trim() && (
-            <div className="absolute left-3 right-3 top-full z-50 mt-1 bg-card border border-border rounded-xl shadow-lg p-4">
+            <div className="absolute left-4 right-4 top-full z-50 mt-2 bg-card border border-border/60 rounded-2xl shadow-premium p-5">
               <p className="text-sm text-muted-foreground text-center">
                 Nenhum resultado para "{searchQuery}"
               </p>
             </div>
           )}
         </div>
-      </div>
+      </header>
 
       <BookPickerDrawer
         open={bookPickerOpen}
@@ -468,7 +518,7 @@ const Reader = () => {
         currentChapter={selectedChapter}
       />
 
-      {/* Pinned verse card (mobile) */}
+      {/* Pinned verse card */}
       {pinnedVerse && (
         <PinnedVerseCard
           pinned={pinnedVerse}
@@ -477,44 +527,50 @@ const Reader = () => {
         />
       )}
 
-      {/* Scripture text */}
+      {/* Scripture text — Premium mobile reading */}
       <ScrollArea className="flex-1">
-        <motion.div
+        <motion.article
           key={`${selectedBook}-${selectedChapter}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="px-5 py-6 max-w-2xl mx-auto"
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="px-6 py-8"
         >
-          <h2 className="font-scripture text-lg font-semibold text-foreground mb-6">
-            {selectedBook} {selectedChapter}
-          </h2>
+          {/* Chapter title — elegant, minimal */}
+          <header className="mb-8 text-center">
+            <h2 className="font-scripture text-xl font-normal text-foreground/85">
+              {selectedBook}
+            </h2>
+            <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">
+              {selectedChapter}
+            </p>
+          </header>
 
           {loading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-accent animate-spin" />
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-5 h-5 text-accent/50 animate-spin" />
             </div>
           )}
 
           {error && !loading && (
-            <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-              <AlertTriangle className="w-8 h-8 text-destructive/70" />
+            <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
+              <AlertTriangle className="w-6 h-6 text-destructive/60" />
               <p className="text-sm text-muted-foreground">{error}</p>
             </div>
           )}
 
           {!loading && !error && (
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {verses.map((verse) => {
                 const hlClass = getHighlightClass(verse.number);
                 const hl = hasHighlight(verse.number);
                 return (
                   <p
                     key={verse.number}
-                    className={`verse-line font-scripture text-foreground/90 leading-[1.8] cursor-pointer rounded-sm transition-all active:scale-[0.99] ${hlClass} ${hl ? 'has-highlight' : ''}`}
+                    className={`verse-line font-scripture text-foreground/85 leading-[2] cursor-pointer transition-colors active:text-foreground ${hlClass} ${hl ? 'has-highlight' : ''}`}
                     onClick={() => handleVerseOpen(verse)}
                   >
-                    <sup className="text-xs text-accent font-ui font-semibold mr-1.5 select-none">
+                    <sup className="verse-num">
                       {verse.number}
                     </sup>
                     {verse.text}
@@ -524,9 +580,10 @@ const Reader = () => {
             </div>
           )}
 
-          {/* Mobile: Revelation Mode below text */}
+          {/* Mobile study tools — below text, elegant separation */}
           {!loading && !error && verses.length > 0 && (
-            <div className="mt-8 border-t border-border pt-4 space-y-4">
+            <div className="mt-12 pt-8 space-y-5">
+              <div className="editorial-divider mb-6" />
               <DepthSelector value={depth} onChange={setDepth} />
               <RedemptionTimeline book={selectedBook} chapter={selectedChapter} />
               <HistoricalContextPanel book={selectedBook} chapter={selectedChapter} />
@@ -543,7 +600,7 @@ const Reader = () => {
               />
             </div>
           )}
-        </motion.div>
+        </motion.article>
       </ScrollArea>
 
       {/* Mobile Verse Panel */}

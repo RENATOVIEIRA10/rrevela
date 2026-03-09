@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,101 +6,102 @@
 
 @layer base {
   :root {
-    /* Branding: Papel e Tinta */
-    --background: 40 27% 96%;        /* #F9F7F2 Vellum */
-    --foreground: 210 7% 11%;        /* #1A1C1E Deep Ink */
+    /* Premium Paper & Leather palette */
+    --background: 42 32% 96%;        /* #FAF8F4 Warm Vellum */
+    --foreground: 220 10% 12%;       /* #1C1F22 Rich Ink */
 
-    --card: 40 30% 97%;              /* warm paper surface */
-    --card-foreground: 210 7% 11%;
+    --card: 42 35% 97%;              /* Cream paper surface */
+    --card-foreground: 220 10% 12%;
 
-    --popover: 40 30% 97%;
-    --popover-foreground: 210 7% 11%;
+    --popover: 42 35% 98%;
+    --popover-foreground: 220 10% 12%;
 
-    --primary: 3 44% 27%;            /* #632A26 Theology Wine */
-    --primary-foreground: 40 27% 96%;
+    --primary: 8 38% 24%;            /* #542A22 Deep Burgundy Leather */
+    --primary-foreground: 42 32% 96%;
 
-    --secondary: 37 25% 92%;         /* warm muted surface */
-    --secondary-foreground: 210 7% 11%;
+    --secondary: 40 20% 94%;         /* Soft parchment */
+    --secondary-foreground: 220 10% 12%;
 
-    --muted: 37 18% 90%;
-    --muted-foreground: 200 5% 47%;  /* #70777A Dusty Slate */
+    --muted: 40 15% 91%;
+    --muted-foreground: 220 8% 50%;  /* #747980 Soft Slate */
 
-    --accent: 3 44% 27%;             /* Theology Wine */
-    --accent-foreground: 40 27% 96%;
+    --accent: 8 38% 28%;             /* #5C3028 Warm Leather accent */
+    --accent-foreground: 42 32% 96%;
 
-    --destructive: 0 60% 50%;
+    --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 37 20% 89%;            /* #E8E4DB */
-    --input: 37 20% 89%;
-    --ring: 3 44% 27%;
+    --border: 40 18% 88%;            /* #E5E1D8 Subtle paper edge */
+    --input: 40 18% 88%;
+    --ring: 8 38% 28%;
 
-    --radius: 0.25rem;               /* 4px — bordas mínimas */
+    --radius: 0.375rem;              /* 6px — refined corners */
 
-    /* Highlight system */
-    --highlight-promise: 45 85% 88%;       /* Soft Amber #FDF2D0 */
-    --highlight-response: 140 35% 60%;
-    --highlight-attribute: 210 45% 55%;
-    --highlight-emotion: 330 40% 70%;
-    --highlight-doctrine: 270 35% 55%;
+    /* Premium Highlight system — organic, elegant */
+    --highlight-promise: 45 75% 88%;       /* Soft Gold #FDF2D0 */
+    --highlight-response: 150 30% 70%;     /* Sage Green */
+    --highlight-attribute: 215 35% 65%;    /* Soft Blue */
+    --highlight-emotion: 340 35% 75%;      /* Dusty Rose */
+    --highlight-doctrine: 280 25% 70%;     /* Muted Lavender */
 
     /* Sidebar */
-    --sidebar-background: 40 25% 96%;
-    --sidebar-foreground: 210 7% 11%;
-    --sidebar-primary: 3 44% 27%;
-    --sidebar-primary-foreground: 40 27% 96%;
-    --sidebar-accent: 37 25% 92%;
-    --sidebar-accent-foreground: 210 7% 11%;
-    --sidebar-border: 37 20% 89%;
-    --sidebar-ring: 3 44% 27%;
+    --sidebar-background: 42 28% 97%;
+    --sidebar-foreground: 220 10% 12%;
+    --sidebar-primary: 8 38% 24%;
+    --sidebar-primary-foreground: 42 32% 96%;
+    --sidebar-accent: 40 20% 94%;
+    --sidebar-accent-foreground: 220 10% 12%;
+    --sidebar-border: 40 18% 90%;
+    --sidebar-ring: 8 38% 28%;
 
     /* Typography */
     --font-scripture: 'Crimson Pro', Georgia, 'Times New Roman', serif;
     --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
 
-    /* Shadows — minimal, paper-like */
-    --shadow-soft: 0 1px 2px 0 hsl(210 7% 11% / 0.03);
-    --shadow-card: 0 1px 3px -1px hsl(210 7% 11% / 0.04), 0 1px 0 0 hsl(37 20% 89% / 0.6);
-    --shadow-elevated: 0 4px 12px -4px hsl(210 7% 11% / 0.06);
+    /* Premium Shadows — soft, paper-like depth */
+    --shadow-soft: 0 1px 2px 0 hsl(220 10% 12% / 0.02);
+    --shadow-card: 0 2px 8px -2px hsl(220 10% 12% / 0.04), 0 1px 2px -1px hsl(220 10% 12% / 0.02);
+    --shadow-elevated: 0 8px 24px -8px hsl(220 10% 12% / 0.08), 0 4px 8px -4px hsl(220 10% 12% / 0.04);
+    --shadow-premium: 0 12px 40px -12px hsl(220 10% 12% / 0.1), 0 4px 12px -4px hsl(220 10% 12% / 0.05);
   }
 
   .dark {
-    --background: 210 10% 8%;       /* Deep dark */
-    --foreground: 37 15% 88%;
+    --background: 220 12% 7%;        /* Deep study room */
+    --foreground: 40 18% 88%;
 
-    --card: 210 8% 12%;
-    --card-foreground: 37 15% 88%;
+    --card: 220 10% 10%;
+    --card-foreground: 40 18% 88%;
 
-    --popover: 210 8% 12%;
-    --popover-foreground: 37 15% 88%;
+    --popover: 220 10% 10%;
+    --popover-foreground: 40 18% 88%;
 
-    --primary: 3 40% 55%;           /* Lighter wine for dark */
-    --primary-foreground: 210 10% 8%;
+    --primary: 8 35% 55%;            /* Warm leather in dark */
+    --primary-foreground: 220 12% 7%;
 
-    --secondary: 210 8% 16%;
-    --secondary-foreground: 37 15% 88%;
+    --secondary: 220 8% 14%;
+    --secondary-foreground: 40 18% 88%;
 
-    --muted: 210 6% 18%;
-    --muted-foreground: 200 5% 55%;
+    --muted: 220 6% 16%;
+    --muted-foreground: 220 8% 55%;
 
-    --accent: 3 40% 55%;
-    --accent-foreground: 37 15% 88%;
+    --accent: 8 35% 55%;
+    --accent-foreground: 40 18% 88%;
 
-    --destructive: 0 55% 40%;
+    --destructive: 0 50% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 6% 18%;
-    --input: 210 6% 18%;
-    --ring: 3 40% 55%;
+    --border: 220 6% 16%;
+    --input: 220 6% 16%;
+    --ring: 8 35% 55%;
 
-    --sidebar-background: 210 8% 10%;
-    --sidebar-foreground: 37 15% 88%;
-    --sidebar-primary: 3 40% 55%;
-    --sidebar-primary-foreground: 37 15% 88%;
-    --sidebar-accent: 210 6% 16%;
-    --sidebar-accent-foreground: 37 15% 88%;
-    --sidebar-border: 210 6% 18%;
-    --sidebar-ring: 3 40% 55%;
+    --sidebar-background: 220 10% 8%;
+    --sidebar-foreground: 40 18% 88%;
+    --sidebar-primary: 8 35% 55%;
+    --sidebar-primary-foreground: 40 18% 88%;
+    --sidebar-accent: 220 6% 14%;
+    --sidebar-accent-foreground: 40 18% 88%;
+    --sidebar-border: 220 6% 16%;
+    --sidebar-ring: 8 35% 55%;
   }
 }
 
@@ -112,100 +113,178 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-ui);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Scripture text styling */
+  /* Premium Scripture Typography */
   .font-scripture {
     font-family: var(--font-scripture);
     font-size: 1.125rem;
-    line-height: 1.75;
-    letter-spacing: 0.01em;
+    line-height: 2;
+    letter-spacing: 0.005em;
+    font-weight: 400;
   }
 
   .font-scripture-lg {
     font-family: var(--font-scripture);
-    font-size: 1.25rem;
-    line-height: 1.8;
-    letter-spacing: 0.01em;
+    font-size: 1.3125rem;
+    line-height: 2.1;
+    letter-spacing: 0.005em;
+    font-weight: 400;
   }
 
-  /* Highlight system — desktop: subtle underline + tint; mobile: clean dot marker */
+  /* Desktop verse text — larger, more book-like */
+  @media (min-width: 768px) {
+    .font-scripture {
+      font-size: 1.1875rem;
+      line-height: 2.15;
+    }
+    .font-scripture-lg {
+      font-size: 1.375rem;
+      line-height: 2.2;
+    }
+  }
   
-  /* Desktop highlights */
+  /* Premium Highlight system — elegant, organic */
+  
+  /* Desktop: subtle underline + soft tint */
   @media (min-width: 768px) {
     .highlight-promise {
-      background-color: hsl(var(--highlight-promise) / 0.2);
-      border-bottom: 2px solid hsl(var(--highlight-promise) / 0.5);
-      border-radius: 2px;
-      padding: 1px 2px;
+      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-promise) / 0.35) 60%);
+      border-radius: 1px;
+      padding: 0 2px;
+      margin: 0 -2px;
     }
     .highlight-response {
-      background-color: hsl(var(--highlight-response) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-response) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
+      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-response) / 0.25) 60%);
+      border-radius: 1px;
+      padding: 0 2px;
+      margin: 0 -2px;
     }
     .highlight-attribute {
-      background-color: hsl(var(--highlight-attribute) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-attribute) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
+      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-attribute) / 0.25) 60%);
+      border-radius: 1px;
+      padding: 0 2px;
+      margin: 0 -2px;
     }
     .highlight-emotion {
-      background-color: hsl(var(--highlight-emotion) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-emotion) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
+      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-emotion) / 0.25) 60%);
+      border-radius: 1px;
+      padding: 0 2px;
+      margin: 0 -2px;
     }
     .highlight-doctrine {
-      background-color: hsl(var(--highlight-doctrine) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-doctrine) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
+      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-doctrine) / 0.25) 60%);
+      border-radius: 1px;
+      padding: 0 2px;
+      margin: 0 -2px;
     }
   }
 
-  /* Mobile highlights — NO background paint, dots handled via pseudo-element */
+  /* Mobile: elegant margin dot marker */
   @media (max-width: 767px) {
     .verse-line {
       position: relative;
-      padding-left: 1rem;
+      padding-left: 0.875rem;
     }
     .verse-line.has-highlight::before {
       content: '';
       position: absolute;
       left: 0;
-      top: 0.55em;
-      width: 6px;
-      height: 6px;
+      top: 0.65em;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
+      opacity: 0.85;
     }
-    .verse-line.highlight-promise::before { background-color: hsl(var(--highlight-promise)); }
-    .verse-line.highlight-response::before { background-color: hsl(var(--highlight-response)); }
-    .verse-line.highlight-attribute::before { background-color: hsl(var(--highlight-attribute)); }
-    .verse-line.highlight-emotion::before { background-color: hsl(var(--highlight-emotion)); }
-    .verse-line.highlight-doctrine::before { background-color: hsl(var(--highlight-doctrine)); }
+    .verse-line.highlight-promise::before { background-color: hsl(45 70% 55%); }
+    .verse-line.highlight-response::before { background-color: hsl(150 35% 50%); }
+    .verse-line.highlight-attribute::before { background-color: hsl(215 40% 55%); }
+    .verse-line.highlight-emotion::before { background-color: hsl(340 40% 60%); }
+    .verse-line.highlight-doctrine::before { background-color: hsl(280 30% 55%); }
   }
 
-  /* Notebook page style */
+  /* Premium Notebook styling */
   .notebook-page {
     background: linear-gradient(
-      to bottom,
+      180deg,
       hsl(var(--background)) 0%,
-      hsl(40 30% 97%) 100%
+      hsl(42 35% 97%) 100%
     );
-    border: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 3px -1px hsl(210 7% 11% / 0.04);
+    border: 1px solid hsl(var(--border) / 0.7);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Editorial divider */
+  .editorial-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, hsl(var(--border)) 15%, hsl(var(--border)) 85%, transparent 100%);
   }
 }
 
 @layer utilities {
   /* Safe area padding for PWA */
   .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.75rem);
   }
 
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Premium glass effect */
+  .glass-surface {
+    background: hsl(var(--card) / 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Subtle hover for interactive elements */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  /* Premium button style */
+  .btn-premium {
+    @apply transition-all duration-200 ease-out;
+    @apply hover:shadow-soft active:scale-[0.98];
+  }
+
+  /* Verse number styling */
+  .verse-num {
+    @apply text-[0.7rem] font-ui font-semibold text-accent/70 mr-2 select-none align-super;
+    font-feature-settings: "tnum";
+  }
+
+  /* Scripture container */
+  .scripture-container {
+    @apply max-w-prose mx-auto;
+  }
+}
+
+/* Premium scrollbar styling */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.3);
+    background-clip: padding-box;
   }
 }
