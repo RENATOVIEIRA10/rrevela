@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sparkles } from "lucide-react";
 import { useDevotionalJourney, useVerseOfDay } from "@/hooks/useDevotional";
 import VerseOfDayCard from "@/components/devotional/VerseOfDayCard";
 import JourneyProgress from "@/components/devotional/JourneyProgress";
 import DevotionalCard from "@/components/devotional/DevotionalCard";
 import DevotionalDetail from "@/components/devotional/DevotionalDetail";
+import QuickDevotional from "@/components/QuickDevotional";
 import type { DevotionalEntry } from "@/hooks/useDevotional";
 
 const ERA_LABELS: Record<string, { label: string; emoji: string }> = {
@@ -24,6 +26,7 @@ const Devocional = () => {
   const { verse: dailyVerse, loading: verseLoading } = useVerseOfDay();
   const [selectedEntry, setSelectedEntry] = useState<DevotionalEntry | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("journey");
+  const [quickOpen, setQuickOpen] = useState(false);
 
   if (selectedEntry) {
     const p = progress.get(selectedEntry.id);
@@ -82,6 +85,16 @@ const Devocional = () => {
 
       <ScrollArea className="flex-1">
         <div className="px-4 py-5 max-w-2xl mx-auto w-full space-y-6 pb-8">
+          {/* Quick Devotional CTA */}
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => setQuickOpen(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-medium">Devocional Rápido · 3 min</span>
+          </motion.button>
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
@@ -164,6 +177,8 @@ const Devocional = () => {
           )}
         </div>
       </ScrollArea>
+
+      <QuickDevotional open={quickOpen} onOpenChange={setQuickOpen} />
     </div>
   );
 };
