@@ -227,7 +227,7 @@ const Reader = () => {
                 <h1 className="font-scripture text-lg font-medium text-foreground tracking-tight">
                   {selectedBook}
                 </h1>
-                <TranslationSelector value={translation} onChange={setTranslation} />
+                <TranslationSelector value={translation} onChange={handleTranslationChange} />
               </div>
 
               <div className="flex items-center gap-1">
