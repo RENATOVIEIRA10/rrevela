@@ -25,6 +25,7 @@ import PublicVerse from "./pages/PublicVerse";
 import PublicStudy from "./pages/PublicStudy";
 import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
+import Perfil from "./pages/Perfil";
 import { useAdminCheck } from "./hooks/useAdminCheck";
 import { Button } from "./components/ui/button";
 
