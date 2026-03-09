@@ -3,7 +3,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 const TRANSLATIONS = [
   { value: "acf", label: "ACF", fullName: "Almeida Corrigida Fiel" },
-  { value: "aa", label: "AA", fullName: "Almeida Atualizada" },
+  { value: "ara", label: "ARA", fullName: "Almeida Revisada" },
+  { value: "nvi", label: "NVI", fullName: "Nova Versão Internacional" },
 ] as const;
 
 export type TranslationKey = (typeof TRANSLATIONS)[number]["value"];
