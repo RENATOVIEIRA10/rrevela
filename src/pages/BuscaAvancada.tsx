@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search, Filter, BookOpen, Loader2, ChevronDown, X, ArrowRight,
+  Search, Filter, BookOpen, Loader2, ChevronDown, X, ArrowRight, Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
