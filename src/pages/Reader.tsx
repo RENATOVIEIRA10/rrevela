@@ -46,10 +46,19 @@ const Reader = () => {
   const [translation, setTranslation] = useState<TranslationKey>(
     () => (localStorage.getItem("revela-translation") as TranslationKey) || "acf"
   );
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem("revela-font-size") || "md");
 
   const handleTranslationChange = (v: TranslationKey) => {
     setTranslation(v);
     localStorage.setItem("revela-translation", v);
+  };
+
+  const getFontSizeClass = () => {
+    switch (fontSize) {
+      case "sm": return "text-[0.9375rem]"; // 15px
+      case "lg": return "text-[1.3125rem]"; // 21px
+      default: return "text-[1.125rem]"; // 18px (md)
+    }
   };
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
@@ -57,6 +66,17 @@ const Reader = () => {
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
 
   const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter, translation);
+
+  // Listen for font size changes from localStorage (when changed in Profile)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "revela-font-size" && e.newValue) {
+        setFontSize(e.newValue);
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   useEffect(() => {
     if (!loading && verses.length > 0) {
@@ -336,7 +356,7 @@ const Reader = () => {
                     return (
                       <p
                         key={verse.number}
-                        className={`font-scripture text-foreground/85 leading-[2.2] cursor-pointer transition-all duration-200 hover:text-foreground py-0.5 ${hlClass} ${isPinned ? 'bg-accent/5 -mx-3 px-3 rounded' : ''}`}
+                        className={`font-scripture ${getFontSizeClass()} text-foreground/85 leading-[2.2] cursor-pointer transition-all duration-200 hover:text-foreground py-0.5 ${hlClass} ${isPinned ? 'bg-accent/5 -mx-3 px-3 rounded' : ''}`}
                         onClick={() => handleVerseOpen(verse)}
                       >
                         <sup className="verse-num">
@@ -574,7 +594,7 @@ const Reader = () => {
                 return (
                   <p
                     key={verse.number}
-                    className={`verse-line font-scripture text-foreground/85 leading-[2] cursor-pointer transition-colors active:text-foreground ${hlClass} ${hl ? 'has-highlight' : ''}`}
+                    className={`verse-line font-scripture ${getFontSizeClass()} text-foreground/85 leading-[2] cursor-pointer transition-colors active:text-foreground ${hlClass} ${hl ? 'has-highlight' : ''}`}
                     onClick={() => handleVerseOpen(verse)}
                   >
                     <sup className="verse-num">
