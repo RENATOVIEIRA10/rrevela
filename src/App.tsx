@@ -17,6 +17,7 @@ import RevelaAgora from "./pages/RevelaAgora";
 import MinhaJornada from "./pages/MinhaJornada";
 import LinhaPromessa from "./pages/LinhaPromessa";
 import Devocional from "./pages/Devocional";
+import PlanoLeitura from "./pages/PlanoLeitura";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import PublicVerse from "./pages/PublicVerse";
