@@ -1,8 +1,9 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const TRANSLATIONS = [
-  { value: "acf", label: "ACF" },
-  { value: "aa", label: "AA" },
+  { value: "acf", label: "ACF", fullName: "Almeida Corrigida Fiel" },
+  { value: "aa", label: "AA", fullName: "Almeida Atualizada" },
 ] as const;
 
 export type TranslationKey = (typeof TRANSLATIONS)[number]["value"];
@@ -23,13 +24,19 @@ const TranslationSelector = ({ value, onChange }: TranslationSelectorProps) => (
     className="bg-secondary/40 rounded-lg p-0.5"
   >
     {TRANSLATIONS.map((t) => (
-      <ToggleGroupItem
-        key={t.value}
-        value={t.value}
-        className="text-[11px] px-2.5 py-1 h-auto rounded-md data-[state=on]:bg-accent data-[state=on]:text-accent-foreground font-medium"
-      >
-        {t.label}
-      </ToggleGroupItem>
+      <Tooltip key={t.value}>
+        <TooltipTrigger asChild>
+          <ToggleGroupItem
+            value={t.value}
+            className="text-[11px] px-2.5 py-1 h-auto rounded-md data-[state=on]:bg-accent data-[state=on]:text-accent-foreground font-medium"
+          >
+            {t.label}
+          </ToggleGroupItem>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="text-xs">
+          {t.fullName}
+        </TooltipContent>
+      </Tooltip>
     ))}
   </ToggleGroup>
 );
