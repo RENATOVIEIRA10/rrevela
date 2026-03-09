@@ -14,9 +14,7 @@ const baseTabs = [
 
 const AppLayout = () => {
   const location = useLocation();
-  const { signOut } = useAuth();
   const { isAdmin } = useAdminCheck();
-  const { theme, toggleTheme } = useTheme();
 
   const tabs = isAdmin
     ? [...baseTabs, { to: "/admin", icon: Shield, label: "Admin" }]
