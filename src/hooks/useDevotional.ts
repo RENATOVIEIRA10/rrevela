@@ -153,41 +153,63 @@ export function useVerseOfDay() {
       const now = new Date();
       const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
       
-      // Curated list of key verses for daily rotation
-      const dailyVerses = [
-        { book: "Salmos", chapter: 23, verse: 1 },
-        { book: "João", chapter: 3, verse: 16 },
-        { book: "Romanos", chapter: 8, verse: 28 },
-        { book: "Isaías", chapter: 41, verse: 10 },
-        { book: "Filipenses", chapter: 4, verse: 13 },
-        { book: "Salmos", chapter: 46, verse: 1 },
-        { book: "Provérbios", chapter: 3, verse: 5 },
-        { book: "Jeremias", chapter: 29, verse: 11 },
-        { book: "Romanos", chapter: 5, verse: 8 },
-        { book: "2 Coríntios", chapter: 5, verse: 17 },
-        { book: "Efésios", chapter: 2, verse: 8 },
-        { book: "Hebreus", chapter: 11, verse: 1 },
-        { book: "1 João", chapter: 4, verse: 19 },
-        { book: "Gálatas", chapter: 2, verse: 20 },
-        { book: "Salmos", chapter: 119, verse: 105 },
-        { book: "Mateus", chapter: 11, verse: 28 },
-        { book: "Romanos", chapter: 12, verse: 2 },
-        { book: "Colossenses", chapter: 3, verse: 23 },
-        { book: "Salmos", chapter: 27, verse: 1 },
-        { book: "João", chapter: 14, verse: 6 },
-        { book: "Isaías", chapter: 53, verse: 5 },
-        { book: "Gênesis", chapter: 1, verse: 1 },
-        { book: "Apocalipse", chapter: 21, verse: 4 },
-        { book: "Salmos", chapter: 139, verse: 14 },
-        { book: "1 Coríntios", chapter: 13, verse: 4 },
-        { book: "Romanos", chapter: 6, verse: 23 },
-        { book: "Salmos", chapter: 34, verse: 8 },
-        { book: "João", chapter: 1, verse: 14 },
-        { book: "Mateus", chapter: 28, verse: 20 },
-        { book: "2 Timóteo", chapter: 3, verse: 16 },
+      // Expanded curated list organized by spiritual themes for better personalization
+      const thematicVerses = {
+        hope: [
+          { book: "Jeremias", chapter: 29, verse: 11 },
+          { book: "Romanos", chapter: 8, verse: 28 },
+          { book: "Salmos", chapter: 27, verse: 1 },
+          { book: "Isaías", chapter: 41, verse: 10 },
+          { book: "Salmos", chapter: 46, verse: 1 },
+        ],
+        identity: [
+          { book: "2 Coríntios", chapter: 5, verse: 17 },
+          { book: "Gálatas", chapter: 2, verse: 20 },
+          { book: "Efésios", chapter: 2, verse: 8 },
+          { book: "1 João", chapter: 4, verse: 19 },
+          { book: "Salmos", chapter: 139, verse: 14 },
+        ],
+        promises: [
+          { book: "João", chapter: 3, verse: 16 },
+          { book: "Filipenses", chapter: 4, verse: 13 },
+          { book: "Mateus", chapter: 11, verse: 28 },
+          { book: "João", chapter: 14, verse: 6 },
+          { book: "Mateus", chapter: 28, verse: 20 },
+        ],
+        wisdom: [
+          { book: "Provérbios", chapter: 3, verse: 5 },
+          { book: "Salmos", chapter: 119, verse: 105 },
+          { book: "2 Timóteo", chapter: 3, verse: 16 },
+          { book: "Hebreus", chapter: 11, verse: 1 },
+          { book: "Salmos", chapter: 34, verse: 8 },
+        ],
+        christ: [
+          { book: "João", chapter: 1, verse: 14 },
+          { book: "Isaías", chapter: 53, verse: 5 },
+          { book: "Colossenses", chapter: 3, verse: 23 },
+          { book: "1 Coríntios", chapter: 13, verse: 4 },
+          { book: "Romanos", chapter: 6, verse: 23 },
+        ],
+        foundation: [
+          { book: "Gênesis", chapter: 1, verse: 1 },
+          { book: "Salmos", chapter: 23, verse: 1 },
+          { book: "Romanos", chapter: 5, verse: 8 },
+          { book: "Romanos", chapter: 12, verse: 2 },
+          { book: "Apocalipse", chapter: 21, verse: 4 },
+        ]
+      };
+
+      // Combine all verses in a balanced rotation
+      const allVerses = [
+        ...thematicVerses.hope,
+        ...thematicVerses.identity, 
+        ...thematicVerses.promises,
+        ...thematicVerses.wisdom,
+        ...thematicVerses.christ,
+        ...thematicVerses.foundation
       ];
 
-      const pick = dailyVerses[dayOfYear % dailyVerses.length];
+      const pick = allVerses[dayOfYear % allVerses.length];
 
       const { data, error } = await supabase
         .from("bible_verses")
@@ -208,4 +230,26 @@ export function useVerseOfDay() {
   }, []);
 
   return { verse, loading };
+}
+
+// Hook personalizado para versículo baseado nos padrões do usuário
+export function usePersonalizedVerseOfDay() {
+  const { verse: dailyVerse, loading: dailyLoading } = useVerseOfDay();
+  const [personalizedVerse, setPersonalizedVerse] = useState<{ book: string; chapter: number; verse: number; text: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPersonalizedVerse = async () => {
+      // TODO: Em versões futuras, usar os padrões de estudo do usuário
+      // Por agora, usar o versículo do dia padrão
+      if (dailyVerse) {
+        setPersonalizedVerse(dailyVerse);
+      }
+      setLoading(dailyLoading);
+    };
+
+    fetchPersonalizedVerse();
+  }, [dailyVerse, dailyLoading]);
+
+  return { verse: personalizedVerse, loading };
 }
