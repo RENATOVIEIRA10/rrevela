@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2 } from "lucide-react";
+import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2, SearchCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -89,9 +90,19 @@ const RevelaAgora = () => {
     <div className="flex flex-col h-full bg-background">
       {/* Header — editorial, minimal */}
       <div className="glass-surface border-b border-border/40 px-5 py-3.5 safe-top">
-        <h1 className="font-scripture text-base font-semibold text-foreground text-center tracking-wide">
-          Revela Agora
-        </h1>
+        <div className="flex items-center justify-between">
+          <Link
+            to="/busca"
+            className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors font-ui px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/15"
+          >
+            <SearchCheck className="w-3.5 h-3.5" />
+            Busca
+          </Link>
+          <h1 className="font-scripture text-base font-semibold text-foreground tracking-wide">
+            Revela Agora
+          </h1>
+          <div className="w-[72px]" /> {/* spacer for centering */}
+        </div>
         <div className="editorial-divider mt-3" />
       </div>
 
