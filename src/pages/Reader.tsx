@@ -213,6 +213,7 @@ const Reader = () => {
                 <h2 className="font-scripture text-base font-semibold text-foreground">
                   {selectedBook} {selectedChapter}
                 </h2>
+                <TranslationSelector value={translation} onChange={setTranslation} />
               </div>
 
               <div className="flex items-center gap-1">
