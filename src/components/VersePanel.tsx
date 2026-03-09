@@ -51,7 +51,6 @@ const VersePanel = ({
     shareVerse(shareParams, method);
   };
 
-  // Callback from VerseRevealSection to capture reveal text for sharing
   const handleRevealLoaded = (text: string) => {
     setRevealText(text);
   };
@@ -65,60 +64,64 @@ const VersePanel = ({
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="max-h-[75vh]">
-        <DrawerHeader className="text-left pb-2">
-          <DrawerTitle className="font-scripture text-base">
+      <DrawerContent className="max-h-[80vh] bg-card border-t border-border/50 rounded-t-3xl">
+        {/* Handle bar */}
+        <div className="w-10 h-1 bg-border/60 rounded-full mx-auto mt-3 mb-1" />
+        
+        <DrawerHeader className="text-left pb-3 pt-2 px-6">
+          <DrawerTitle className="font-scripture text-base font-medium text-foreground/90">
             {book} {chapter}:{verseNumber}
           </DrawerTitle>
-          <DrawerDescription className="font-scripture text-sm text-foreground/80 italic leading-relaxed">
+          <DrawerDescription className="font-scripture text-[0.9375rem] text-foreground/75 italic leading-relaxed mt-1.5">
             {verseText}
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="px-4 pb-6 space-y-4 overflow-y-auto">
-          {/* Natural language prompt */}
-          <p className="text-xs text-muted-foreground font-scripture italic">
+        <div className="px-6 pb-8 space-y-5 overflow-y-auto">
+          {/* Highlight prompt — soft, inviting */}
+          <p className="text-xs text-muted-foreground font-ui">
             Como este texto fala comigo?
           </p>
 
+          {/* Highlight colors — organic chips */}
           <div className="flex flex-wrap gap-2">
             {HIGHLIGHT_COLORS.map((color) => {
               const isActive = currentColor === color.key;
               return (
                 <motion.button
                   key={color.key}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.96 }}
                   onClick={() => onSelectColor(isActive ? null : color.key)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all border ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${
                     isActive
-                      ? "border-accent bg-accent/10 text-accent font-medium"
-                      : "border-border bg-secondary/50 text-foreground/80 hover:bg-secondary"
+                      ? "bg-accent/10 text-accent font-medium border border-accent/25"
+                      : "bg-secondary/40 text-foreground/70 border border-transparent hover:bg-secondary/60"
                   }`}
                 >
-                  <span>{color.emoji}</span>
-                  <span>{color.label}</span>
+                  <span className="text-base">{color.emoji}</span>
+                  <span className="font-ui text-[0.8125rem]">{color.label}</span>
                 </motion.button>
               );
             })}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-3 pt-1">
+          {/* Actions — refined, minimal */}
+          <div className="flex items-center gap-4 pt-1">
             {currentColor && (
               <button
                 onClick={() => onSelectColor(null)}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive/80 transition-colors font-ui"
               >
-                <X className="w-3 h-3" />
-                Remover marca
+                <X className="w-3.5 h-3.5" />
+                Remover
               </button>
             )}
 
-            <div className="flex items-center gap-3 ml-auto">
+            <div className="flex items-center gap-4 ml-auto">
               {onPinVerse && (
                 <button
                   onClick={onPinVerse}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
                 >
                   <Pin className="w-3.5 h-3.5" />
                   Fixar
@@ -128,7 +131,7 @@ const VersePanel = ({
               {onOpenNote && (
                 <button
                   onClick={onOpenNote}
-                  className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors font-ui"
                 >
                   <StickyNote className="w-3.5 h-3.5" />
                   Anotar
@@ -137,42 +140,41 @@ const VersePanel = ({
             </div>
           </div>
 
-          {/* Share */}
-          <div className="h-px bg-border" />
+          {/* Elegant divider */}
+          <div className="editorial-divider" />
 
+          {/* Share section */}
           <div className="space-y-3">
-            {/* Share mode toggle */}
             <div className="flex gap-2">
               <button
                 onClick={() => setShareMode("verse")}
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                className={`text-xs px-3.5 py-2 rounded-xl transition-all font-ui ${
                   shareMode === "verse"
                     ? "bg-accent/10 text-accent font-medium border border-accent/20"
-                    : "bg-secondary/40 text-foreground/60 hover:bg-secondary border border-border"
+                    : "bg-secondary/30 text-foreground/60 hover:bg-secondary/50 border border-transparent"
                 }`}
               >
                 Só o versículo
               </button>
               <button
                 onClick={() => setShareMode("reveal")}
-                className={`text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${
+                className={`text-xs px-3.5 py-2 rounded-xl transition-all font-ui flex items-center gap-1.5 ${
                   shareMode === "reveal"
                     ? "bg-accent/10 text-accent font-medium border border-accent/20"
-                    : "bg-secondary/40 text-foreground/60 hover:bg-secondary border border-border"
+                    : "bg-secondary/30 text-foreground/60 hover:bg-secondary/50 border border-transparent"
                 }`}
               >
                 <Sparkles className="w-3 h-3" />
-                Versículo + revelação
+                Com revelação
               </button>
             </div>
 
             <ShareMenu onShare={handleShare} />
           </div>
 
-          {/* Separator */}
-          <div className="h-px bg-border" />
+          <div className="editorial-divider" />
 
-          {/* Revela (este verso) */}
+          {/* Revela section */}
           <VerseRevealSection
             book={book}
             chapter={chapter}
@@ -182,10 +184,9 @@ const VersePanel = ({
             onRevealLoaded={handleRevealLoaded}
           />
 
-          {/* Separator */}
-          <div className="h-px bg-border" />
+          <div className="editorial-divider" />
 
-          {/* Compare Olhares */}
+          {/* Compare section */}
           <CompareOlhares
             book={book}
             chapter={chapter}
