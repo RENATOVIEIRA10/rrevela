@@ -84,7 +84,7 @@ const Auth = () => {
       return;
     }
 
-    navigate("/leitor");
+    // Após login bem-sucedido, o useLoginRedirect fará o redirecionamento automaticamente
   };
 
   const isBusy = loading || !!socialLoading;
