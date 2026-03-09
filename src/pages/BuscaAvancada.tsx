@@ -162,9 +162,18 @@ const BuscaAvancada = () => {
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="bg-card/80 backdrop-blur-sm px-5 py-4 space-y-4">
-        <h1 className="font-scripture text-lg font-semibold text-foreground text-center tracking-wide">
-          Busca Avançada
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="font-scripture text-lg font-semibold text-foreground tracking-wide">
+            Busca Avançada
+          </h1>
+          <Link
+            to="/revela"
+            className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors font-ui px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/15"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Revela
+          </Link>
+        </div>
         <div className="editorial-divider" />
 
         {/* Search input */}
