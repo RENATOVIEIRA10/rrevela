@@ -177,6 +177,8 @@ const Devocional = () => {
           )}
         </div>
       </ScrollArea>
+
+      <QuickDevotional open={quickOpen} onOpenChange={setQuickOpen} />
     </div>
   );
 };

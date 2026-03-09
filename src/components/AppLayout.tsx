@@ -8,7 +8,7 @@ const baseTabs = [
   { to: "/leitor", icon: BookOpen, label: "Palavra" },
   { to: "/revela", icon: Search, label: "Revela" },
   { to: "/devocional", icon: Heart, label: "Devocional" },
-  { to: "/promessa", icon: Sparkles, label: "Promessa" },
+  { to: "/plano", icon: Calendar, label: "Plano" },
   { to: "/jornada", icon: Footprints, label: "Jornada" },
 ];
 

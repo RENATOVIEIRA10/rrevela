@@ -94,6 +94,7 @@ const AppRoutes = () => {
           <Route path="/leitor" element={<Reader />} />
           <Route path="/revela" element={<RevelaAgora />} />
           <Route path="/devocional" element={<Devocional />} />
+          <Route path="/plano" element={<PlanoLeitura />} />
           <Route path="/promessa" element={<LinhaPromessa />} />
           <Route path="/jornada" element={<MinhaJornada />} />
         </Route>
