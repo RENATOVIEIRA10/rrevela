@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { X, StickyNote, Pin, Sparkles } from "lucide-react";
+import { X, StickyNote, Pin, Sparkles, Heart } from "lucide-react";
 import { HIGHLIGHT_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 import { useShareVerse } from "@/hooks/useShareVerse";
 import ShareMenu from "./ShareMenu";
