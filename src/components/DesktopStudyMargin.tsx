@@ -98,6 +98,7 @@ const DesktopStudyMargin = ({
             <>
               <DepthSelector value={depth} onChange={onDepthChange} />
               <RedemptionTimeline book={book} chapter={chapter} />
+              <HistoricalContextPanel book={book} chapter={chapter} />
               <MessianicLinePanel book={book} chapter={chapter} onNavigate={onNavigateToRef} />
               {(depth === "intermediario" || depth === "profundo") && (
                 <BiblicalPatternsPanel book={book} chapter={chapter} depth={depth} onNavigate={onNavigateToRef} />
