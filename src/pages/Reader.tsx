@@ -119,7 +119,7 @@ const Reader = () => {
   const handlePinVerse = () => {
     if (selectedVerse) {
       pinVerse({
-        translation: "acf",
+        translation,
         book: selectedBook,
         chapter: selectedChapter,
         verse: selectedVerse.number,
