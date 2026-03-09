@@ -96,6 +96,7 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="/leitor" element={<Reader />} />
           <Route path="/revela" element={<RevelaAgora />} />
+          <Route path="/busca" element={<BuscaAvancada />} />
           <Route path="/devocional" element={<Devocional />} />
           <Route path="/plano" element={<PlanoLeitura />} />
           <Route path="/promessa" element={<LinhaPromessa />} />
