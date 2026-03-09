@@ -42,7 +42,6 @@ const Devocional = () => {
     );
   }
 
-  // Group entries by era
   const grouped = entries.reduce<Record<string, DevotionalEntry[]>>((acc, entry) => {
     if (!acc[entry.era_key]) acc[entry.era_key] = [];
     acc[entry.era_key].push(entry);
@@ -52,52 +51,63 @@ const Devocional = () => {
   const favorites = entries.filter(e => progress.get(e.id)?.favorited);
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="border-b border-border bg-card/80 backdrop-blur-sm px-4 py-3 space-y-3">
-        <h1 className="font-scripture text-base font-semibold text-foreground text-center">
-          O Evangelho Revelado
-        </h1>
-        <p className="text-[10px] text-muted-foreground text-center tracking-wide">
-          Uma jornada pela história da redenção
-        </p>
+    <div className="flex flex-col h-full bg-background">
+      {/* Premium Header */}
+      <div className="bg-card/80 backdrop-blur-sm px-5 py-4 space-y-3">
+        <div className="text-center space-y-0.5">
+          <h1 className="font-scripture text-lg font-semibold text-foreground tracking-wide">
+            O Evangelho Revelado
+          </h1>
+          <p className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">
+            Uma jornada pela história da redenção
+          </p>
+        </div>
 
-        {/* View toggle */}
-        <div className="flex items-center gap-1 bg-secondary/50 rounded-lg p-0.5">
+        {/* Elegant tab switcher */}
+        <div className="flex items-center justify-center gap-6 pt-1">
           <button
             onClick={() => setViewMode("journey")}
-            className={`flex-1 text-xs py-1.5 rounded-md transition-colors ${
-              viewMode === "journey" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+            className={`relative text-xs pb-1.5 transition-colors ${
+              viewMode === "journey" ? "text-foreground font-medium" : "text-muted-foreground"
             }`}
           >
             Jornada
+            {viewMode === "journey" && (
+              <motion.div layoutId="devocional-tab" className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-accent rounded-full" />
+            )}
           </button>
           <button
             onClick={() => setViewMode("favorites")}
-            className={`flex-1 text-xs py-1.5 rounded-md transition-colors ${
-              viewMode === "favorites" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+            className={`relative text-xs pb-1.5 transition-colors ${
+              viewMode === "favorites" ? "text-foreground font-medium" : "text-muted-foreground"
             }`}
           >
             Favoritos{favorites.length > 0 ? ` (${favorites.length})` : ""}
+            {viewMode === "favorites" && (
+              <motion.div layoutId="devocional-tab" className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-accent rounded-full" />
+            )}
           </button>
         </div>
+
+        <div className="editorial-divider" />
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="px-4 py-5 max-w-2xl mx-auto w-full space-y-6 pb-8">
+        <div className="px-5 py-6 max-w-2xl mx-auto w-full space-y-6 pb-10">
           {/* Quick Devotional CTA */}
           <motion.button
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => setQuickOpen(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-colors"
+            className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 rounded-xl bg-accent/[0.04] border border-accent/15 text-accent hover:bg-accent/[0.08] transition-all duration-200"
           >
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Devocional Rápido · 3 min</span>
+            <span className="text-sm font-medium tracking-wide">Devocional Rápido · 3 min</span>
           </motion.button>
+
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            <div className="flex items-center justify-center py-20">
+              <div className="w-5 h-5 border-2 border-accent/40 border-t-accent rounded-full animate-spin" />
             </div>
           ) : (
             <AnimatePresence mode="wait">
@@ -107,28 +117,25 @@ const Devocional = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-6"
+                  className="space-y-7"
                 >
-                  {/* Verse of the Day */}
                   <VerseOfDayCard verse={dailyVerse} loading={verseLoading} />
-
-                  {/* Progress */}
                   <JourneyProgress completed={completedCount} total={totalCount} />
 
                   {/* Journey grouped by era */}
                   {Object.entries(grouped).map(([eraKey, eraEntries]) => {
                     const era = ERA_LABELS[eraKey] || { label: eraKey, emoji: "📖" };
                     return (
-                      <div key={eraKey} className="space-y-2">
-                        <div className="flex items-center gap-2 px-1">
+                      <div key={eraKey} className="space-y-3">
+                        <div className="flex items-center gap-2.5 px-1">
                           <span className="text-sm">{era.emoji}</span>
-                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
+                          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
                             {era.label}
                           </span>
-                          <div className="flex-1 h-px bg-border" />
+                          <div className="flex-1 editorial-divider" />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                           {eraEntries.map((entry, i) => (
                             <DevotionalCard
                               key={entry.id}
@@ -153,9 +160,9 @@ const Devocional = () => {
                   className="space-y-3"
                 >
                   {favorites.length === 0 ? (
-                    <div className="flex flex-col items-center py-16 space-y-3">
-                      <span className="text-3xl">⭐</span>
-                      <p className="text-sm text-muted-foreground text-center">
+                    <div className="flex flex-col items-center py-20 space-y-3">
+                      <span className="text-2xl opacity-60">⭐</span>
+                      <p className="text-sm text-muted-foreground text-center max-w-xs">
                         Marque devocionais como favoritos para acessá-los aqui.
                       </p>
                     </div>
