@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sparkles } from "lucide-react";
 import { useDevotionalJourney, useVerseOfDay } from "@/hooks/useDevotional";
 import VerseOfDayCard from "@/components/devotional/VerseOfDayCard";
 import JourneyProgress from "@/components/devotional/JourneyProgress";
 import DevotionalCard from "@/components/devotional/DevotionalCard";
 import DevotionalDetail from "@/components/devotional/DevotionalDetail";
+import QuickDevotional from "@/components/QuickDevotional";
 import type { DevotionalEntry } from "@/hooks/useDevotional";
 
 const ERA_LABELS: Record<string, { label: string; emoji: string }> = {
