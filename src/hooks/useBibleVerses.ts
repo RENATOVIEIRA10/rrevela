@@ -52,7 +52,7 @@ export function useBibleVerses(book: string, chapter: number, translation: strin
 
     fetchVerses();
     return () => { cancelled = true; };
-  }, [book, chapter]);
+  }, [book, chapter, translation]);
 
   return { verses, loading, error };
 }
