@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Progress } from "@/components/ui/progress";
 
 interface JourneyProgressProps {
   completed: number;
@@ -8,40 +7,44 @@ interface JourneyProgressProps {
 
 const JourneyProgress = ({ completed, total }: JourneyProgressProps) => {
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-  
-  // Calcular "dia" da jornada baseado no progresso
-  const currentDay = Math.max(1, completed + 1); // +1 porque começamos do dia 1
-  const totalDays = Math.max(total, 40); // Pelo menos 40 dias para a jornada completa
+  const currentDay = Math.max(1, completed + 1);
+  const totalDays = Math.max(total, 40);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="rounded-xl border border-border bg-card p-4 space-y-3"
+      className="space-y-3 px-1"
     >
-      {/* Header com contador de dias */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
+          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
             O Evangelho Revelado
           </span>
           <p className="text-sm font-scripture text-foreground font-medium">
             Dia {currentDay} de {totalDays}
           </p>
         </div>
-        <span className="text-xs text-foreground font-medium bg-secondary/50 px-2 py-1 rounded-md">
+        <span className="text-[11px] text-muted-foreground tabular-nums">
           {completed}/{total}
         </span>
       </div>
 
-      <Progress value={pct} className="h-2" />
+      <div className="h-1 bg-secondary/50 rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="h-full bg-accent/60 rounded-full"
+        />
+      </div>
 
       <p className="text-[10px] text-muted-foreground leading-relaxed">
         {pct === 0
           ? "Inicie sua caminhada pela história da redenção."
           : pct === 100
           ? "Jornada completa! Você caminhou por toda a revelação do Evangelho. 🎉"
-          : completed === 0 
+          : completed === 0
           ? "Você está no início de uma jornada transformadora."
           : `Você já caminhou ${completed} etapas — continue descobrindo Cristo nas Escrituras.`}
       </p>
