@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLoginRedirect } from "@/hooks/useLoginRedirect";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { lovable } from "@/integrations/lovable/index";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
