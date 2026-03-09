@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map } from "lucide-react";
+import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map, Heart } from "lucide-react";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
+import { useFavorites } from "@/hooks/useFavorites";
 import { HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import SpiritualMirror from "@/components/SpiritualMirror";
 import DoctrinalMap from "@/components/DoctrinalMap";
+import FavoritesList from "@/components/FavoritesList";
 
 const MinhaJornada = () => {
   const stats = useJourneyStats();
