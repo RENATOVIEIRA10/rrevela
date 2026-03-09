@@ -50,6 +50,20 @@ const FavoritesList = ({ favorites, loading, onGoTo, onRemove }: FavoritesListPr
     }
   };
 
+  const handleDownload = () => {
+    const text = generateExportText();
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `favoritos-revela-${new Date().toISOString().split("T")[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Arquivo baixado!");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6">
