@@ -527,6 +527,8 @@ const Reader = () => {
           {!loading && !error && verses.length > 0 && (
             <div className="mt-8 border-t border-border pt-4 space-y-4">
               <DepthSelector value={depth} onChange={setDepth} />
+              <RedemptionTimeline book={selectedBook} chapter={selectedChapter} />
+              <HistoricalContextPanel book={selectedBook} chapter={selectedChapter} />
               <MessianicLinePanel book={selectedBook} chapter={selectedChapter} onNavigate={handleNavigateToRef} />
               {(depth === "intermediario" || depth === "profundo") && (
                 <BiblicalPatternsPanel book={selectedBook} chapter={selectedChapter} depth={depth} onNavigate={handleNavigateToRef} />
