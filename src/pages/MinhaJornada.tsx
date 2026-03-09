@@ -84,10 +84,18 @@ const MinhaJornada = () => {
                 <FavoritesList
                   favorites={favorites}
                   loading={favsLoading}
-                  onGoTo={(book, chapter, verse) =>
+                  onGoTo={(book, chapter) =>
                     navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`)
                   }
                   onRemove={(book, chapter, verse) => toggleFavorite(book, chapter, verse)}
+                  tags={tags}
+                  tagsLoading={tagsLoading}
+                  onCreateTag={createTag}
+                  onDeleteTag={deleteTag}
+                  onAssignTag={assignTag}
+                  onRemoveTag={removeTag}
+                  getTagsForFavorite={getTagsForFavorite}
+                  getFavoritesForTag={getFavoritesForTag}
                 />
               </SectionCard>
 
