@@ -1,5 +1,7 @@
-import { Heart, ArrowRight, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Heart, ArrowRight, Loader2, Download, Copy, Share2, Check } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import type { FavoriteVerse } from "@/hooks/useFavorites";
 
 interface FavoritesListProps {
@@ -10,6 +12,44 @@ interface FavoritesListProps {
 }
 
 const FavoritesList = ({ favorites, loading, onGoTo, onRemove }: FavoritesListProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const generateExportText = () => {
+    const header = "📖 Meus Versículos Favoritos\n" + "─".repeat(30) + "\n\n";
+    const verses = favorites
+      .map((fav) => `${fav.book} ${fav.chapter}:${fav.verse}\n"${fav.text || ""}"\n`)
+      .join("\n");
+    const footer = `\n─────\nExportado do Revela • ${new Date().toLocaleDateString("pt-BR")}`;
+    return header + verses + footer;
+  };
+
+  const handleCopy = async () => {
+    const text = generateExportText();
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success("Favoritos copiados!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Erro ao copiar");
+    }
+  };
+
+  const handleShare = async () => {
+    const text = generateExportText();
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Meus Versículos Favoritos", text });
+      } catch (e) {
+        if ((e as Error).name !== "AbortError") {
+          handleCopy();
+        }
+      }
+    } else {
+      handleCopy();
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6">
@@ -31,7 +71,26 @@ const FavoritesList = ({ favorites, loading, onGoTo, onRemove }: FavoritesListPr
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* Export actions */}
+      <div className="flex items-center justify-end gap-2 pb-1">
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-accent transition-colors px-2 py-1 rounded-lg hover:bg-secondary/50"
+        >
+          {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+          {copied ? "Copiado" : "Copiar"}
+        </button>
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 text-[10px] text-accent hover:text-accent/80 transition-colors px-2 py-1 rounded-lg hover:bg-accent/10"
+        >
+          <Share2 className="w-3 h-3" />
+          Exportar
+        </button>
+      </div>
+
+      {/* Favorites list */}
       {favorites.map((fav, i) => (
         <motion.div
           key={fav.id}
