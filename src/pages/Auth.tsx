@@ -33,7 +33,7 @@ const Auth = () => {
   const [socialLoading, setSocialLoading] = useState<"google" | "apple" | null>(null);
   const { signIn, signUp } = useAuth();
   const { checking } = useLoginRedirect();
-  const navigate = useNavigate();
+  
   const { toast } = useToast();
 
   const handleSocialLogin = async (provider: "google" | "apple") => {
