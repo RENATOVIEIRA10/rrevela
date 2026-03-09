@@ -32,6 +32,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"google" | "apple" | null>(null);
   const { signIn, signUp } = useAuth();
+  const { checking } = useLoginRedirect();
   const navigate = useNavigate();
   const { toast } = useToast();
 
