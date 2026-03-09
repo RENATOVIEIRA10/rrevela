@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useLoginRedirect } from "@/hooks/useLoginRedirect";
-
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 
@@ -33,7 +32,6 @@ const Auth = () => {
   const [socialLoading, setSocialLoading] = useState<"google" | "apple" | null>(null);
   const { signIn, signUp } = useAuth();
   const { checking } = useLoginRedirect();
-  
   const { toast } = useToast();
 
   const handleSocialLogin = async (provider: "google" | "apple") => {
@@ -42,7 +40,6 @@ const Auth = () => {
       const { error } = await lovable.auth.signInWithOAuth(provider, {
         redirect_uri: window.location.origin,
       });
-
       if (error) {
         const msg = error.message?.toLowerCase() ?? "";
         if (msg.includes("access_denied") || msg.includes("cancelled") || msg.includes("popup_closed")) {
@@ -54,9 +51,6 @@ const Auth = () => {
         }
         return;
       }
-
-      // Login bem-sucedido - verificar se é primeiro acesso
-      // O redirecionamento será feito após o AuthProvider detectar a sessão
     } catch {
       toast({ title: "Erro inesperado", description: "Não foi possível conectar. Verifique sua internet.", variant: "destructive" });
     } finally {
@@ -67,100 +61,121 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     const { error } = isLogin
       ? await signIn(email, password)
       : await signUp(email, password);
-
     setLoading(false);
-
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
       return;
     }
-
     if (!isLogin) {
       toast({ title: "Verifique seu email", description: "Enviamos um link de confirmação para o seu email." });
-      return;
     }
-
-    // Após login bem-sucedido, o useLoginRedirect fará o redirecionamento automaticamente
   };
 
   const isBusy = loading || !!socialLoading || checking;
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <motion.div
-        className="max-w-sm w-full space-y-8"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="text-center space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
-            <RevelaLogo size={32} color="hsl(var(--accent))" />
-          </div>
-          <h1 className="font-scripture text-2xl font-semibold text-foreground">Revela</h1>
-          <p className="text-sm text-muted-foreground">
-            Entre no Revela para salvar sua jornada com a Palavra.
-          </p>
-        </div>
+  const ease = [0.22, 1, 0.36, 1] as const;
 
-        {/* Social Login */}
-        <div className="space-y-3">
-          <Button
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 relative overflow-hidden">
+      {/* Subtle warm radial glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/[0.03] blur-3xl" />
+      </div>
+
+      <motion.div
+        className="max-w-[360px] w-full relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease }}
+      >
+        {/* Header — editorial, contemplative */}
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.6, ease }}
+        >
+          <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-5">
+            <RevelaLogo size={28} color="hsl(var(--primary))" />
+          </div>
+          <h1 className="font-scripture text-[1.75rem] font-semibold text-foreground tracking-tight leading-tight">
+            Revela
+          </h1>
+          <p className="text-[0.8125rem] text-muted-foreground mt-2 leading-relaxed max-w-[280px] mx-auto">
+            {isLogin
+              ? "Entre para continuar sua jornada com a Palavra."
+              : "Crie sua conta e comece a estudar a Escritura."}
+          </p>
+        </motion.div>
+
+        {/* Social login — premium buttons */}
+        <motion.div
+          className="space-y-2.5 mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          <button
             type="button"
-            variant="outline"
-            className="w-full h-12 gap-3 text-sm font-medium"
             disabled={isBusy}
             onClick={() => handleSocialLogin("google")}
+            className="w-full h-12 rounded-lg border border-border bg-card hover:bg-secondary/60 flex items-center justify-center gap-3 text-[0.8125rem] font-medium text-foreground transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none"
           >
-            {socialLoading === "google" ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
+            {socialLoading === "google" ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
             Continuar com Google
-          </Button>
+          </button>
 
-          <Button
+          <button
             type="button"
-            variant="outline"
-            className="w-full h-12 gap-3 text-sm font-medium"
             disabled={isBusy}
             onClick={() => handleSocialLogin("apple")}
+            className="w-full h-12 rounded-lg border border-border bg-card hover:bg-secondary/60 flex items-center justify-center gap-3 text-[0.8125rem] font-medium text-foreground transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none"
           >
-            {socialLoading === "apple" ? <Loader2 className="w-5 h-5 animate-spin" /> : <AppleIcon />}
+            {socialLoading === "apple" ? <Loader2 className="w-4 h-4 animate-spin" /> : <AppleIcon />}
             Continuar com Apple
-          </Button>
+          </button>
+        </motion.div>
+
+        {/* Divider — editorial */}
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 editorial-divider" />
+          <span className="text-[0.6875rem] text-muted-foreground/60 uppercase tracking-[0.15em] font-medium select-none">
+            ou com email
+          </span>
+          <div className="flex-1 editorial-divider" />
         </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground uppercase tracking-wider">ou</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-
-        {/* Email form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Email form — refined, minimal */}
+        <motion.form
+          onSubmit={handleSubmit}
+          className="space-y-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-muted-foreground/50" />
             <Input
               type="email"
               placeholder="Seu email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="pl-9 bg-card border-border h-11"
+              className="pl-10 h-11 bg-card/80 border-border/70 text-[0.875rem] placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-primary/10 transition-colors"
               required
               disabled={isBusy}
             />
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-muted-foreground/50" />
             <Input
               type="password"
               placeholder="Senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="pl-9 bg-card border-border h-11"
+              className="pl-10 h-11 bg-card/80 border-border/70 text-[0.875rem] placeholder:text-muted-foreground/40 focus:border-primary/40 focus:ring-primary/10 transition-colors"
               required
               minLength={6}
               disabled={isBusy}
@@ -170,22 +185,49 @@ const Auth = () => {
           <Button
             type="submit"
             disabled={isBusy}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-scripture text-base h-11"
+            className="w-full h-11 font-scripture text-[0.9375rem] tracking-wide mt-1"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isLogin ? "Entrar" : "Criar conta"}
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isLogin ? (
+              "Entrar"
+            ) : (
+              "Criar conta"
+            )}
           </Button>
-        </form>
+        </motion.form>
 
-        <p className="text-center text-sm text-muted-foreground">
+        {/* Toggle — subtle, elegant */}
+        <motion.p
+          className="text-center text-[0.8125rem] text-muted-foreground mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
+        >
           {isLogin ? "Não tem conta? " : "Já tem conta? "}
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-accent hover:underline font-medium"
+            className="text-primary hover:text-primary/80 font-medium transition-colors underline underline-offset-4 decoration-primary/30 hover:decoration-primary/60"
             disabled={isBusy}
           >
             {isLogin ? "Criar conta" : "Entrar"}
           </button>
-        </p>
+        </motion.p>
+
+        {/* Scripture quote — editorial touch */}
+        <motion.div
+          className="mt-12 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+        >
+          <p className="font-scripture text-[0.8125rem] text-muted-foreground/50 italic leading-relaxed">
+            "Então lhes abriu o entendimento para compreenderem as Escrituras."
+          </p>
+          <p className="text-[0.6875rem] text-muted-foreground/35 mt-1.5 tracking-wide">
+            Lucas 24:45
+          </p>
+        </motion.div>
       </motion.div>
     </div>
   );
