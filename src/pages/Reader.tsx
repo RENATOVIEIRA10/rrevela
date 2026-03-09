@@ -67,6 +67,17 @@ const Reader = () => {
 
   const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter, translation);
 
+  // Listen for font size changes from localStorage (when changed in Profile)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "revela-font-size" && e.newValue) {
+        setFontSize(e.newValue);
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   useEffect(() => {
     if (!loading && verses.length > 0) {
       track("chapter_read", { book: selectedBook, chapter: selectedChapter });
