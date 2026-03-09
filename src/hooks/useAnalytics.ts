@@ -18,7 +18,9 @@ export type AnalyticsEvent =
   | "verse_pinned"
   | "promise_line_viewed"
   | "study_opened"
-  | "revelation_mode";
+  | "revelation_mode"
+  | "favorite_added"
+  | "favorite_removed";
 
 export function useAnalytics() {
   const { user } = useAuth();
