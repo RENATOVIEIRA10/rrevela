@@ -24,6 +24,8 @@ import MessianicLinePanel from "@/components/MessianicLinePanel";
 import BiblicalPatternsPanel from "@/components/BiblicalPatternsPanel";
 import DepthSelector, { type DepthLevel } from "@/components/DepthSelector";
 import RevealingQuestions from "@/components/RevealingQuestions";
+import TranslationSelector, { type TranslationKey } from "@/components/TranslationSelector";
+import RedemptionTimeline from "@/components/RedemptionTimeline";
 
 const Reader = () => {
   const isMobile = useIsMobile();
