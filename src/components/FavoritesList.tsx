@@ -50,6 +50,20 @@ const FavoritesList = ({ favorites, loading, onGoTo, onRemove }: FavoritesListPr
     }
   };
 
+  const handleDownload = () => {
+    const text = generateExportText();
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `favoritos-revela-${new Date().toISOString().split("T")[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Arquivo baixado!");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6">
@@ -73,7 +87,7 @@ const FavoritesList = ({ favorites, loading, onGoTo, onRemove }: FavoritesListPr
   return (
     <div className="space-y-3">
       {/* Export actions */}
-      <div className="flex items-center justify-end gap-2 pb-1">
+      <div className="flex items-center justify-end gap-1.5 pb-1">
         <button
           onClick={handleCopy}
           className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-accent transition-colors px-2 py-1 rounded-lg hover:bg-secondary/50"
@@ -82,11 +96,18 @@ const FavoritesList = ({ favorites, loading, onGoTo, onRemove }: FavoritesListPr
           {copied ? "Copiado" : "Copiar"}
         </button>
         <button
+          onClick={handleDownload}
+          className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-accent transition-colors px-2 py-1 rounded-lg hover:bg-secondary/50"
+        >
+          <Download className="w-3 h-3" />
+          .txt
+        </button>
+        <button
           onClick={handleShare}
           className="flex items-center gap-1.5 text-[10px] text-accent hover:text-accent/80 transition-colors px-2 py-1 rounded-lg hover:bg-accent/10"
         >
           <Share2 className="w-3 h-3" />
-          Exportar
+          Compartilhar
         </button>
       </div>
 
