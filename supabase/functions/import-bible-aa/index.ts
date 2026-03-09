@@ -19,30 +19,30 @@ Deno.serve(async (req) => {
     const { count } = await supabase
       .from("bible_verses")
       .select("*", { count: "exact", head: true })
-      .eq("translation", "nvi");
+      .eq("translation", "aa");
 
     if (count && count > 30000) {
       return new Response(
-        JSON.stringify({ message: "NVI Bible already imported", count }),
+        JSON.stringify({ message: "AA Bible already imported", count }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Fetch NVI Bible JSON from GitHub (thiagobodruk/biblia)
-    console.log("Fetching NVI Bible from GitHub...");
+    // Fetch AA Bible JSON from GitHub (thiagobodruk/biblia)
+    console.log("Fetching AA Bible from GitHub...");
     const response = await fetch(
-      "https://raw.githubusercontent.com/thiagobodruk/biblia/master/json/nvi.json"
+      "https://raw.githubusercontent.com/thiagobodruk/biblia/master/json/aa.json"
     );
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch NVI Bible: ${response.status}`);
+      throw new Error(`Failed to fetch AA Bible: ${response.status}`);
     }
 
     const bibleData = await response.json();
     
     console.log(`Total books: ${bibleData.length}`);
 
-    // Book name mapping (handles variations in the source)
+    // Book name mapping
     const BOOK_NAME_MAP: Record<string, string> = {
       "Gênesis": "Gênesis",
       "Êxodo": "Êxodo",
@@ -174,7 +174,7 @@ Deno.serve(async (req) => {
             chapter: chapterIdx + 1,
             verse: verseIdx + 1,
             text: verseText,
-            translation: "nvi",
+            translation: "aa",
           });
         }
       }
@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        message: "NVI Bible import complete",
+        message: "AA Bible import complete",
         totalVerses,
         errors,
         books: bibleData.length,
