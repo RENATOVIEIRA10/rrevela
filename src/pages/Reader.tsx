@@ -26,6 +26,7 @@ import DepthSelector, { type DepthLevel } from "@/components/DepthSelector";
 import RevealingQuestions from "@/components/RevealingQuestions";
 import TranslationSelector, { type TranslationKey } from "@/components/TranslationSelector";
 import RedemptionTimeline from "@/components/RedemptionTimeline";
+import HistoricalContextPanel from "@/components/HistoricalContextPanel";
 
 const Reader = () => {
   const isMobile = useIsMobile();
