@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map, Heart } from "lucide-react";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useTags } from "@/hooks/useTags";
 import { HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,6 +16,10 @@ import FavoritesList from "@/components/FavoritesList";
 const MinhaJornada = () => {
   const stats = useJourneyStats();
   const { favorites, loading: favsLoading, toggleFavorite } = useFavorites();
+  const {
+    tags, loading: tagsLoading, createTag, deleteTag,
+    assignTag, removeTag, getTagsForFavorite, getFavoritesForTag,
+  } = useTags();
   const navigate = useNavigate();
   const { track } = useAnalytics();
 
@@ -79,10 +84,18 @@ const MinhaJornada = () => {
                 <FavoritesList
                   favorites={favorites}
                   loading={favsLoading}
-                  onGoTo={(book, chapter, verse) =>
+                  onGoTo={(book, chapter) =>
                     navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`)
                   }
                   onRemove={(book, chapter, verse) => toggleFavorite(book, chapter, verse)}
+                  tags={tags}
+                  tagsLoading={tagsLoading}
+                  onCreateTag={createTag}
+                  onDeleteTag={deleteTag}
+                  onAssignTag={assignTag}
+                  onRemoveTag={removeTag}
+                  getTagsForFavorite={getTagsForFavorite}
+                  getFavoritesForTag={getFavoritesForTag}
                 />
               </SectionCard>
 

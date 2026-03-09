@@ -125,6 +125,66 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_tags: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      favorite_verse_tags: {
+        Row: {
+          created_at: string
+          favorite_id: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          favorite_id: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          favorite_id?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_verse_tags_favorite_id_fkey"
+            columns: ["favorite_id"]
+            isOneToOne: false
+            referencedRelation: "favorite_verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorite_verse_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "favorite_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorite_verses: {
         Row: {
           book: string
