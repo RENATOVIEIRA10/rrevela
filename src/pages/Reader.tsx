@@ -441,7 +441,7 @@ const Reader = () => {
           </div>
 
           <div className="flex items-center gap-1">
-            <TranslationSelector value={translation} onChange={setTranslation} />
+            <TranslationSelector value={translation} onChange={handleTranslationChange} />
             <button
               onClick={openChapterNote}
               className="p-2 text-muted-foreground active:text-accent transition-colors"
