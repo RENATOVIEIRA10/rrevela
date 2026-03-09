@@ -8,8 +8,8 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onFinish, 500);
-    }, 1800);
+      setTimeout(onFinish, 600);
+    }, 2200);
     return () => clearTimeout(timer);
   }, [onFinish]);
 
@@ -20,45 +20,63 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Logo symbol */}
+          {/* Subtle top accent line */}
           <motion.div
-            initial={{ scale: 0.7, opacity: 0 }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.2, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"
+          />
+
+          {/* Logo */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-6"
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8"
           >
-            <RevelaLogo size={56} className="text-primary" />
+            <RevelaLogo size={52} className="text-primary" />
           </motion.div>
 
           {/* Title */}
           <motion.h1
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
-            className="font-scripture text-3xl font-semibold text-foreground tracking-tight"
+            transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
+            className="font-scripture text-[2rem] font-semibold text-foreground tracking-tight leading-none"
           >
             Revela
           </motion.h1>
 
+          {/* Divider */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.7, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-5 mb-4 h-px w-12 bg-border origin-center"
+          />
+
           {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="mt-2 text-xs text-muted-foreground tracking-[0.2em] uppercase"
+            animate={{ opacity: 0.7 }}
+            transition={{ delay: 0.9, duration: 0.7 }}
+            className="text-[0.65rem] text-muted-foreground tracking-[0.25em] uppercase font-ui font-medium"
           >
             Estudo bíblico cristocêntrico
           </motion.p>
 
-          {/* Subtle line */}
+          {/* Bottom accent */}
           <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
-            className="mt-8 h-px w-16 bg-border origin-center"
-          />
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+            className="absolute bottom-12 flex flex-col items-center gap-2"
+          >
+            <div className="w-1 h-1 rounded-full bg-primary/30" />
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
