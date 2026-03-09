@@ -25,6 +25,7 @@ import PublicVerse from "./pages/PublicVerse";
 import PublicStudy from "./pages/PublicStudy";
 import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
+import Perfil from "./pages/Perfil";
 import { useAdminCheck } from "./hooks/useAdminCheck";
 import { Button } from "./components/ui/button";
 
@@ -98,6 +99,7 @@ const AppRoutes = () => {
           <Route path="/plano" element={<PlanoLeitura />} />
           <Route path="/promessa" element={<LinhaPromessa />} />
           <Route path="/jornada" element={<MinhaJornada />} />
+          <Route path="/perfil" element={<Perfil />} />
         </Route>
         <Route path="/admin" element={<ProtectedRoute><AdminRoute /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
