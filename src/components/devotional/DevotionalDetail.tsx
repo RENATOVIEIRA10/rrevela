@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Check, Star, Sparkles, Share2, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Star, Sparkles, Share2, Loader2, ArrowRight, BookOpen, Heart } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import RedemptionTimeline from "@/components/RedemptionTimeline";
 import ShareMenu from "@/components/ShareMenu";
 import { supabase } from "@/integrations/supabase/client";
@@ -239,15 +240,78 @@ const DevotionalDetail = ({
             </AnimatePresence>
           </div>
 
-          {/* Mark complete */}
-          <Button
-            onClick={onToggleComplete}
-            variant={isCompleted ? "outline" : "default"}
-            className="w-full"
-          >
-            <Check className="w-4 h-4 mr-2" />
-            {isCompleted ? "Desmarcar como concluído" : "Marcar como concluído"}
-          </Button>
+          {/* Action buttons */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={isCompleted ? "default" : "outline"}
+                size="sm"
+                onClick={onToggleComplete}
+                className="flex-1 h-9"
+              >
+                {isCompleted ? (
+                  <>
+                    <Check className="w-3 h-3 mr-2" />
+                    Concluído
+                  </>
+                ) : (
+                  "Marcar como concluído"
+                )}
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleFavorite}
+                className={cn(
+                  "h-9 px-3",
+                  isFavorited && "text-yellow-600"
+                )}
+              >
+                {isFavorited ? <Heart className="w-4 h-4 fill-current" /> : <Heart className="w-4 h-4" />}
+              </Button>
+            </div>
+
+            {/* Fluxo de continuidade */}
+            {isCompleted && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="border-t border-border pt-3 space-y-2"
+              >
+                <p className="text-xs text-muted-foreground text-center">
+                  Continue sua jornada pela revelação do Evangelho
+                </p>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 flex flex-col items-center gap-1 p-1"
+                    onClick={onBack}
+                  >
+                    <ArrowRight className="w-3 h-3" />
+                    <span className="text-[10px]">Próximo</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 flex flex-col items-center gap-1 p-1"
+                  >
+                    <BookOpen className="w-3 h-3" />
+                    <span className="text-[10px]">Anotar</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 flex flex-col items-center gap-1 p-1"
+                  >
+                    <Star className="w-3 h-3" />
+                    <span className="text-[10px]">Refletir</span>
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </div>
         </div>
       </ScrollArea>
     </div>

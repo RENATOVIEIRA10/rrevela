@@ -5,8 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { useDailyCheckIn } from "@/hooks/useDailyCheckIn";
+import { AnimatePresence } from "framer-motion";
 import SplashScreen from "./components/SplashScreen";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
+import MomentoRevela from "./components/MomentoRevela";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
 import Reader from "./pages/Reader";
@@ -65,26 +68,38 @@ const AdminRoute = () => {
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
+  const { shouldShowMomentoRevela, markCheckInComplete } = useDailyCheckIn();
 
   if (loading) return <div className="min-h-screen bg-background" />;
 
   return (
-    <Routes>
-      <Route path="/" element={user ? <Navigate to="/leitor" replace /> : <Onboarding />} />
-      <Route path="/auth" element={user ? <Navigate to="/leitor" replace /> : <Auth />} />
-      <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
-      <Route path="/study/:book/:chapter" element={<PublicStudy />} />
-      <Route path="/install" element={<InstallPWA />} />
-      <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route path="/leitor" element={<Reader />} />
-        <Route path="/revela" element={<RevelaAgora />} />
-        <Route path="/devocional" element={<Devocional />} />
-        <Route path="/promessa" element={<LinhaPromessa />} />
-        <Route path="/jornada" element={<MinhaJornada />} />
-      </Route>
-      <Route path="/admin" element={<ProtectedRoute><AdminRoute /></ProtectedRoute>} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <AnimatePresence mode="wait">
+        {shouldShowMomentoRevela && user && (
+          <MomentoRevela 
+            key="momento-revela"
+            onContinue={markCheckInComplete}
+          />
+        )}
+      </AnimatePresence>
+      
+      <Routes>
+        <Route path="/" element={user ? <Navigate to="/leitor" replace /> : <Onboarding />} />
+        <Route path="/auth" element={user ? <Navigate to="/leitor" replace /> : <Auth />} />
+        <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
+        <Route path="/study/:book/:chapter" element={<PublicStudy />} />
+        <Route path="/install" element={<InstallPWA />} />
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+          <Route path="/leitor" element={<Reader />} />
+          <Route path="/revela" element={<RevelaAgora />} />
+          <Route path="/devocional" element={<Devocional />} />
+          <Route path="/promessa" element={<LinhaPromessa />} />
+          <Route path="/jornada" element={<MinhaJornada />} />
+        </Route>
+        <Route path="/admin" element={<ProtectedRoute><AdminRoute /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 };
 
