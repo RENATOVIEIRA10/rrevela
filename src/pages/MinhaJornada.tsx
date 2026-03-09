@@ -16,6 +16,10 @@ import FavoritesList from "@/components/FavoritesList";
 const MinhaJornada = () => {
   const stats = useJourneyStats();
   const { favorites, loading: favsLoading, toggleFavorite } = useFavorites();
+  const {
+    tags, loading: tagsLoading, createTag, deleteTag,
+    assignTag, removeTag, getTagsForFavorite, getFavoritesForTag,
+  } = useTags();
   const navigate = useNavigate();
   const { track } = useAnalytics();
 
