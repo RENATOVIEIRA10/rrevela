@@ -67,24 +67,31 @@ const AppLayout = () => {
               </NavLink>
             );
           })}
-          <button
-            onClick={toggleTheme}
-            className="flex flex-col items-center gap-0.5 py-2 px-3 min-w-0 text-muted-foreground/70 hover:text-accent transition-colors"
+          <NavLink
+            to="/perfil"
+            className="flex flex-col items-center gap-0.5 py-2 px-3 min-w-0 relative"
           >
-            {theme === "dark" ? (
-              <Sun className="w-[18px] h-[18px]" strokeWidth={1.5} />
-            ) : (
-              <Moon className="w-[18px] h-[18px]" strokeWidth={1.5} />
+            {location.pathname === "/perfil" && (
+              <motion.div
+                layoutId="tab-indicator"
+                className="absolute -top-px left-3 right-3 h-0.5 bg-accent rounded-full"
+                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+              />
             )}
-            <span className="text-[9px] leading-tight tracking-wide font-ui">Tema</span>
-          </button>
-          <button
-            onClick={signOut}
-            className="flex flex-col items-center gap-0.5 py-2 px-3 min-w-0 text-muted-foreground/70 hover:text-destructive/80 transition-colors"
-          >
-            <LogOut className="w-[18px] h-[18px]" strokeWidth={1.5} />
-            <span className="text-[9px] leading-tight tracking-wide font-ui">Sair</span>
-          </button>
+            <User
+              className={`w-[18px] h-[18px] transition-colors duration-200 ${
+                location.pathname === "/perfil" ? "text-accent" : "text-muted-foreground/70"
+              }`}
+              strokeWidth={location.pathname === "/perfil" ? 2 : 1.5}
+            />
+            <span
+              className={`text-[9px] leading-tight tracking-wide transition-colors duration-200 font-ui ${
+                location.pathname === "/perfil" ? "text-accent font-medium" : "text-muted-foreground/70"
+              }`}
+            >
+              Perfil
+            </span>
+          </NavLink>
         </div>
       </nav>
     </div>
