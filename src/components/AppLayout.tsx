@@ -1,12 +1,12 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Search, Footprints, Calendar, Shield, Heart, User } from "lucide-react";
+import { BookOpen, Search, Footprints, Calendar, Shield, Heart, User, SearchCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 const baseTabs = [
   { to: "/leitor", icon: BookOpen, label: "Palavra" },
-  { to: "/revela", icon: Search, label: "Revela" },
+  { to: "/busca", icon: SearchCheck, label: "Busca" },
   { to: "/devocional", icon: Heart, label: "Devocional" },
   { to: "/plano", icon: Calendar, label: "Plano" },
   { to: "/jornada", icon: Footprints, label: "Jornada" },

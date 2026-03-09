@@ -26,6 +26,7 @@ import PublicStudy from "./pages/PublicStudy";
 import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
 import Perfil from "./pages/Perfil";
+import BuscaAvancada from "./pages/BuscaAvancada";
 import { useAdminCheck } from "./hooks/useAdminCheck";
 import { Button } from "./components/ui/button";
 
@@ -95,6 +96,7 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="/leitor" element={<Reader />} />
           <Route path="/revela" element={<RevelaAgora />} />
+          <Route path="/busca" element={<BuscaAvancada />} />
           <Route path="/devocional" element={<Devocional />} />
           <Route path="/plano" element={<PlanoLeitura />} />
           <Route path="/promessa" element={<LinhaPromessa />} />
