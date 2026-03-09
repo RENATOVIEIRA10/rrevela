@@ -420,6 +420,8 @@ const Reader = () => {
             onOpenNote={() => openVerseNote(selectedVerse.number)}
             onPinVerse={handlePinVerse}
             onNavigateToRef={handleNavigateToRef}
+            isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerse.number)}
+            onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerse.number, translation)}
           />
         )}
       </div>
