@@ -6,18 +6,13 @@ const pageVariants = {
   exit: { opacity: 0, y: -4 },
 };
 
-const pageTransition = {
-  duration: 0.25,
-  ease: [0.22, 1, 0.36, 1],
-};
-
 const PageTransition = ({ children }: { children: React.ReactNode }) => (
   <motion.div
     variants={pageVariants}
     initial="initial"
     animate="animate"
     exit="exit"
-    transition={pageTransition}
+    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
     className="h-full"
   >
     {children}

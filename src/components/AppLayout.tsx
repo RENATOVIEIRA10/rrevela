@@ -27,7 +27,11 @@ const AppLayout = () => {
   return (
     <div className="flex flex-col h-screen bg-background">
       <main className="flex-1 overflow-hidden">
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname.split("/")[1]}>
+            <Outlet />
+          </PageTransition>
+        </AnimatePresence>
       </main>
 
       <nav className="border-t border-border/50 bg-card/95 backdrop-blur-md safe-bottom">
