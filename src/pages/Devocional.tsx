@@ -26,6 +26,7 @@ const Devocional = () => {
   const { verse: dailyVerse, loading: verseLoading } = useVerseOfDay();
   const [selectedEntry, setSelectedEntry] = useState<DevotionalEntry | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("journey");
+  const [quickOpen, setQuickOpen] = useState(false);
 
   if (selectedEntry) {
     const p = progress.get(selectedEntry.id);
