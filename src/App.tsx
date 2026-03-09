@@ -84,8 +84,8 @@ const AppRoutes = () => {
       </AnimatePresence>
       
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/leitor" replace /> : <Onboarding />} />
-        <Route path="/auth" element={user ? <Navigate to="/leitor" replace /> : <Auth />} />
+        <Route path="/" element={<Onboarding />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
         <Route path="/study/:book/:chapter" element={<PublicStudy />} />
         <Route path="/install" element={<InstallPWA />} />

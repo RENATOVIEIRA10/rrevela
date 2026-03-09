@@ -5,7 +5,8 @@ import RevelaLogo from "@/components/RevelaLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useLoginRedirect } from "@/hooks/useLoginRedirect";
+
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 
@@ -31,7 +32,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"google" | "apple" | null>(null);
   const { signIn, signUp } = useAuth();
-  const navigate = useNavigate();
+  const { checking } = useLoginRedirect();
+  
   const { toast } = useToast();
 
   const handleSocialLogin = async (provider: "google" | "apple") => {
@@ -50,7 +52,11 @@ const Auth = () => {
         } else {
           toast({ title: "Erro ao entrar", description: "Algo deu errado. Tente novamente em alguns instantes.", variant: "destructive" });
         }
+        return;
       }
+
+      // Login bem-sucedido - verificar se é primeiro acesso
+      // O redirecionamento será feito após o AuthProvider detectar a sessão
     } catch {
       toast({ title: "Erro inesperado", description: "Não foi possível conectar. Verifique sua internet.", variant: "destructive" });
     } finally {
@@ -78,10 +84,10 @@ const Auth = () => {
       return;
     }
 
-    navigate("/leitor");
+    // Após login bem-sucedido, o useLoginRedirect fará o redirecionamento automaticamente
   };
 
-  const isBusy = loading || !!socialLoading;
+  const isBusy = loading || !!socialLoading || checking;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
