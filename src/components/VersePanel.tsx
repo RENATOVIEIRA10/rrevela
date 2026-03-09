@@ -42,6 +42,8 @@ const VersePanel = ({
   onOpenNote,
   onPinVerse,
   onNavigateToRef,
+  isFavorite,
+  onToggleFavorite,
 }: VersePanelProps) => {
   const { shareVerse } = useShareVerse();
   const [shareMode, setShareMode] = useState<"verse" | "reveal">("reveal");
