@@ -66,10 +66,11 @@ const MinhaJornada = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="grid grid-cols-3 gap-4"
+                className="grid grid-cols-4 gap-3"
               >
                 <StatCard label="Marcações" value={stats.totalHighlights} icon="🖊️" />
                 <StatCard label="Anotações" value={stats.totalNotes} icon="📝" />
+                <StatCard label="Favoritos" value={favorites.length} icon="❤️" />
                 <StatCard label="Capítulos" value={stats.studiedChapters.length} icon="📖" />
               </motion.div>
 
