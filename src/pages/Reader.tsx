@@ -24,6 +24,9 @@ import MessianicLinePanel from "@/components/MessianicLinePanel";
 import BiblicalPatternsPanel from "@/components/BiblicalPatternsPanel";
 import DepthSelector, { type DepthLevel } from "@/components/DepthSelector";
 import RevealingQuestions from "@/components/RevealingQuestions";
+import TranslationSelector, { type TranslationKey } from "@/components/TranslationSelector";
+import RedemptionTimeline from "@/components/RedemptionTimeline";
+import HistoricalContextPanel from "@/components/HistoricalContextPanel";
 
 const Reader = () => {
   const isMobile = useIsMobile();
@@ -40,12 +43,13 @@ const Reader = () => {
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
+  const [translation, setTranslation] = useState<TranslationKey>("acf");
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
 
-  const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter);
+  const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter, translation);
 
   // Track chapter reads
   useEffect(() => {
@@ -116,7 +120,7 @@ const Reader = () => {
   const handlePinVerse = () => {
     if (selectedVerse) {
       pinVerse({
-        translation: "acf",
+        translation,
         book: selectedBook,
         chapter: selectedChapter,
         verse: selectedVerse.number,
@@ -210,6 +214,7 @@ const Reader = () => {
                 <h2 className="font-scripture text-base font-semibold text-foreground">
                   {selectedBook} {selectedChapter}
                 </h2>
+                <TranslationSelector value={translation} onChange={setTranslation} />
               </div>
 
               <div className="flex items-center gap-1">
@@ -383,6 +388,8 @@ const Reader = () => {
             </Button>
           </div>
 
+          <TranslationSelector value={translation} onChange={setTranslation} />
+
           <div className="flex items-center gap-1">
             <HighlightLegend />
             <button
@@ -521,6 +528,8 @@ const Reader = () => {
           {!loading && !error && verses.length > 0 && (
             <div className="mt-8 border-t border-border pt-4 space-y-4">
               <DepthSelector value={depth} onChange={setDepth} />
+              <RedemptionTimeline book={selectedBook} chapter={selectedChapter} />
+              <HistoricalContextPanel book={selectedBook} chapter={selectedChapter} />
               <MessianicLinePanel book={selectedBook} chapter={selectedChapter} onNavigate={handleNavigateToRef} />
               {(depth === "intermediario" || depth === "profundo") && (
                 <BiblicalPatternsPanel book={selectedBook} chapter={selectedChapter} depth={depth} onNavigate={handleNavigateToRef} />

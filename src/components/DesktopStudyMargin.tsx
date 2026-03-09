@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import RedemptionTimeline from "./RedemptionTimeline";
+import HistoricalContextPanel from "./HistoricalContextPanel";
 import { Pin, StickyNote, Cross, Repeat, HelpCircle, BookOpen } from "lucide-react";
 import NoteEditor from "./NoteEditor";
 import MessianicLinePanel from "./MessianicLinePanel";
@@ -97,6 +98,7 @@ const DesktopStudyMargin = ({
             <>
               <DepthSelector value={depth} onChange={onDepthChange} />
               <RedemptionTimeline book={book} chapter={chapter} />
+              <HistoricalContextPanel book={book} chapter={chapter} />
               <MessianicLinePanel book={book} chapter={chapter} onNavigate={onNavigateToRef} />
               {(depth === "intermediario" || depth === "profundo") && (
                 <BiblicalPatternsPanel book={book} chapter={chapter} depth={depth} onNavigate={onNavigateToRef} />

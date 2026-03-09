@@ -14,7 +14,7 @@ export interface BibleSearchResult {
   rank: number;
 }
 
-export function useBibleVerses(book: string, chapter: number) {
+export function useBibleVerses(book: string, chapter: number, translation: string = "acf") {
   const [verses, setVerses] = useState<BibleVerse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +30,7 @@ export function useBibleVerses(book: string, chapter: number) {
         .select("verse, text")
         .eq("book", book)
         .eq("chapter", chapter)
-        .eq("translation", "acf")
+        .eq("translation", translation)
         .order("verse", { ascending: true });
 
       if (cancelled) return;
@@ -39,7 +39,9 @@ export function useBibleVerses(book: string, chapter: number) {
         setError("Erro ao carregar versículos.");
         setVerses([]);
       } else if (!data || data.length === 0) {
-        setError("Texto não encontrado. Verifique a tradução carregada.");
+        setError(translation !== "acf" 
+          ? `Tradução ${translation.toUpperCase()} ainda não disponível. Use ACF.`
+          : "Texto não encontrado. Verifique a tradução carregada.");
         setVerses([]);
       } else {
         setVerses(data.map((v) => ({ number: v.verse, text: v.text })));
@@ -50,7 +52,7 @@ export function useBibleVerses(book: string, chapter: number) {
 
     fetchVerses();
     return () => { cancelled = true; };
-  }, [book, chapter]);
+  }, [book, chapter, translation]);
 
   return { verses, loading, error };
 }
