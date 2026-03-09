@@ -26,6 +26,8 @@ interface VersePanelProps {
   onOpenNote?: () => void;
   onPinVerse?: () => void;
   onNavigateToRef?: (book: string, chapter: number, verse: number) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
 const VersePanel = ({
