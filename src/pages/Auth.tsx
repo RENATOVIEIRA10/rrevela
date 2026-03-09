@@ -87,7 +87,7 @@ const Auth = () => {
     // Após login bem-sucedido, o useLoginRedirect fará o redirecionamento automaticamente
   };
 
-  const isBusy = loading || !!socialLoading;
+  const isBusy = loading || !!socialLoading || checking;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
