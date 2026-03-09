@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map, Heart } from "lucide-react";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useTags } from "@/hooks/useTags";
 import { HIGHLIGHT_COLORS } from "@/hooks/useHighlights";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
