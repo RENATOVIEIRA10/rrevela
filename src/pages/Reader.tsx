@@ -42,12 +42,13 @@ const Reader = () => {
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
+  const [translation, setTranslation] = useState<TranslationKey>("acf");
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
 
-  const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter);
+  const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter, translation);
 
   // Track chapter reads
   useEffect(() => {
