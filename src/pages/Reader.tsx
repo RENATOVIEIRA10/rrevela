@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown, Loader2, AlertTriangle, X, Pin, PanelLeftClose, PanelRightClose } from "lucide-react";
 import { usePinnedVerse } from "@/hooks/usePinnedVerse";
+import { useFavorites } from "@/hooks/useFavorites";
 import PinnedVerseCard from "@/components/PinnedVerseCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +62,7 @@ const Reader = () => {
     }
   };
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
@@ -418,6 +420,8 @@ const Reader = () => {
             onOpenNote={() => openVerseNote(selectedVerse.number)}
             onPinVerse={handlePinVerse}
             onNavigateToRef={handleNavigateToRef}
+            isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerse.number)}
+            onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerse.number, translation)}
           />
         )}
       </div>
@@ -647,6 +651,8 @@ const Reader = () => {
           onOpenNote={() => openVerseNote(selectedVerse.number)}
           onPinVerse={handlePinVerse}
           onNavigateToRef={handleNavigateToRef}
+          isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerse.number)}
+          onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerse.number, translation)}
         />
       )}
 
