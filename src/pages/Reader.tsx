@@ -43,7 +43,14 @@ const Reader = () => {
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
-  const [translation, setTranslation] = useState<TranslationKey>("acf");
+  const [translation, setTranslation] = useState<TranslationKey>(
+    () => (localStorage.getItem("revela-translation") as TranslationKey) || "acf"
+  );
+
+  const handleTranslationChange = (v: TranslationKey) => {
+    setTranslation(v);
+    localStorage.setItem("revela-translation", v);
+  };
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
@@ -220,7 +227,7 @@ const Reader = () => {
                 <h1 className="font-scripture text-lg font-medium text-foreground tracking-tight">
                   {selectedBook}
                 </h1>
-                <TranslationSelector value={translation} onChange={setTranslation} />
+                <TranslationSelector value={translation} onChange={handleTranslationChange} />
               </div>
 
               <div className="flex items-center gap-1">
@@ -434,7 +441,7 @@ const Reader = () => {
           </div>
 
           <div className="flex items-center gap-1">
-            <TranslationSelector value={translation} onChange={setTranslation} />
+            <TranslationSelector value={translation} onChange={handleTranslationChange} />
             <button
               onClick={openChapterNote}
               className="p-2 text-muted-foreground active:text-accent transition-colors"
