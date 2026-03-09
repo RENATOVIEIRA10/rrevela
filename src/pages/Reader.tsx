@@ -46,10 +46,19 @@ const Reader = () => {
   const [translation, setTranslation] = useState<TranslationKey>(
     () => (localStorage.getItem("revela-translation") as TranslationKey) || "acf"
   );
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem("revela-font-size") || "md");
 
   const handleTranslationChange = (v: TranslationKey) => {
     setTranslation(v);
     localStorage.setItem("revela-translation", v);
+  };
+
+  const getFontSizeClass = () => {
+    switch (fontSize) {
+      case "sm": return "text-[0.9375rem]"; // 15px
+      case "lg": return "text-[1.3125rem]"; // 21px
+      default: return "text-[1.125rem]"; // 18px (md)
+    }
   };
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const [showLeftPanel, setShowLeftPanel] = useState(true);
