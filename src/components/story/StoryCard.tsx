@@ -16,12 +16,15 @@ interface StoryCardProps {
 }
 
 /**
- * Renders a 360×640 story card using ONLY inline styles
- * for reliable html2canvas capture on mobile.
+ * 360×640 story card — pure inline styles, NO letter-spacing (html2canvas bug),
+ * system fonts only for reliable mobile capture.
  */
 const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(({ data }, ref) => {
   const isStudy = data.type === "study";
   const hasReveal = data.type === "verse-reveal" || isStudy;
+
+  const sansFont = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  const serifFont = "Georgia, 'Times New Roman', Times, serif";
 
   return (
     <div
@@ -33,11 +36,12 @@ const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(({ data }, ref) => 
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        fontFamily: "'Crimson Pro', Georgia, serif",
+        fontFamily: serifFont,
         backgroundColor: "#1A1C1E",
+        boxSizing: "border-box",
       }}
     >
-      {/* Top bar */}
+      {/* Top gradient bar */}
       <div
         style={{
           position: "absolute",
@@ -49,21 +53,13 @@ const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(({ data }, ref) => 
         }}
       />
 
-      {/* Corner ornaments */}
-      <svg style={{ position: "absolute", top: 24, left: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
-        <path d="M0 0 L32 0 L32 4 L4 4 L4 32 L0 32 Z" fill="rgba(84,42,34,0.4)" />
-      </svg>
-      <svg style={{ position: "absolute", top: 24, right: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
-        <path d="M0 0 L32 0 L32 32 L28 32 L28 4 L0 4 Z" fill="rgba(84,42,34,0.4)" />
-      </svg>
-      <svg style={{ position: "absolute", bottom: 24, left: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
-        <path d="M0 0 L4 0 L4 28 L32 28 L32 32 L0 32 Z" fill="rgba(84,42,34,0.4)" />
-      </svg>
-      <svg style={{ position: "absolute", bottom: 24, right: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
-        <path d="M28 0 L32 0 L32 32 L0 32 L0 28 L28 28 Z" fill="rgba(84,42,34,0.4)" />
-      </svg>
+      {/* Corner ornaments — simple L shapes */}
+      <div style={{ position: "absolute", top: 24, left: 24, width: 28, height: 28, borderTop: "2px solid rgba(84,42,34,0.4)", borderLeft: "2px solid rgba(84,42,34,0.4)" }} />
+      <div style={{ position: "absolute", top: 24, right: 24, width: 28, height: 28, borderTop: "2px solid rgba(84,42,34,0.4)", borderRight: "2px solid rgba(84,42,34,0.4)" }} />
+      <div style={{ position: "absolute", bottom: 24, left: 24, width: 28, height: 28, borderBottom: "2px solid rgba(84,42,34,0.4)", borderLeft: "2px solid rgba(84,42,34,0.4)" }} />
+      <div style={{ position: "absolute", bottom: 24, right: 24, width: 28, height: 28, borderBottom: "2px solid rgba(84,42,34,0.4)", borderRight: "2px solid rgba(84,42,34,0.4)" }} />
 
-      {/* Content */}
+      {/* Content area */}
       <div
         style={{
           position: "relative",
@@ -71,138 +67,150 @@ const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(({ data }, ref) => 
           display: "flex",
           flexDirection: "column",
           flex: 1,
-          paddingLeft: 40,
-          paddingRight: 40,
-          paddingTop: 64,
-          paddingBottom: 64,
+          paddingLeft: 44,
+          paddingRight: 44,
+          paddingTop: 72,
+          paddingBottom: 72,
           justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        {/* Decorative star */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <span style={{ color: "rgba(139,94,60,0.6)", fontSize: 24, lineHeight: 1 }}>✦</span>
+        {/* Decorative diamond */}
+        <div style={{ textAlign: "center", marginBottom: 28, color: "rgba(139,94,60,0.6)", fontSize: 22, lineHeight: 1 }}>
+          ✦
         </div>
 
         {/* Reference */}
-        <p
+        <div
           style={{
             textAlign: "center",
-            letterSpacing: "0.25em",
             textTransform: "uppercase",
-            fontSize: 12,
-            marginBottom: 24,
+            fontSize: 11,
+            marginBottom: 20,
             color: "#C4956A",
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 500,
+            fontFamily: sansFont,
+            fontWeight: 600,
           }}
         >
           {data.reference}
-        </p>
+        </div>
 
         {/* Divider */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 32 }}>
-          <div style={{ height: 1, width: 40, backgroundColor: "rgba(84,42,34,0.4)" }} />
-          <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "rgba(84,42,34,0.5)" }} />
-          <div style={{ height: 1, width: 40, backgroundColor: "rgba(84,42,34,0.4)" }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28 }}>
+          <div style={{ height: 1, width: 36, backgroundColor: "rgba(84,42,34,0.4)" }} />
+          <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "rgba(84,42,34,0.5)", marginLeft: 10, marginRight: 10 }} />
+          <div style={{ height: 1, width: 36, backgroundColor: "rgba(84,42,34,0.4)" }} />
         </div>
 
         {/* Main text */}
         {isStudy ? (
-          <div>
-            <h2
+          <div style={{ width: "100%" }}>
+            <div
               style={{
                 textAlign: "center",
-                fontSize: 18,
+                fontSize: 17,
                 fontWeight: 600,
-                lineHeight: 1.4,
+                lineHeight: 1.5,
                 color: "#F5F0E8",
-                marginBottom: data.studyExcerpt ? 20 : 0,
+                marginBottom: data.studyExcerpt ? 18 : 0,
+                fontFamily: serifFont,
+                wordWrap: "break-word",
+                overflowWrap: "break-word",
               }}
             >
               {data.studyTitle}
-            </h2>
+            </div>
             {data.studyExcerpt && (
-              <p
+              <div
                 style={{
                   textAlign: "center",
-                  fontSize: 14,
-                  lineHeight: 1.6,
+                  fontSize: 13,
+                  lineHeight: 1.7,
                   fontStyle: "italic",
                   color: "#D4C9B8",
+                  fontFamily: serifFont,
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word",
                 }}
               >
                 "{data.studyExcerpt}"
-              </p>
+              </div>
             )}
           </div>
         ) : (
-          <p
+          <div
             style={{
               textAlign: "center",
-              fontSize: 16,
-              lineHeight: 1.6,
+              fontSize: 15,
+              lineHeight: 1.7,
               fontStyle: "italic",
               color: "#F5F0E8",
+              fontFamily: serifFont,
+              wordWrap: "break-word",
+              overflowWrap: "break-word",
+              width: "100%",
             }}
           >
             "{data.verseText}"
-          </p>
+          </div>
         )}
 
         {/* Reveal insight */}
         {hasReveal && data.insightText && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 32, marginBottom: 32 }}>
-              <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
-              <span style={{ color: "rgba(139,94,60,0.5)", fontSize: 12 }}>✦</span>
-              <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
+          <div style={{ width: "100%" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: 28, marginBottom: 28 }}>
+              <div style={{ height: 1, width: 20, backgroundColor: "rgba(84,42,34,0.3)" }} />
+              <div style={{ color: "rgba(139,94,60,0.5)", fontSize: 10, marginLeft: 8, marginRight: 8 }}>✦</div>
+              <div style={{ height: 1, width: 20, backgroundColor: "rgba(84,42,34,0.3)" }} />
             </div>
-            <p
+            <div
               style={{
                 textAlign: "center",
-                fontSize: 12,
-                lineHeight: 1.6,
+                fontSize: 11,
+                lineHeight: 1.7,
                 color: "#B8A898",
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: sansFont,
+                wordWrap: "break-word",
+                overflowWrap: "break-word",
               }}
             >
               {data.insightText}
-            </p>
+            </div>
           </div>
         )}
       </div>
 
       {/* Footer branding */}
-      <div style={{ position: "relative", zIndex: 10, paddingBottom: 40, paddingTop: 16, textAlign: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 4 }}>
-          <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
-          <p
+      <div style={{ position: "relative", zIndex: 10, paddingBottom: 36, textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
+          <div style={{ height: 1, width: 20, backgroundColor: "rgba(84,42,34,0.3)" }} />
+          <div
             style={{
-              fontSize: 10,
-              letterSpacing: "0.3em",
+              fontSize: 9,
               textTransform: "uppercase",
               color: "#8B5E3C",
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 500,
+              fontFamily: sansFont,
+              fontWeight: 600,
+              marginLeft: 8,
+              marginRight: 8,
             }}
           >
-            via Revela
-          </p>
-          <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
+            VIA REVELA
+          </div>
+          <div style={{ height: 1, width: 20, backgroundColor: "rgba(84,42,34,0.3)" }} />
         </div>
-        <p
+        <div
           style={{
             fontSize: 8,
-            letterSpacing: "0.15em",
             color: "#5C5046",
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: sansFont,
           }}
         >
           rrevela.lovable.app
-        </p>
+        </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom gradient bar */}
       <div
         style={{
           position: "absolute",

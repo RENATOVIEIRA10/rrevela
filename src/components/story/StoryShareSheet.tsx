@@ -21,10 +21,12 @@ const StoryShareSheet = ({ open, onOpenChange, data }: StoryShareSheetProps) => 
     setGenerating(true);
     try {
       const canvas = await html2canvas(cardRef.current, {
-        scale: 3, // 360×3 = 1080, 640×3 = 1920
+        scale: 2,
         backgroundColor: "#1A1C1E",
         useCORS: true,
         logging: false,
+        allowTaint: true,
+        removeContainer: true,
       });
       return new Promise((resolve) => {
         canvas.toBlob((blob) => resolve(blob), "image/png", 1);
