@@ -16,8 +16,8 @@ interface StoryCardProps {
 }
 
 /**
- * Renders a 1080×1920 (9:16) story card.
- * Rendered at 360×640 CSS px and scaled 3× for export via html2canvas.
+ * Renders a 360×640 story card using ONLY inline styles
+ * for reliable html2canvas capture on mobile.
  */
 const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(({ data }, ref) => {
   const isStudy = data.type === "study";
@@ -26,118 +26,193 @@ const StoryCard = forwardRef<HTMLDivElement, StoryCardProps>(({ data }, ref) => 
   return (
     <div
       ref={ref}
-      style={{ width: 360, height: 640, fontFamily: "'Crimson Pro', Georgia, serif" }}
-      className="relative overflow-hidden flex flex-col"
+      style={{
+        width: 360,
+        height: 640,
+        position: "relative",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "'Crimson Pro', Georgia, serif",
+        backgroundColor: "#1A1C1E",
+      }}
     >
-      {/* Background */}
-      <div className="absolute inset-0 bg-[#1A1C1E]" />
+      {/* Top bar */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background: "linear-gradient(to right, #542A22, #8B5E3C, #542A22)",
+        }}
+      />
 
-      {/* Decorative top bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#542A22] via-[#8B5E3C] to-[#542A22]" />
-
-      {/* Decorative corner ornaments */}
-      <svg className="absolute top-6 left-6 w-8 h-8 text-[#542A22]/40" viewBox="0 0 32 32" fill="none">
-        <path d="M0 0 L32 0 L32 4 L4 4 L4 32 L0 32 Z" fill="currentColor" />
+      {/* Corner ornaments */}
+      <svg style={{ position: "absolute", top: 24, left: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
+        <path d="M0 0 L32 0 L32 4 L4 4 L4 32 L0 32 Z" fill="rgba(84,42,34,0.4)" />
       </svg>
-      <svg className="absolute top-6 right-6 w-8 h-8 text-[#542A22]/40" viewBox="0 0 32 32" fill="none">
-        <path d="M0 0 L32 0 L32 32 L28 32 L28 4 L0 4 Z" fill="currentColor" />
+      <svg style={{ position: "absolute", top: 24, right: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
+        <path d="M0 0 L32 0 L32 32 L28 32 L28 4 L0 4 Z" fill="rgba(84,42,34,0.4)" />
       </svg>
-      <svg className="absolute bottom-6 left-6 w-8 h-8 text-[#542A22]/40" viewBox="0 0 32 32" fill="none">
-        <path d="M0 0 L4 0 L4 28 L32 28 L32 32 L0 32 Z" fill="currentColor" />
+      <svg style={{ position: "absolute", bottom: 24, left: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
+        <path d="M0 0 L4 0 L4 28 L32 28 L32 32 L0 32 Z" fill="rgba(84,42,34,0.4)" />
       </svg>
-      <svg className="absolute bottom-6 right-6 w-8 h-8 text-[#542A22]/40" viewBox="0 0 32 32" fill="none">
-        <path d="M28 0 L32 0 L32 32 L0 32 L0 28 L28 28 Z" fill="currentColor" />
+      <svg style={{ position: "absolute", bottom: 24, right: 24, width: 32, height: 32 }} viewBox="0 0 32 32" fill="none">
+        <path d="M28 0 L32 0 L32 32 L0 32 L0 28 L28 28 Z" fill="rgba(84,42,34,0.4)" />
       </svg>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col flex-1 px-10 py-16 justify-center">
-        {/* Top: Small cross / decorative element */}
-        <div className="text-center mb-8">
-          <span className="text-[#8B5E3C]/60 text-2xl leading-none">✦</span>
+      <div
+        style={{
+          position: "relative",
+          zIndex: 10,
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          paddingLeft: 40,
+          paddingRight: 40,
+          paddingTop: 64,
+          paddingBottom: 64,
+          justifyContent: "center",
+        }}
+      >
+        {/* Decorative star */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <span style={{ color: "rgba(139,94,60,0.6)", fontSize: 24, lineHeight: 1 }}>✦</span>
         </div>
 
         {/* Reference */}
         <p
-          className="text-center tracking-[0.25em] uppercase text-xs mb-6"
-          style={{ color: "#C4956A", fontFamily: "'Inter', sans-serif", fontWeight: 500 }}
+          style={{
+            textAlign: "center",
+            letterSpacing: "0.25em",
+            textTransform: "uppercase",
+            fontSize: 12,
+            marginBottom: 24,
+            color: "#C4956A",
+            fontFamily: "'Inter', sans-serif",
+            fontWeight: 500,
+          }}
         >
           {data.reference}
         </p>
 
         {/* Divider */}
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="h-px w-10 bg-[#542A22]/40" />
-          <div className="w-1.5 h-1.5 rounded-full bg-[#542A22]/50" />
-          <div className="h-px w-10 bg-[#542A22]/40" />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 32 }}>
+          <div style={{ height: 1, width: 40, backgroundColor: "rgba(84,42,34,0.4)" }} />
+          <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "rgba(84,42,34,0.5)" }} />
+          <div style={{ height: 1, width: 40, backgroundColor: "rgba(84,42,34,0.4)" }} />
         </div>
 
         {/* Main text */}
         {isStudy ? (
-          <div className="space-y-5">
+          <div>
             <h2
-              className="text-center text-lg font-semibold leading-snug"
-              style={{ color: "#F5F0E8" }}
+              style={{
+                textAlign: "center",
+                fontSize: 18,
+                fontWeight: 600,
+                lineHeight: 1.4,
+                color: "#F5F0E8",
+                marginBottom: data.studyExcerpt ? 20 : 0,
+              }}
             >
               {data.studyTitle}
             </h2>
             {data.studyExcerpt && (
               <p
-                className="text-center text-sm leading-relaxed italic"
-                style={{ color: "#D4C9B8" }}
+                style={{
+                  textAlign: "center",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  fontStyle: "italic",
+                  color: "#D4C9B8",
+                }}
               >
                 "{data.studyExcerpt}"
               </p>
             )}
           </div>
         ) : (
-          <blockquote
-            className="text-center text-base leading-relaxed italic"
-            style={{ color: "#F5F0E8" }}
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 16,
+              lineHeight: 1.6,
+              fontStyle: "italic",
+              color: "#F5F0E8",
+            }}
           >
             "{data.verseText}"
-          </blockquote>
+          </p>
         )}
 
         {/* Reveal insight */}
         {hasReveal && data.insightText && (
-          <>
-            <div className="flex items-center justify-center gap-3 my-8">
-              <div className="h-px w-6 bg-[#542A22]/30" />
-              <span className="text-[#8B5E3C]/50 text-xs">✦</span>
-              <div className="h-px w-6 bg-[#542A22]/30" />
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 32, marginBottom: 32 }}>
+              <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
+              <span style={{ color: "rgba(139,94,60,0.5)", fontSize: 12 }}>✦</span>
+              <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
             </div>
             <p
-              className="text-center text-xs leading-relaxed"
-              style={{ color: "#B8A898", fontFamily: "'Inter', sans-serif" }}
+              style={{
+                textAlign: "center",
+                fontSize: 12,
+                lineHeight: 1.6,
+                color: "#B8A898",
+                fontFamily: "'Inter', sans-serif",
+              }}
             >
               {data.insightText}
             </p>
-          </>
+          </div>
         )}
       </div>
 
       {/* Footer branding */}
-      <div className="relative z-10 pb-10 pt-4 text-center">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <div className="h-px w-6 bg-[#542A22]/30" />
+      <div style={{ position: "relative", zIndex: 10, paddingBottom: 40, paddingTop: 16, textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 4 }}>
+          <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
           <p
-            className="text-[10px] tracking-[0.3em] uppercase"
-            style={{ color: "#8B5E3C", fontFamily: "'Inter', sans-serif", fontWeight: 500 }}
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color: "#8B5E3C",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 500,
+            }}
           >
             via Revela
           </p>
-          <div className="h-px w-6 bg-[#542A22]/30" />
+          <div style={{ height: 1, width: 24, backgroundColor: "rgba(84,42,34,0.3)" }} />
         </div>
         <p
-          className="text-[8px] tracking-[0.15em]"
-          style={{ color: "#5C5046", fontFamily: "'Inter', sans-serif" }}
+          style={{
+            fontSize: 8,
+            letterSpacing: "0.15em",
+            color: "#5C5046",
+            fontFamily: "'Inter', sans-serif",
+          }}
         >
           rrevela.lovable.app
         </p>
       </div>
 
-      {/* Decorative bottom bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#542A22] via-[#8B5E3C] to-[#542A22]" />
+      {/* Bottom bar */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background: "linear-gradient(to right, #542A22, #8B5E3C, #542A22)",
+        }}
+      />
     </div>
   );
 });
