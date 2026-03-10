@@ -39,7 +39,17 @@ const StudyShareButton = ({ book, chapter, mode, title, summary, insightText }: 
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <ShareMenu onShare={handleShare} label="Compartilhar estudo" />
+            <ShareMenu
+              onShare={handleShare}
+              label="Compartilhar estudo"
+              storyData={{
+                type: "study",
+                reference: `${book} ${chapter}`,
+                studyTitle: title,
+                studyExcerpt: insightText.length > 200 ? insightText.slice(0, 197) + "…" : insightText,
+                insightText: summary,
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

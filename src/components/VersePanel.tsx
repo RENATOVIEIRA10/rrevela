@@ -185,7 +185,15 @@ const VersePanel = ({
               </button>
             </div>
 
-            <ShareMenu onShare={handleShare} />
+            <ShareMenu
+              onShare={handleShare}
+              storyData={{
+                type: shareMode === "reveal" ? "verse-reveal" : "verse",
+                reference: `${book} ${chapter}:${verseNumber}`,
+                verseText,
+                insightText: shareMode === "reveal" ? revealText : undefined,
+              }}
+            />
           </div>
 
           <div className="editorial-divider" />
