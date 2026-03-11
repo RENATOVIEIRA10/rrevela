@@ -1,10 +1,9 @@
-import { useState, useRef, useCallback } from "react";
-import html2canvas from "html2canvas";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Download, Copy, ExternalLink, X, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import StoryCard, { type StoryData } from "./StoryCard";
+import { renderStoryToCanvas, type StoryData } from "./StoryCard";
 
 interface StoryShareSheetProps {
   open: boolean;
@@ -13,43 +12,64 @@ interface StoryShareSheetProps {
 }
 
 const StoryShareSheet = ({ open, onOpenChange, data }: StoryShareSheetProps) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLCanvasElement | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
 
-  const generateImage = useCallback(async (): Promise<Blob | null> => {
-    if (!cardRef.current) return null;
+  // Generate preview when opened
+  useEffect(() => {
+    if (!open) {
+      setPreviewUrl(null);
+      return;
+    }
+    try {
+      const canvas = renderStoryToCanvas(data);
+      previewRef.current = canvas;
+      setPreviewUrl(canvas.toDataURL("image/png"));
+    } catch {
+      // ignore
+    }
+  }, [open, data]);
+
+  const handleDownload = useCallback(async () => {
     setGenerating(true);
     try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        backgroundColor: "#1A1C1E",
-        useCORS: true,
-        logging: false,
-        allowTaint: true,
-        removeContainer: true,
-      });
-      return new Promise((resolve) => {
-        canvas.toBlob((blob) => resolve(blob), "image/png", 1);
-      });
+      const canvas = renderStoryToCanvas(data);
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((b) => resolve(b), "image/png", 1)
+      );
+      if (!blob) throw new Error("no blob");
+
+      // Try Web Share API with file first (works on many mobile browsers)
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], `revela-story-${Date.now()}.png`, { type: "image/png" });
+        const shareData = { files: [file] };
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            toast({ title: "Compartilhado!", description: "Imagem enviada com sucesso." });
+            setGenerating(false);
+            return;
+          } catch {
+            // User cancelled or failed, fall through to download
+          }
+        }
+      }
+
+      // Fallback: download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `revela-story-${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "Baixado!", description: "Imagem salva. Abra o Instagram e publique nos Stories." });
     } catch {
       toast({ title: "Erro", description: "Não foi possível gerar a imagem.", variant: "destructive" });
-      return null;
     } finally {
       setGenerating(false);
     }
-  }, []);
-
-  const handleDownload = useCallback(async () => {
-    const blob = await generateImage();
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `revela-story-${Date.now()}.png`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast({ title: "Baixado!", description: "Imagem salva. Abra o Instagram e publique nos Stories." });
-  }, [generateImage]);
+  }, [data]);
 
   const buildCaption = useCallback((): string => {
     const lines: string[] = [];
@@ -71,13 +91,10 @@ const StoryShareSheet = ({ open, onOpenChange, data }: StoryShareSheetProps) => 
   }, [buildCaption]);
 
   const handleOpenInstagram = useCallback(() => {
-    // Try the Instagram app URL scheme, fallback to web
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
-
     if (isIOS || isAndroid) {
       window.location.href = "instagram://app";
-      // Fallback after a brief delay
       setTimeout(() => {
         window.open("https://www.instagram.com", "_blank");
       }, 1500);
@@ -101,15 +118,19 @@ const StoryShareSheet = ({ open, onOpenChange, data }: StoryShareSheetProps) => 
         </SheetHeader>
 
         <div className="overflow-y-auto max-h-[72vh] px-6 space-y-5 pb-6">
-          {/* Preview — scaled down to fit screen */}
+          {/* Preview */}
           <div className="flex justify-center">
             <div
-              className="rounded-xl overflow-hidden shadow-lg border border-border"
+              className="rounded-xl overflow-hidden shadow-lg border border-border bg-[#1A1C1E]"
               style={{ width: 200, height: 356 }}
             >
-              <div style={{ transform: "scale(0.5556)", transformOrigin: "top left", width: 360, height: 640 }}>
-                <StoryCard ref={cardRef} data={data} />
-              </div>
+              {previewUrl ? (
+                <img src={previewUrl} alt="Story preview" style={{ width: 200, height: 356, objectFit: "contain" }} />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -129,19 +150,11 @@ const StoryShareSheet = ({ open, onOpenChange, data }: StoryShareSheetProps) => 
             </Button>
 
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleCopyCaption}
-                className="flex-1 h-11 rounded-xl"
-              >
+              <Button variant="outline" onClick={handleCopyCaption} className="flex-1 h-11 rounded-xl">
                 <Copy className="w-4 h-4 mr-2" />
                 Copiar Legenda
               </Button>
-              <Button
-                variant="outline"
-                onClick={handleOpenInstagram}
-                className="flex-1 h-11 rounded-xl"
-              >
+              <Button variant="outline" onClick={handleOpenInstagram} className="flex-1 h-11 rounded-xl">
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Abrir Instagram
               </Button>
