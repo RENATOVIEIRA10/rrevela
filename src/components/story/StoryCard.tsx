@@ -243,6 +243,11 @@ function renderClassico(ctx: CanvasRenderingContext2D, data: StoryData, bg: Stor
 function renderInsight(ctx: CanvasRenderingContext2D, data: StoryData, bg: StoryBackground) {
   const c = colors(bg);
 
+  // Pick best primary text and insight text from available data
+  const primaryText = data.verseText || data.studyExcerpt || data.studyTitle || "";
+  const insightText = data.insightText || (data.verseText ? data.studyExcerpt : "") || "";
+  const hasInsight = !!insightText;
+
   // Reference badge
   ctx.fillStyle = c.ref;
   ctx.font = `600 30px ${SANS}`;
@@ -251,17 +256,16 @@ function renderInsight(ctx: CanvasRenderingContext2D, data: StoryData, bg: Story
 
   drawDivider(ctx, H * 0.245, bg, true);
 
-  // Verse
-  const verseText = data.verseText || "";
-  const v = adaptiveText(ctx, `"${verseText}"`, CONTENT_W, H * 0.22, 44, 26, SERIF, 1.8, "italic");
+  // Primary text (verse or study excerpt)
+  const maxPrimaryH = hasInsight ? H * 0.22 : H * 0.35;
+  const v = adaptiveText(ctx, `"${primaryText}"`, CONTENT_W, maxPrimaryH, 44, 26, SERIF, 1.8, "italic");
   ctx.fillStyle = c.main;
   ctx.font = `italic ${v.fontSize}px ${SERIF}`;
   ctx.textAlign = "center";
   const verseBottom = H * 0.27 + drawLines(ctx, v.lines, W / 2, H * 0.27, v.fontSize, 1.8);
 
   // Insight section
-  const insightText = data.insightText || data.studyExcerpt || "";
-  if (insightText) {
+  if (hasInsight) {
     const insightY = Math.max(verseBottom + 50, H * 0.54);
 
     drawDivider(ctx, insightY, bg, true);
