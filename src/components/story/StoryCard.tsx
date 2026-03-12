@@ -243,6 +243,11 @@ function renderClassico(ctx: CanvasRenderingContext2D, data: StoryData, bg: Stor
 function renderInsight(ctx: CanvasRenderingContext2D, data: StoryData, bg: StoryBackground) {
   const c = colors(bg);
 
+  // Pick best primary text and insight text from available data
+  const primaryText = data.verseText || data.studyExcerpt || data.studyTitle || "";
+  const insightText = data.insightText || (data.verseText ? data.studyExcerpt : "") || "";
+  const hasInsight = !!insightText;
+
   // Reference badge
   ctx.fillStyle = c.ref;
   ctx.font = `600 30px ${SANS}`;
@@ -251,17 +256,16 @@ function renderInsight(ctx: CanvasRenderingContext2D, data: StoryData, bg: Story
 
   drawDivider(ctx, H * 0.245, bg, true);
 
-  // Verse
-  const verseText = data.verseText || "";
-  const v = adaptiveText(ctx, `"${verseText}"`, CONTENT_W, H * 0.22, 44, 26, SERIF, 1.8, "italic");
+  // Primary text (verse or study excerpt)
+  const maxPrimaryH = hasInsight ? H * 0.22 : H * 0.35;
+  const v = adaptiveText(ctx, `"${primaryText}"`, CONTENT_W, maxPrimaryH, 44, 26, SERIF, 1.8, "italic");
   ctx.fillStyle = c.main;
   ctx.font = `italic ${v.fontSize}px ${SERIF}`;
   ctx.textAlign = "center";
   const verseBottom = H * 0.27 + drawLines(ctx, v.lines, W / 2, H * 0.27, v.fontSize, 1.8);
 
   // Insight section
-  const insightText = data.insightText || data.studyExcerpt || "";
-  if (insightText) {
+  if (hasInsight) {
     const insightY = Math.max(verseBottom + 50, H * 0.54);
 
     drawDivider(ctx, insightY, bg, true);
@@ -332,8 +336,8 @@ function renderEstudo(ctx: CanvasRenderingContext2D, data: StoryData, bg: StoryB
   ctx.textAlign = "center";
   ctx.fillText("ESTUDO BÍBLICO", W / 2, H * 0.2);
 
-  // Study title
-  const title = data.studyTitle || data.reference;
+  // Study title — use studyTitle, or build from reference
+  const title = data.studyTitle || `Estudo de ${data.reference}`;
   const t = adaptiveText(ctx, title, CONTENT_W, H * 0.12, 50, 32, SERIF, 1.55, "600");
   ctx.fillStyle = c.main;
   ctx.font = `600 ${t.fontSize}px ${SERIF}`;
@@ -347,17 +351,21 @@ function renderEstudo(ctx: CanvasRenderingContext2D, data: StoryData, bg: StoryB
 
   drawDivider(ctx, titleBottom + 70, bg);
 
-  // Excerpt or verse
+  // Excerpt or verse — use whatever is available
   const excerpt = data.studyExcerpt || data.verseText || "";
-  if (excerpt) {
-    const e = adaptiveText(ctx, `"${excerpt}"`, CONTENT_W, H * 0.2, 38, 24, SERIF, 1.8, "italic");
+  const insightText = data.insightText || "";
+  const hasExcerpt = !!excerpt;
+  const hasInsight = !!insightText;
+
+  if (hasExcerpt) {
+    const maxExcH = hasInsight ? H * 0.16 : H * 0.25;
+    const e = adaptiveText(ctx, `"${excerpt}"`, CONTENT_W, maxExcH, 38, 24, SERIF, 1.8, "italic");
     ctx.fillStyle = c.secondary;
     ctx.font = `italic ${e.fontSize}px ${SERIF}`;
     ctx.textAlign = "center";
     const excerptBottom = titleBottom + 90 + drawLines(ctx, e.lines, W / 2, titleBottom + 90, e.fontSize, 1.8);
 
-    // Insight
-    if (data.insightText) {
+    if (hasInsight) {
       const iy = Math.max(excerptBottom + 50, H * 0.6);
       drawDivider(ctx, iy, bg, true);
 
@@ -365,11 +373,23 @@ function renderEstudo(ctx: CanvasRenderingContext2D, data: StoryData, bg: StoryB
       ctx.font = `600 20px ${SANS}`;
       ctx.fillText("REVELAÇÃO", W / 2, iy + 35);
 
-      const ins = adaptiveText(ctx, data.insightText, CONTENT_W, H * 0.15, 28, 20, SANS, 1.8);
+      const ins = adaptiveText(ctx, insightText, CONTENT_W, H * 0.15, 28, 20, SANS, 1.8);
       ctx.fillStyle = c.muted;
       ctx.font = `${ins.fontSize}px ${SANS}`;
       drawLines(ctx, ins.lines, W / 2, iy + 50, ins.fontSize, 1.8);
     }
+  } else if (hasInsight) {
+    // No excerpt but has insight — render insight as main content
+    const iy = titleBottom + 90;
+    ctx.fillStyle = c.accent;
+    ctx.font = `600 20px ${SANS}`;
+    ctx.textAlign = "center";
+    ctx.fillText("REVELAÇÃO", W / 2, iy + 10);
+
+    const ins = adaptiveText(ctx, insightText, CONTENT_W, H * 0.25, 32, 22, SANS, 1.85);
+    ctx.fillStyle = c.muted;
+    ctx.font = `${ins.fontSize}px ${SANS}`;
+    drawLines(ctx, ins.lines, W / 2, iy + 30, ins.fontSize, 1.85);
   }
 }
 
