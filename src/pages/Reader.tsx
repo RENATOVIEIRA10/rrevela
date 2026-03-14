@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown, Loader2, AlertTriangle, X, Pin, PanelLeftClose, PanelRightClose } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, StickyNote, ChevronDown, Loader2, AlertTriangle, X, Pin, PanelLeftClose, PanelRightClose, ArrowLeft } from "lucide-react";
 import { usePinnedVerse } from "@/hooks/usePinnedVerse";
 import { useFavorites } from "@/hooks/useFavorites";
 import PinnedVerseCard from "@/components/PinnedVerseCard";
