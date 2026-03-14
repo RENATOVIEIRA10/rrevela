@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, BookOpen, ArrowRight } from "lucide-react";
+import { Loader2, Sparkles, BookOpen, ArrowRight, ZoomIn, ZoomOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ConfidenceBadge } from "./ConfidenceBadge";
