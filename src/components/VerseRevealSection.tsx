@@ -101,10 +101,11 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
       <AnimatePresence>
         {expanded && data && (
           <motion.div
+            ref={pinchRef}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden space-y-3"
+            className="overflow-hidden space-y-3 touch-manipulation"
             style={{ fontSize: `${zoom}em` }}
           >
             {/* Zoom controls */}
