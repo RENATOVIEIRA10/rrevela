@@ -248,119 +248,154 @@ const ResultView = ({
   query: string;
   response: RevelaResponse;
   onReset: () => void;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, ease }}
-    className="space-y-8 pb-10"
-  >
-    {/* Back */}
-    <button
-      onClick={onReset}
-      className="text-[0.8125rem] text-muted-foreground/60 hover:text-primary transition-colors font-medium"
-    >
-      ← Nova busca
-    </button>
+}) => {
+  const [zoom, setZoom] = useState(1);
+  const navigate = useNavigate();
 
-    {/* Query Card — editorial quote style */}
-    <div className="relative py-6 px-1">
-      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary/20 rounded-full" />
-      <div className="pl-5 space-y-2.5">
-        <p className="font-scripture text-lg text-foreground/90 italic leading-relaxed">
-          "{query}"
-        </p>
-        {response.intent && (
-          <span className="inline-block text-[0.6875rem] bg-primary/[0.06] text-primary/80 px-2.5 py-0.5 rounded-full font-medium tracking-wide">
-            {response.intent === "EMOCIONAL" && "Emocional / Prática"}
-            {response.intent === "DOUTRINARIA" && "Doutrinária"}
-            {response.intent === "CRISTOCENTRICA" && "Cristocêntrica"}
-            {response.intent === "REFERENCIA" && "Referência direta"}
+  const handleNavigateToRef = (book: string, chapter: number, verse: number) => {
+    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}&v=${verse}`, {
+      state: { fromRevela: true },
+    });
+  };
+
+  const zoomIn = () => setZoom((z) => Math.min(z + 0.15, 1.6));
+  const zoomOut = () => setZoom((z) => Math.max(z - 0.15, 0.7));
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease }}
+      className="space-y-8 pb-10"
+    >
+      {/* Back + Zoom */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onReset}
+          className="text-[0.8125rem] text-muted-foreground/60 hover:text-primary transition-colors font-medium"
+        >
+          ← Nova busca
+        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={zoomOut}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
+            title="Diminuir texto"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <span className="text-[0.625rem] text-muted-foreground/50 w-8 text-center font-ui">
+            {Math.round(zoom * 100)}%
           </span>
+          <button
+            onClick={zoomIn}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
+            title="Aumentar texto"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Query Card — editorial quote style */}
+      <div className="relative py-6 px-1">
+        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary/20 rounded-full" />
+        <div className="pl-5 space-y-2.5">
+          <p className="font-scripture text-lg text-foreground/90 italic leading-relaxed">
+            "{query}"
+          </p>
+          {response.intent && (
+            <span className="inline-block text-[0.6875rem] bg-primary/[0.06] text-primary/80 px-2.5 py-0.5 rounded-full font-medium tracking-wide">
+              {response.intent === "EMOCIONAL" && "Emocional / Prática"}
+              {response.intent === "DOUTRINARIA" && "Doutrinária"}
+              {response.intent === "CRISTOCENTRICA" && "Cristocêntrica"}
+              {response.intent === "REFERENCIA" && "Referência direta"}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="editorial-divider" />
+
+      {/* Sections with zoom */}
+      <div className="space-y-7" style={{ fontSize: `${zoom}em` }}>
+        {response.theme && (
+          <ResultSection
+            icon={<BookOpen className="w-4 h-4" />}
+            title="Tema detectado"
+            content={<RichText text={response.theme} onNavigate={handleNavigateToRef} />}
+            delay={0}
+          />
+        )}
+
+        {response.passages?.length > 0 && (
+          <ResultSection
+            icon={<BookOpen className="w-4 h-4" />}
+            title="Passagens bíblicas"
+            delay={0.05}
+            content={
+              <div className="space-y-3">
+                {response.passages.map((p, i) => (
+                  <VerseCard key={i} reference={p.reference} text={p.text} why={p.why} onNavigate={handleNavigateToRef} />
+                ))}
+              </div>
+            }
+          />
+        )}
+
+        {response.context && (
+          <ResultSection
+            icon={<BookOpen className="w-4 h-4" />}
+            title="Contexto"
+            content={<RichText text={response.context} onNavigate={handleNavigateToRef} />}
+            delay={0.1}
+          />
+        )}
+
+        {response.christocentric_connection && (
+          <ResultSection
+            icon={<Cross className="w-4 h-4" />}
+            title="Conexão cristocêntrica"
+            content={<RichText text={response.christocentric_connection} onNavigate={handleNavigateToRef} />}
+            delay={0.15}
+          />
+        )}
+
+        {response.anchors?.length > 0 && (
+          <ResultSection
+            icon={<Anchor className="w-4 h-4" />}
+            title="Âncoras cristocêntricas"
+            delay={0.2}
+            content={
+              <div className="space-y-4">
+                {response.anchors.map((a, i) => (
+                  <AnchorCard key={i} anchor={a} onNavigate={handleNavigateToRef} />
+                ))}
+              </div>
+            }
+          />
+        )}
+
+        {response.application && (
+          <ResultSection
+            icon={<Heart className="w-4 h-4" />}
+            title="Aplicação"
+            content={<RichText text={response.application} onNavigate={handleNavigateToRef} />}
+            delay={0.25}
+          />
         )}
       </div>
-    </div>
 
-    <div className="editorial-divider" />
+      <div className="editorial-divider" />
 
-    {/* Sections */}
-    <div className="space-y-7">
-      {response.theme && (
-        <ResultSection
-          icon={<BookOpen className="w-4 h-4" />}
-          title="Tema detectado"
-          content={<RichText text={response.theme} />}
-          delay={0}
-        />
-      )}
+      <RevelaShareSection query={query} response={response} />
 
-      {response.passages?.length > 0 && (
-        <ResultSection
-          icon={<BookOpen className="w-4 h-4" />}
-          title="Passagens bíblicas"
-          delay={0.05}
-          content={
-            <div className="space-y-3">
-              {response.passages.map((p, i) => (
-                <VerseCard key={i} reference={p.reference} text={p.text} why={p.why} />
-              ))}
-            </div>
-          }
-        />
-      )}
-
-      {response.context && (
-        <ResultSection
-          icon={<BookOpen className="w-4 h-4" />}
-          title="Contexto"
-          content={<RichText text={response.context} />}
-          delay={0.1}
-        />
-      )}
-
-      {response.christocentric_connection && (
-        <ResultSection
-          icon={<Cross className="w-4 h-4" />}
-          title="Conexão cristocêntrica"
-          content={<RichText text={response.christocentric_connection} />}
-          delay={0.15}
-        />
-      )}
-
-      {response.anchors?.length > 0 && (
-        <ResultSection
-          icon={<Anchor className="w-4 h-4" />}
-          title="Âncoras cristocêntricas"
-          delay={0.2}
-          content={
-            <div className="space-y-4">
-              {response.anchors.map((a, i) => (
-                <AnchorCard key={i} anchor={a} />
-              ))}
-            </div>
-          }
-        />
-      )}
-
-      {response.application && (
-        <ResultSection
-          icon={<Heart className="w-4 h-4" />}
-          title="Aplicação"
-          content={<RichText text={response.application} />}
-          delay={0.25}
-        />
-      )}
-    </div>
-
-    <div className="editorial-divider" />
-
-    <RevelaShareSection query={query} response={response} />
-
-    <p className="text-[0.6875rem] text-muted-foreground/40 text-center pt-2 font-medium tracking-wide">
-      Todas as respostas são fundamentadas exclusivamente na Escritura.
-    </p>
-  </motion.div>
-);
+      <p className="text-[0.6875rem] text-muted-foreground/40 text-center pt-2 font-medium tracking-wide">
+        Todas as respostas são fundamentadas exclusivamente na Escritura.
+      </p>
+    </motion.div>
+  );
+};
 
 /* ── Result Section ──────────────────────────────────── */
 
