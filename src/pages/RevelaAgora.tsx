@@ -430,22 +430,26 @@ const ResultSection = ({
 
 /* ── Verse Card ──────────────────────────────────────── */
 
-const VerseCard = ({ reference, text, why }: { reference: string; text: string; why?: string }) => {
+const VerseCard = ({ reference, text, why, onNavigate }: { reference: string; text: string; why?: string; onNavigate?: (book: string, chapter: number, verse: number) => void }) => {
   const parsed = parseReferences(reference);
   return (
     <div className="notebook-page rounded-lg p-4 space-y-2">
       {parsed.length > 0 ? (
-        <ReferenceChip reference={parsed[0]} label={reference} />
+        <ReferenceChip reference={parsed[0]} label={reference} onNavigate={onNavigate} />
       ) : (
         <p className="text-[0.75rem] font-semibold text-primary/70 tracking-wide">{reference}</p>
       )}
-      <p className="font-scripture text-[0.875rem] text-foreground/80 italic leading-[1.9]">
-        {text}
-      </p>
+      <RichText
+        text={text}
+        className="font-scripture text-[0.875rem] text-foreground/80 italic leading-[1.9]"
+        onNavigate={onNavigate}
+      />
       {why && (
-        <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
-          <span className="font-medium text-foreground/50">Por que este texto:</span> {why}
-        </p>
+        <RichText
+          text={why}
+          className="text-[0.75rem] text-muted-foreground leading-relaxed"
+          onNavigate={onNavigate}
+        />
       )}
     </div>
   );
