@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2, SearchCheck } from "lucide-react";
+import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2, SearchCheck, ZoomIn, ZoomOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
