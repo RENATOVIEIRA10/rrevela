@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePinchZoom } from "@/hooks/usePinchZoom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2, SearchCheck, ZoomIn, ZoomOut } from "lucide-react";
