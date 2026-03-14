@@ -32,6 +32,9 @@ import HistoricalContextPanel from "@/components/HistoricalContextPanel";
 const Reader = () => {
   const isMobile = useIsMobile();
   const { track } = useAnalytics();
+  const location = useLocation();
+  const routerNavigate = useNavigate();
+  const fromRevela = !!(location.state as any)?.fromRevela;
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
   const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
