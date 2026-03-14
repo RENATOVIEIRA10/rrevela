@@ -319,7 +319,7 @@ const ResultView = ({
       <div className="editorial-divider" />
 
       {/* Sections with zoom */}
-      <div className="space-y-7" style={{ fontSize: `${zoom}em` }}>
+      <div ref={pinchRef} className="space-y-7 touch-manipulation" style={{ fontSize: `${zoom}em` }}>
         {response.theme && (
           <ResultSection
             icon={<BookOpen className="w-4 h-4" />}
