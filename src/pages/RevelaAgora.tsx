@@ -250,7 +250,7 @@ const ResultView = ({
   response: RevelaResponse;
   onReset: () => void;
 }) => {
-  const [zoom, setZoom] = useState(1);
+  const { containerRef: pinchRef, zoom, setZoom } = usePinchZoom(1, 0.7, 1.6);
   const navigate = useNavigate();
 
   const handleNavigateToRef = (book: string, chapter: number, verse: number) => {
