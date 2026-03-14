@@ -38,6 +38,7 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
   const [data, setData] = useState<RevealData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const { toast } = useToast();
   const { track } = useAnalytics();
   const navigate = useNavigate();
