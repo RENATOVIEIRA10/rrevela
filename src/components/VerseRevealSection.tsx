@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePinchZoom } from "@/hooks/usePinchZoom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Sparkles, BookOpen, ArrowRight, ZoomIn, ZoomOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +39,7 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
   const [data, setData] = useState<RevealData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [zoom, setZoom] = useState(1);
+  const { containerRef: pinchRef, zoom, setZoom } = usePinchZoom(1, 0.7, 1.6);
   const { toast } = useToast();
   const { track } = useAnalytics();
   const navigate = useNavigate();
@@ -100,10 +101,11 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
       <AnimatePresence>
         {expanded && data && (
           <motion.div
+            ref={pinchRef}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden space-y-3"
+            className="overflow-hidden space-y-3 touch-manipulation"
             style={{ fontSize: `${zoom}em` }}
           >
             {/* Zoom controls */}

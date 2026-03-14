@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePinchZoom } from "@/hooks/usePinchZoom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, BookOpen, Cross, Heart, Loader2, Anchor, ArrowRight, Share2, SearchCheck, ZoomIn, ZoomOut } from "lucide-react";
@@ -249,7 +250,7 @@ const ResultView = ({
   response: RevelaResponse;
   onReset: () => void;
 }) => {
-  const [zoom, setZoom] = useState(1);
+  const { containerRef: pinchRef, zoom, setZoom } = usePinchZoom(1, 0.7, 1.6);
   const navigate = useNavigate();
 
   const handleNavigateToRef = (book: string, chapter: number, verse: number) => {
@@ -318,7 +319,7 @@ const ResultView = ({
       <div className="editorial-divider" />
 
       {/* Sections with zoom */}
-      <div className="space-y-7" style={{ fontSize: `${zoom}em` }}>
+      <div ref={pinchRef} className="space-y-7 touch-manipulation" style={{ fontSize: `${zoom}em` }}>
         {response.theme && (
           <ResultSection
             icon={<BookOpen className="w-4 h-4" />}
