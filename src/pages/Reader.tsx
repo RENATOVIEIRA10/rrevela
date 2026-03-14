@@ -433,7 +433,19 @@ const Reader = () => {
 
   // ─── MOBILE LAYOUT — Intimate Bible Experience ───
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background relative">
+      {/* Floating back-to-Revela button */}
+      {fromRevela && (
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => routerNavigate(-1)}
+          className="fixed bottom-20 left-4 z-40 flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground shadow-lg text-xs font-medium active:scale-95 transition-transform"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Voltar ao Revela
+        </motion.button>
+      )}
       {/* Minimal, elegant navigation bar */}
       <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top">
         <div className="flex items-center justify-between px-4 py-2.5">
