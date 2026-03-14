@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePinchZoom } from "@/hooks/usePinchZoom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Sparkles, BookOpen, ArrowRight, ZoomIn, ZoomOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
