@@ -457,13 +457,13 @@ const VerseCard = ({ reference, text, why, onNavigate }: { reference: string; te
 
 /* ── Anchor Card ─────────────────────────────────────── */
 
-const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
+const AnchorCard = ({ anchor, onNavigate }: { anchor: AnchorData; onNavigate?: (book: string, chapter: number, verse: number) => void }) => {
   const connLabel = CONNECTION_TYPE_LABELS[anchor.connection_type];
 
   const renderRef = (refStr: string) => {
     const parsed = parseReferences(refStr);
     if (parsed.length > 0) {
-      return <ReferenceChip reference={parsed[0]} label={refStr} />;
+      return <ReferenceChip reference={parsed[0]} label={refStr} onNavigate={onNavigate} />;
     }
     return <span className="text-[0.75rem] font-semibold text-primary/70">{refStr}</span>;
   };
@@ -489,7 +489,7 @@ const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
       
       <div className="space-y-1.5">
         {renderRef(anchor.at_reference)}
-        <RichText text={anchor.at_summary} className="text-[0.8125rem] text-foreground/75 font-scripture leading-[1.8]" />
+        <RichText text={anchor.at_summary} className="text-[0.8125rem] text-foreground/75 font-scripture leading-[1.8]" onNavigate={onNavigate} />
       </div>
 
       <div className="flex items-center gap-1.5 text-muted-foreground/50">
@@ -503,7 +503,7 @@ const AnchorCard = ({ anchor }: { anchor: AnchorData }) => {
             <span key={i}>{renderRef(ref)}</span>
           ))}
         </div>
-        <RichText text={anchor.nt_summary} className="text-[0.8125rem] text-foreground/75 font-scripture leading-[1.8]" />
+        <RichText text={anchor.nt_summary} className="text-[0.8125rem] text-foreground/75 font-scripture leading-[1.8]" onNavigate={onNavigate} />
       </div>
     </div>
   );
