@@ -104,7 +104,26 @@ const VerseRevealSection = ({ book, chapter, verse, verseText, onNavigate, onRev
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden space-y-3"
+            style={{ fontSize: `${zoom}em` }}
           >
+            {/* Zoom controls */}
+            <div className="flex items-center justify-end gap-1">
+              <button
+                onClick={() => setZoom((z) => Math.max(z - 0.15, 0.7))}
+                className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/5 transition-colors"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-[0.5625rem] text-muted-foreground/50 w-7 text-center font-ui">
+                {Math.round(zoom * 100)}%
+              </span>
+              <button
+                onClick={() => setZoom((z) => Math.min(z + 0.15, 1.6))}
+                className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/5 transition-colors"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+            </div>
             {/* Theme */}
             <div className="bg-accent/5 rounded-lg px-3 py-2 border border-accent/10">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Tema</p>
