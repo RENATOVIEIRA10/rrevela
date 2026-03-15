@@ -85,7 +85,7 @@ const MinhaJornada = () => {
                   favorites={favorites}
                   loading={favsLoading}
                   onGoTo={(book, chapter) =>
-                    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`)
+                    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`, { state: { book, chapter } })
                   }
                   onRemove={(book, chapter, verse) => toggleFavorite(book, chapter, verse)}
                   tags={tags}
@@ -200,7 +200,7 @@ const MinhaJornada = () => {
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.35 + i * 0.03 }}
-                        onClick={() => navigate(`/leitor?livro=${encodeURIComponent(ch.book)}&cap=${ch.chapter}`)}
+                        onClick={() => navigate(`/leitor?livro=${encodeURIComponent(ch.book)}&cap=${ch.chapter}`, { state: { book: ch.book, chapter: ch.chapter } })}
                         className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-secondary/30 transition-colors text-left"
                       >
                         <div className="flex items-center gap-2.5">
@@ -275,7 +275,7 @@ const MinhaJornada = () => {
                         )}
 
                         <button
-                          onClick={() => navigate(`/leitor?livro=${encodeURIComponent(note.book || "")}&cap=${note.chapter || 1}`)}
+                          onClick={() => navigate(`/leitor?livro=${encodeURIComponent(note.book || "")}&cap=${note.chapter || 1}`, { state: { book: note.book, chapter: note.chapter || 1 } })}
                           className="flex items-center gap-1 text-[10px] text-accent/70 hover:text-accent transition-colors"
                         >
                           <Sparkles className="w-3 h-3" />

@@ -26,7 +26,7 @@ const PlanoLeitura = () => {
   const handleReadNow = () => {
     if (!todayReading?.entries?.length) return;
     const first = todayReading.entries[0];
-    navigate(`/leitor?livro=${encodeURIComponent(first.book)}&cap=${first.chapter}`);
+    navigate(`/leitor?livro=${encodeURIComponent(first.book)}&cap=${first.chapter}`, { state: { book: first.book, chapter: first.chapter } });
   };
 
   if (isLoading) {

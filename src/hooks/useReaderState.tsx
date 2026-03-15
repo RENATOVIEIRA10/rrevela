@@ -38,8 +38,14 @@ export function useReaderState() {
 
   const fromRevela = !!(location.state as ReaderLocationState)?.fromRevela;
 
-  const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
-  const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
+  const _stateBook = (location.state as any)?.book as string | undefined;
+  const _stateChap = (location.state as any)?.chapter as number | undefined;
+  const [selectedBook, setSelectedBook] = useState(
+    _stateBook || searchParams.get("livro") || "Gênesis"
+  );
+  const [selectedChapter, setSelectedChapter] = useState(
+    _stateChap || Number(searchParams.get("cap")) || 1
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -94,19 +100,19 @@ export function useReaderState() {
   }, [selectedBook, selectedChapter, loading, verses.length]);
 
   useEffect(() => {
+    const stateBook = (location.state as any)?.book as string | undefined;
+    const stateCap  = (location.state as any)?.chapter as number | undefined;
+    if (stateBook && BIBLE_BOOKS.some((b) => b.name === stateBook)) {
+      setSelectedBook(stateBook);
+      if (stateCap) setSelectedChapter(stateCap);
+      return;
+    }
     const livro = searchParams.get("livro");
     const cap = searchParams.get("cap");
     if (livro && BIBLE_BOOKS.some((b) => b.name === livro)) {
       setSelectedBook(livro);
       setSelectedChapter(Number(cap) || 1);
       setSearchParams({}, { replace: true });
-      return;
-    }
-    // Fallback: location.state passado por navigate() da Home ou outros
-    const state = location.state as { book?: string; chapter?: number } | null;
-    if (state?.book && BIBLE_BOOKS.some((b) => b.name === state.book)) {
-      setSelectedBook(state.book);
-      if (state.chapter) setSelectedChapter(state.chapter);
     }
   }, [searchParams, setSearchParams, location.state]);
 
