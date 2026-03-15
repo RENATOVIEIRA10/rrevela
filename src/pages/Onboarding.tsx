@@ -1,118 +1,192 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { BookOpen, Lightbulb, PenLine, Share2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RevelaLogo from "@/components/RevelaLogo";
+import { markOnboardingComplete } from "@/lib/app-version";
+
+const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
+
+const SLIDES = [
+  {
+    icon: BookOpen,
+    emoji: "📖",
+    title: "A Palavra de Deus sempre à mão",
+    description: "Acesse a Bíblia completa com múltiplas traduções, busca inteligente e leitura offline.",
+  },
+  {
+    icon: Lightbulb,
+    emoji: "💡",
+    title: "Descubra revelações fundamentadas",
+    description: "O Revela conecta passagens, revela padrões e mostra Cristo em cada página das Escrituras.",
+  },
+  {
+    icon: PenLine,
+    emoji: "✍️",
+    title: "Anote e construa sua jornada",
+    description: "Destaque versículos, faça anotações estruturadas e acompanhe seu crescimento espiritual.",
+  },
+  {
+    icon: Share2,
+    emoji: "📤",
+    title: "Compartilhe com facilidade",
+    description: "Crie imagens bonitas dos versículos e estudos para compartilhar nas redes sociais.",
+  },
+];
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const [step, setStep] = useState(0);
+
+  const isLastSlide = step === SLIDES.length - 1;
+
+  const handleNext = () => {
+    if (isLastSlide) {
+      markOnboardingComplete();
+      navigate("/auth");
+    } else {
+      setStep((s) => s + 1);
+    }
+  };
+
+  const handleSkip = () => {
+    markOnboardingComplete();
+    navigate("/auth");
+  };
+
+  const slide = SLIDES[step];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
-      {/* Subtle top accent */}
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Top accent line */}
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
-        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 1.2, ease }}
         className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent"
       />
 
-      <motion.div
-        className="max-w-sm w-full flex flex-col items-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      {/* Skip button */}
+      {!isLastSlide && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          onClick={handleSkip}
+          className="absolute top-6 right-6 text-xs text-muted-foreground font-ui hover:text-foreground transition-colors z-10"
         >
-          <RevelaLogo size={44} className="text-primary" />
-        </motion.div>
+          Pular
+        </motion.button>
+      )}
 
-        {/* Headline */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.6 }}
-          className="mt-10 text-center space-y-3"
-        >
-          <h1 className="font-scripture text-[1.75rem] md:text-3xl font-semibold text-foreground leading-[1.3] tracking-tight">
-            Entendimento aberto.
-            <br />
-            Olhar fixo em Cristo.
-          </h1>
-          <p className="text-[0.8125rem] text-muted-foreground leading-relaxed max-w-[280px] mx-auto font-ui">
-            Estudo bíblico profundo, busca por linguagem natural e conexões teológicas.
-          </p>
-        </motion.div>
+      {/* Content area */}
+      <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8">
+        {/* Logo (only first slide) */}
+        <AnimatePresence mode="wait">
+          {step === 0 && (
+            <motion.div
+              key="logo"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.5, ease }}
+              className="mb-10"
+            >
+              <RevelaLogo size={40} className="text-primary" />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Divider */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.55, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="w-10 h-px bg-border my-8 origin-center"
-        />
-
-        {/* Scripture quote */}
-        <motion.blockquote
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          className="text-center space-y-2.5 max-w-[300px]"
-        >
-          <p className="font-scripture text-base md:text-lg leading-[1.8] text-foreground/75 italic">
-            "Então lhes abriu o entendimento para compreenderem as Escrituras."
-          </p>
-          <cite className="block text-[0.65rem] text-muted-foreground font-ui not-italic tracking-[0.2em] uppercase font-medium">
-            Lucas 24:45
-          </cite>
-        </motion.blockquote>
-
-        {/* Commitment — subtle editorial card */}
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.5 }}
-          className="mt-8 w-full notebook-page rounded-lg p-5 space-y-3"
-        >
-          <p className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
-            Compromisso
-          </p>
-          <div className="space-y-1.5 text-[0.8125rem] text-foreground/75 font-scripture leading-[1.7]">
-            <p>Sempre baseado na Bíblia.</p>
-            <p>A Escritura interpretando a Escritura.</p>
-            <p>Para onde a luz aponta: Cristo em cada página.</p>
-          </div>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1, duration: 0.5 }}
-          className="mt-10 w-full flex justify-center"
-        >
-          <Button
-            onClick={() => navigate("/auth")}
-            size="lg"
-            className="w-full max-w-[280px] font-scripture text-[0.9375rem] tracking-wide h-12"
+        {/* Slide content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.4, ease }}
+            className="max-w-sm w-full text-center space-y-6"
           >
-            Entrar na Biblioteca
-          </Button>
-        </motion.div>
-      </motion.div>
+            {/* Icon */}
+            <div className="flex justify-center">
+              <div className="w-20 h-20 rounded-2xl bg-accent/8 border border-accent/10 flex items-center justify-center">
+                <span className="text-4xl">{slide.emoji}</span>
+              </div>
+            </div>
 
-      {/* Bottom dot accent */}
+            {/* Text */}
+            <div className="space-y-3">
+              <h2 className="font-scripture text-xl font-semibold text-foreground leading-snug">
+                {slide.title}
+              </h2>
+              <p className="text-sm text-muted-foreground font-ui leading-relaxed max-w-[280px] mx-auto">
+                {slide.description}
+              </p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom navigation */}
+      <div className="px-8 pb-10 space-y-6">
+        {/* Dots */}
+        <div className="flex justify-center gap-2">
+          {SLIDES.map((_, i) => (
+            <motion.div
+              key={i}
+              animate={{
+                width: i === step ? 24 : 6,
+                opacity: i === step ? 1 : 0.3,
+              }}
+              transition={{ duration: 0.3, ease }}
+              className="h-1.5 rounded-full bg-accent"
+            />
+          ))}
+        </div>
+
+        {/* Button */}
+        <Button
+          onClick={handleNext}
+          size="lg"
+          className="w-full max-w-[320px] mx-auto flex font-scripture text-sm h-12 rounded-xl gap-2"
+        >
+          {isLastSlide ? (
+            "Começar a estudar"
+          ) : (
+            <>
+              Continuar
+              <ChevronRight className="w-4 h-4" />
+            </>
+          )}
+        </Button>
+
+        {/* Scripture quote on first slide */}
+        {step === 0 && (
+          <motion.blockquote
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="text-center pt-2"
+          >
+            <p className="font-scripture text-xs leading-relaxed text-foreground/50 italic">
+              "Então lhes abriu o entendimento para compreenderem as Escrituras."
+            </p>
+            <cite className="block text-[0.6rem] text-muted-foreground/60 font-ui not-italic tracking-widest uppercase mt-1">
+              Lucas 24:45
+            </cite>
+          </motion.blockquote>
+        )}
+      </div>
+
+      {/* Bottom dot */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.6 }}
-        className="absolute bottom-8"
+        transition={{ delay: 1, duration: 0.6 }}
+        className="absolute bottom-3 left-1/2 -translate-x-1/2"
       >
-        <div className="w-1 h-1 rounded-full bg-primary/25" />
+        <div className="w-1 h-1 rounded-full bg-primary/20" />
       </motion.div>
     </div>
   );
