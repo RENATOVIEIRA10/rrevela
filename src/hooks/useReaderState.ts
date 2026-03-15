@@ -100,8 +100,15 @@ export function useReaderState() {
       setSelectedBook(livro);
       setSelectedChapter(Number(cap) || 1);
       setSearchParams({}, { replace: true });
+      return;
     }
-  }, [searchParams, setSearchParams]);
+    // Fallback: location.state passado por navigate() da Home ou outros
+    const state = location.state as { book?: string; chapter?: number } | null;
+    if (state?.book && BIBLE_BOOKS.some((b) => b.name === state.book)) {
+      setSelectedBook(state.book);
+      if (state.chapter) setSelectedChapter(state.chapter);
+    }
+  }, [searchParams, setSearchParams, location.state]);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
