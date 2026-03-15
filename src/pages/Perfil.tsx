@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Type, BookOpen, Sun, Moon, LogOut, ChevronRight, Check, Loader2 } from "lucide-react";
+import OfflineDownloadButton from "@/components/OfflineDownloadButton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,8 +17,9 @@ const FONT_SIZES = [
 
 const TRANSLATIONS = [
   { label: "Almeida Corrigida Fiel", value: "acf" },
-  { label: "Almeida Revisada", value: "ara" },
-  { label: "Nova Versão Internacional", value: "nvi" },
+  { label: "Almeida Revista e Corrigida", value: "arc" },
+  { label: "Almeida Atualizada", value: "aa" },
+  { label: "Tradução Brasileira 1917", value: "tb" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
@@ -191,6 +193,18 @@ const Perfil = () => {
                 </button>
               ))}
             </div>
+          </motion.section>
+
+          <div className="editorial-divider" />
+
+          {/* Offline Download */}
+          <motion.section
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, duration: 0.4, ease }}
+            className="notebook-page rounded-xl p-4"
+          >
+            <OfflineDownloadButton />
           </motion.section>
 
           <div className="editorial-divider" />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOfflineVerses, isTranslationOffline } from "@/lib/offline-bible";
 
 export interface BibleVerse {
   number: number;
@@ -25,6 +26,7 @@ export function useBibleVerses(book: string, chapter: number, translation: strin
     setError(null);
 
     const fetchVerses = async () => {
+      // Try online first
       const { data, error: fetchError } = await supabase
         .from("bible_verses")
         .select("verse, text")
@@ -35,17 +37,38 @@ export function useBibleVerses(book: string, chapter: number, translation: strin
 
       if (cancelled) return;
 
+      if (!fetchError && data && data.length > 0) {
+        setVerses(data.map((v) => ({ number: v.verse, text: v.text })));
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      // Fallback to offline IndexedDB
+      try {
+        const offline = await getOfflineVerses(book, chapter, translation);
+        if (!cancelled && offline.length > 0) {
+          setVerses(offline.map((v) => ({ number: v.verse, text: v.text })));
+          setError(null);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // IndexedDB unavailable
+      }
+
+      if (cancelled) return;
+
       if (fetchError) {
         setError("Erro ao carregar versículos.");
         setVerses([]);
-      } else if (!data || data.length === 0) {
-        setError(translation !== "acf" 
-          ? `Tradução ${translation.toUpperCase()} ainda não disponível. Use ACF.`
-          : "Texto não encontrado. Verifique a tradução carregada.");
-        setVerses([]);
       } else {
-        setVerses(data.map((v) => ({ number: v.verse, text: v.text })));
-        setError(null);
+        setError(
+          translation !== "acf"
+            ? `Tradução ${translation.toUpperCase()} ainda não disponível. Use ACF.`
+            : "Texto não encontrado. Verifique a tradução carregada."
+        );
+        setVerses([]);
       }
       setLoading(false);
     };

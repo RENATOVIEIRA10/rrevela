@@ -3,8 +3,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 const TRANSLATIONS = [
   { value: "acf", label: "ACF", fullName: "Almeida Corrigida Fiel" },
-  { value: "ara", label: "ARA", fullName: "Almeida Revisada" },
-  { value: "nvi", label: "NVI", fullName: "Nova Versão Internacional" },
+  { value: "arc", label: "ARC", fullName: "Almeida Revista e Corrigida" },
+  { value: "aa", label: "AA", fullName: "Almeida Atualizada" },
+  { value: "tb", label: "TB", fullName: "Tradução Brasileira 1917" },
 ] as const;
 
 export type TranslationKey = (typeof TRANSLATIONS)[number]["value"];
@@ -29,7 +30,7 @@ const TranslationSelector = ({ value, onChange }: TranslationSelectorProps) => (
         <TooltipTrigger asChild>
           <ToggleGroupItem
             value={t.value}
-            className="text-[11px] px-2.5 py-1 h-auto rounded-md data-[state=on]:bg-accent data-[state=on]:text-accent-foreground font-medium"
+            className="text-[11px] px-2 py-1 h-auto rounded-md data-[state=on]:bg-accent data-[state=on]:text-accent-foreground font-medium"
           >
             {t.label}
           </ToggleGroupItem>
