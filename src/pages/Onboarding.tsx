@@ -1,10 +1,22 @@
-import { useState } from "react";
+/**
+ * Onboarding.tsx
+ *
+ * MUDANÇAS NESTA VERSÃO:
+ * - Verifica se o usuário já completou o onboarding E está logado.
+ *   Se sim, redireciona direto para /leitor sem mostrar os slides.
+ *   Isso resolve o problema de usuários logados que reinstalam o PWA
+ *   e veem o onboarding desnecessariamente.
+ * - Verifica também se o app foi aberto via start_url (/leitor) mas
+ *   caiu aqui por algum redirect — redireciona corretamente.
+ */
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Lightbulb, PenLine, Share2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RevelaLogo from "@/components/RevelaLogo";
-import { markOnboardingComplete } from "@/lib/app-version";
+import { markOnboardingComplete, hasCompletedOnboarding } from "@/lib/app-version";
+import { supabase } from "@/integrations/supabase/client";
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -38,6 +50,27 @@ const SLIDES = [
 const Onboarding = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      // Se já completou o onboarding, verifica se está logado
+      if (hasCompletedOnboarding()) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Logado + onboarding completo → vai direto para o leitor
+          navigate("/leitor", { replace: true });
+          return;
+        }
+        // Onboarding completo mas não logado → vai para auth
+        navigate("/auth", { replace: true });
+        return;
+      }
+      // Primeira vez → mostra os slides
+      setChecking(false);
+    };
+    checkSession();
+  }, [navigate]);
 
   const isLastSlide = step === SLIDES.length - 1;
 
@@ -54,6 +87,11 @@ const Onboarding = () => {
     markOnboardingComplete();
     navigate("/auth");
   };
+
+  // Enquanto verifica a sessão, mostra fundo limpo (sem flash)
+  if (checking) {
+    return <div className="min-h-screen bg-background" />;
+  }
 
   const slide = SLIDES[step];
 
@@ -108,14 +146,11 @@ const Onboarding = () => {
             transition={{ duration: 0.4, ease }}
             className="max-w-sm w-full text-center space-y-6"
           >
-            {/* Icon */}
             <div className="flex justify-center">
               <div className="w-20 h-20 rounded-2xl bg-accent/8 border border-accent/10 flex items-center justify-center">
                 <span className="text-4xl">{slide.emoji}</span>
               </div>
             </div>
-
-            {/* Text */}
             <div className="space-y-3">
               <h2 className="font-scripture text-xl font-semibold text-foreground leading-snug">
                 {slide.title}
@@ -135,10 +170,7 @@ const Onboarding = () => {
           {SLIDES.map((_, i) => (
             <motion.div
               key={i}
-              animate={{
-                width: i === step ? 24 : 6,
-                opacity: i === step ? 1 : 0.3,
-              }}
+              animate={{ width: i === step ? 24 : 6, opacity: i === step ? 1 : 0.3 }}
               transition={{ duration: 0.3, ease }}
               className="h-1.5 rounded-full bg-accent"
             />
@@ -179,7 +211,6 @@ const Onboarding = () => {
         )}
       </div>
 
-      {/* Bottom dot */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

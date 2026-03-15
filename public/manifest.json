@@ -2,13 +2,22 @@
   "name": "Revela — Estudo Bíblico Cristocêntrico",
   "short_name": "Revela",
   "description": "Estudo bíblico cristocêntrico — Profundo, silencioso, fundamentado na Escritura.",
-  "start_url": "/",
+  "start_url": "/leitor",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F9F7F2",
   "theme_color": "#632A26",
   "orientation": "portrait-primary",
   "categories": ["education", "books"],
+  "screenshots": [
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Leitor bíblico do Revela"
+    }
+  ],
   "icons": [
     {
       "src": "/pwa-icon.svg",
