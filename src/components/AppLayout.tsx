@@ -1,25 +1,31 @@
+/**
+ * AppLayout.tsx — Reorganização da navegação
+ *
+ * MUDANÇAS:
+ * - Tab "Busca" (SearchCheck → /busca) substituída por "Revela" (Sparkles → /revela)
+ *   A lupa agora é a entrada principal da inteligência bíblica do app.
+ * - A busca avançada continua existindo, mas como sheet dentro do /revela.
+ * - A rota /busca ainda existe (para compatibilidade com links antigos),
+ *   mas não aparece mais na nav.
+ */
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Search, Footprints, Calendar, Shield, Heart, User, SearchCheck } from "lucide-react";
+import { BookOpen, Sparkles, Footprints, Calendar, Shield, Heart, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-
 const baseTabs = [
-  { to: "/leitor", icon: BookOpen, label: "Palavra" },
-  { to: "/busca", icon: SearchCheck, label: "Busca" },
-  { to: "/devocional", icon: Heart, label: "Devocional" },
-  { to: "/plano", icon: Calendar, label: "Plano" },
-  { to: "/jornada", icon: Footprints, label: "Jornada" },
+  { to: "/leitor",    icon: BookOpen,  label: "Palavra"    },
+  { to: "/revela",    icon: Sparkles,  label: "Revela"     },
+  { to: "/devocional",icon: Heart,     label: "Devocional" },
+  { to: "/plano",     icon: Calendar,  label: "Plano"      },
+  { to: "/jornada",   icon: Footprints,label: "Jornada"    },
 ];
-
 const AppLayout = () => {
   const location = useLocation();
   const { isAdmin } = useAdminCheck();
-
   const tabs = isAdmin
     ? [...baseTabs, { to: "/admin", icon: Shield, label: "Admin" }]
     : baseTabs;
-
   return (
     <div className="flex flex-col h-screen bg-background">
       <main className="flex-1 overflow-hidden">
@@ -29,7 +35,6 @@ const AppLayout = () => {
           </PageTransition>
         </AnimatePresence>
       </main>
-
       <nav className="border-t border-border/50 bg-card/95 backdrop-blur-md safe-bottom">
         <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-1">
           {tabs.map((tab) => {
@@ -93,5 +98,4 @@ const AppLayout = () => {
     </div>
   );
 };
-
 export default AppLayout;
