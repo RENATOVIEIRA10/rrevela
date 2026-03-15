@@ -102,6 +102,8 @@ interface VerseBodyProps {
   selectedBook: string;
   selectedChapter: number;
   variant: "desktop" | "mobile";
+  targetVerse?: number | null;
+  onTargetVerseScrolled?: () => void;
 }
 
 const VerseBody = ({
