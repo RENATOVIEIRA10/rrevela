@@ -36,10 +36,12 @@ export function useReaderState() {
   const routerNavigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const fromRevela = !!(location.state as ReaderLocationState)?.fromRevela;
+  const locationState = location.state as ReaderLocationState | null;
+  const fromRevela = !!locationState?.fromRevela;
 
   const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
   const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
+  const [targetVerse, setTargetVerse] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
