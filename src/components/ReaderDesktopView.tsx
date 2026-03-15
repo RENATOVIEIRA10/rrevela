@@ -279,6 +279,8 @@ export default function ReaderDesktopView({
           chapter={selectedChapter}
           verseNumber={selectedVerse.number}
           verseText={selectedVerse.text}
+          isMarked={!!getVerseHighlight(selectedVerse.number)}
+          onToggleMark={() => setHighlight(selectedVerse.number, getVerseHighlight(selectedVerse.number) ? null : "PROMESSA")}
           currentColor={getVerseHighlight(selectedVerse.number)?.color_key ?? null}
           onSelectColor={(color) => {
             setHighlight(selectedVerse.number, color);
