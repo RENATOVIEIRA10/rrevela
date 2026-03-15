@@ -123,6 +123,7 @@ const App = () => {
           <Sonner />
           {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
           <PWAUpdatePrompt />
+          <WhatsNewModal />
           <BrowserRouter>
             <AuthProvider>
               <AppRoutes />
