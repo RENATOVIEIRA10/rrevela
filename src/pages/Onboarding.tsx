@@ -58,8 +58,8 @@ const Onboarding = () => {
       if (hasCompletedOnboarding()) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Logado + onboarding completo → vai direto para o leitor
-          navigate("/leitor", { replace: true });
+          // Logado + onboarding completo → vai direto para /home
+          navigate("/home", { replace: true });
           return;
         }
         // Onboarding completo mas não logado → vai para auth
