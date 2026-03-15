@@ -107,11 +107,29 @@ interface VerseBodyProps {
 const VerseBody = ({
   verses, loading, error, fontSizeClass, isMarked,
   onVerseClick, pinnedVerse, selectedBook, selectedChapter, variant,
+  targetVerse, onTargetVerseScrolled,
 }: VerseBodyProps) => {
   const isDesktop = variant === "desktop";
   const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[2]";
   const spacing = isDesktop ? "space-y-0" : "space-y-1.5";
   const spinnerPy = isDesktop ? "py-20" : "py-16";
+  const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
+
+  // Scroll to target verse and highlight it
+  useEffect(() => {
+    if (!targetVerse || loading || verses.length === 0) return;
+    const timer = setTimeout(() => {
+      const el = document.querySelector(`[data-verse="${targetVerse}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightedVerse(targetVerse);
+        // Remove highlight after 3s
+        setTimeout(() => setHighlightedVerse(null), 3000);
+      }
+      onTargetVerseScrolled?.();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [targetVerse, loading, verses.length, onTargetVerseScrolled]);
 
   if (loading) return (
     <div className={`flex items-center justify-center ${spinnerPy}`}>
