@@ -20,12 +20,13 @@
  *    Exemplos mais naturais para uso bíblico protestante.
  */
 import { useState, useEffect, useRef } from "react";
+import { useRevelaHistory } from "@/hooks/useRevelaHistory";
 import { usePinchZoom } from "@/hooks/usePinchZoom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, BookOpen, Cross, Heart, Loader2, Anchor,
-  ArrowRight, Share2, ZoomIn, ZoomOut, SlidersHorizontal, X,
+  ArrowRight, Share2, ZoomIn, ZoomOut, SlidersHorizontal, X, Clock,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,6 +83,7 @@ const RevelaAgora = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { track } = useAnalytics();
+  const { history, addEntry, removeEntry, clearHistory } = useRevelaHistory();
   // Recebe query inicial de outra tela (ex: VerseRevealSection)
   const locationState = location.state as RevelaLocationState | null;
   const initialQuery = locationState?.initialQuery ?? "";
@@ -107,6 +109,7 @@ const RevelaAgora = () => {
         return;
       }
       setResponse(data as RevelaResponse);
+      addEntry(searchQuery, (data as RevelaResponse).theme);
       track("revela_search", { query: searchQuery });
       track("revela_used", { query: searchQuery });
       track("question_asked", { query: searchQuery });
@@ -167,6 +170,10 @@ const RevelaAgora = () => {
                 setQuery={setQuery}
                 onSearch={() => handleSearch()}
                 inputRef={inputRef}
+                history={history}
+                onSelectHistory={(q: string) => { setQuery(q); }}
+                onRemoveHistory={removeEntry}
+                onClearHistory={clearHistory}
               />
             ) : loading ? (
               <LoadingState key="loading" query={query} />
@@ -195,11 +202,19 @@ const SearchHome = ({
   setQuery,
   onSearch,
   inputRef,
+  history,
+  onSelectHistory,
+  onRemoveHistory,
+  onClearHistory,
 }: {
   query: string;
   setQuery: (q: string) => void;
   onSearch: () => void;
   inputRef: React.RefObject<HTMLInputElement>;
+  history: import("@/hooks/useRevelaHistory").RevelaHistoryEntry[];
+  onSelectHistory: (q: string) => void;
+  onRemoveHistory: (id: string) => void;
+  onClearHistory: () => void;
 }) => (
   <motion.div
     initial={{ opacity: 0 }}
@@ -283,6 +298,49 @@ const SearchHome = ({
         </motion.button>
       ))}
     </motion.div>
+    {/* Histórico */}
+    {history.length > 0 && (
+      <motion.div
+        className="w-full max-w-md space-y-2"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="flex items-center justify-between px-1">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-ui">Buscas recentes</p>
+          <button
+            onClick={onClearHistory}
+            className="text-[10px] text-muted-foreground/60 hover:text-muted-foreground font-ui transition-colors"
+          >
+            Limpar
+          </button>
+        </div>
+        <div className="space-y-1">
+          {history.slice(0, 5).map((entry) => (
+            <div key={entry.id} className="flex items-center gap-2 group">
+              <button
+                onClick={() => onSelectHistory(entry.query)}
+                className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl bg-card border border-border/40 text-left hover:border-border/70 transition-colors"
+              >
+                <Clock className="w-3.5 h-3.5 text-muted-foreground/50 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-scripture text-foreground/80 truncate">{entry.query}</p>
+                  {entry.theme && (
+                    <p className="text-[10px] text-muted-foreground/50 font-ui truncate mt-0.5">{entry.theme}</p>
+                  )}
+                </div>
+              </button>
+              <button
+                onClick={() => onRemoveHistory(entry.id)}
+                className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground/40 hover:text-muted-foreground transition-all"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    )}
   </motion.div>
 );
 // ─── Loading ──────────────────────────────────────────────────
