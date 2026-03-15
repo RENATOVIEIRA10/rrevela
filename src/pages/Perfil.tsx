@@ -197,6 +197,18 @@ const Perfil = () => {
 
           <div className="editorial-divider" />
 
+          {/* Offline Download */}
+          <motion.section
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, duration: 0.4, ease }}
+            className="notebook-page rounded-xl p-4"
+          >
+            <OfflineDownloadButton />
+          </motion.section>
+
+          <div className="editorial-divider" />
+
           {/* Theme Toggle */}
           <motion.section
             initial={{ opacity: 0, y: 8 }}
