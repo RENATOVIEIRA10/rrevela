@@ -159,14 +159,23 @@ const Home = () => {
                     >
                       {verse.book} {verse.chapter}:{verse.verse}
                     </cite>
-                    {/* Fix: usa handleReadContext com state para evitar bug de navegação */}
-                    <button
-                      onClick={handleReadContext}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
-                    >
-                      Ler contexto
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={handleRevealVerse}
+                        className="flex items-center gap-1 text-xs font-ui font-medium transition-colors"
+                        style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        Revelar
+                      </button>
+                      <button
+                        onClick={handleReadContext}
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
+                      >
+                        Ler contexto
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : null}
