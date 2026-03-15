@@ -98,17 +98,20 @@ export function useReaderState() {
   useEffect(() => {
     const livro = searchParams.get("livro");
     const cap = searchParams.get("cap");
+    const v = searchParams.get("v");
     if (livro && BIBLE_BOOKS.some((b) => b.name === livro)) {
       setSelectedBook(livro);
       setSelectedChapter(Number(cap) || 1);
+      if (v) setTargetVerse(Number(v));
       setSearchParams({}, { replace: true });
       return;
     }
     // Fallback: location.state passado por navigate() da Home ou outros
-    const state = location.state as { book?: string; chapter?: number } | null;
+    const state = location.state as ReaderLocationState | null;
     if (state?.book && BIBLE_BOOKS.some((b) => b.name === state.book)) {
       setSelectedBook(state.book);
       if (state.chapter) setSelectedChapter(state.chapter);
+      if (state.verse) setTargetVerse(state.verse);
     }
   }, [searchParams, setSearchParams, location.state]);
 
