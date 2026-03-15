@@ -17,8 +17,9 @@ const FONT_SIZES = [
 
 const TRANSLATIONS = [
   { label: "Almeida Corrigida Fiel", value: "acf" },
-  { label: "Almeida Revisada", value: "ara" },
-  { label: "Nova Versão Internacional", value: "nvi" },
+  { label: "Almeida Revista e Corrigida", value: "arc" },
+  { label: "Almeida Atualizada", value: "aa" },
+  { label: "Tradução Brasileira 1917", value: "tb" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
