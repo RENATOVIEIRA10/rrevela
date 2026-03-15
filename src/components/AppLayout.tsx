@@ -1,31 +1,36 @@
 /**
- * AppLayout.tsx — Reorganização da navegação
+ * AppLayout.tsx — Navegação redesenhada
  *
- * MUDANÇAS:
- * - Tab "Busca" (SearchCheck → /busca) substituída por "Revela" (Sparkles → /revela)
- *   A lupa agora é a entrada principal da inteligência bíblica do app.
- * - A busca avançada continua existindo, mas como sheet dentro do /revela.
- * - A rota /busca ainda existe (para compatibilidade com links antigos),
- *   mas não aparece mais na nav.
+ * Nova estrutura de tabs:
+ *   Home      → painel espiritual diário (NOVO)
+ *   Bíblia    → leitor (era "Palavra")
+ *   Revela    → inteligência bíblica
+ *   Devocional→ jornada devocional
+ *   Jornada   → minha jornada espiritual
  */
+
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, Sparkles, Footprints, Calendar, Shield, Heart, User } from "lucide-react";
+import { Home, BookOpen, Sparkles, Heart, Footprints, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+
 const baseTabs = [
-  { to: "/leitor",    icon: BookOpen,  label: "Palavra"    },
-  { to: "/revela",    icon: Sparkles,  label: "Revela"     },
-  { to: "/devocional",icon: Heart,     label: "Devocional" },
-  { to: "/plano",     icon: Calendar,  label: "Plano"      },
-  { to: "/jornada",   icon: Footprints,label: "Jornada"    },
+  { to: "/home",      icon: Home,       label: "Início"    },
+  { to: "/leitor",    icon: BookOpen,   label: "Bíblia"    },
+  { to: "/revela",    icon: Sparkles,   label: "Revela"    },
+  { to: "/devocional",icon: Heart,      label: "Devocional"},
+  { to: "/jornada",   icon: Footprints, label: "Jornada"   },
 ];
+
 const AppLayout = () => {
   const location = useLocation();
   const { isAdmin } = useAdminCheck();
+
   const tabs = isAdmin
     ? [...baseTabs, { to: "/admin", icon: Shield, label: "Admin" }]
     : baseTabs;
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <main className="flex-1 overflow-hidden">
@@ -35,6 +40,7 @@ const AppLayout = () => {
           </PageTransition>
         </AnimatePresence>
       </main>
+
       <nav className="border-t border-border/50 bg-card/95 backdrop-blur-md safe-bottom">
         <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-1">
           {tabs.map((tab) => {
@@ -68,34 +74,10 @@ const AppLayout = () => {
               </NavLink>
             );
           })}
-          <NavLink
-            to="/perfil"
-            className="flex flex-col items-center gap-0.5 py-2 px-3 min-w-0 relative"
-          >
-            {location.pathname === "/perfil" && (
-              <motion.div
-                layoutId="tab-indicator"
-                className="absolute -top-px left-3 right-3 h-0.5 bg-accent rounded-full"
-                transition={{ type: "spring", stiffness: 400, damping: 32 }}
-              />
-            )}
-            <User
-              className={`w-[18px] h-[18px] transition-colors duration-200 ${
-                location.pathname === "/perfil" ? "text-accent" : "text-muted-foreground/70"
-              }`}
-              strokeWidth={location.pathname === "/perfil" ? 2 : 1.5}
-            />
-            <span
-              className={`text-[9px] leading-tight tracking-wide transition-colors duration-200 font-ui ${
-                location.pathname === "/perfil" ? "text-accent font-medium" : "text-muted-foreground/70"
-              }`}
-            >
-              Perfil
-            </span>
-          </NavLink>
         </div>
       </nav>
     </div>
   );
 };
+
 export default AppLayout;
