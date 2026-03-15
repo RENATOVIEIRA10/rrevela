@@ -1,5 +1,31 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="96" fill="#632A26"/>
-  <path d="M192 432 L192 230 Q192 102 128 51" stroke="#F9F7F2" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M320 432 L320 230 Q320 102 384 51" stroke="#F9F7F2" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Fundo Wine com cantos arredondados -->
+  <rect width="512" height="512" rx="92" fill="#632A26"/>
+  <!--
+    Símbolo "A Abertura" — Revela Brand Guidelines
+    Duas linhas em Vellum que partem juntas de um ponto
+    central na base e se abrem suavemente no topo,
+    evocando o ato de abrir um pergaminho / véu retirado.
+    Referência: Lucas 24:45 — "abriu o entendimento"
+  -->
+  <!-- Linha esquerda: base central → abre para esquerda no topo -->
+  <path
+    d="M256 410 Q250 300 160 80"
+    stroke="#F9F7F2"
+    stroke-width="28"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+  <!-- Linha direita: base central → abre para direita no topo -->
+  <path
+    d="M256 410 Q262 300 352 80"
+    stroke="#F9F7F2"
+    stroke-width="28"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+  <!-- Ponto âncora na base — grounding visual -->
+  <circle cx="256" cy="422" r="14" fill="#F9F7F2"/>
 </svg>
