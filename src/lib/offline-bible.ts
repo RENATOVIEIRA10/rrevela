@@ -1,3 +1,10 @@
+/**
+ * offline-bible.ts — Armazenamento offline da Bíblia via IndexedDB
+ *
+ * MUDANÇAS NESTA VERSÃO:
+ * - Removidos os últimos `as any` em getOfflineInfo.
+ *   Substituídos por interface tipada `OfflineMeta`.
+ */
 import { supabase } from "@/integrations/supabase/client";
 
 const DB_NAME = "revela-bible-offline";
@@ -5,6 +12,14 @@ const DB_VERSION = 1;
 const STORE_NAME = "verses";
 const META_STORE = "meta";
 
+// ─── Tipos internos ───────────────────────────────────────────
+interface OfflineMeta {
+  key: string;
+  count: number;
+  timestamp: number;
+}
+
+// ─── IndexedDB helpers ────────────────────────────────────────
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -24,6 +39,7 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
+// ─── Tipos públicos ───────────────────────────────────────────
 export interface OfflineVerse {
   id: string;
   book: string;
@@ -33,7 +49,8 @@ export interface OfflineVerse {
   translation: string;
 }
 
-/** Download an entire translation to IndexedDB for offline use */
+// ─── API pública ──────────────────────────────────────────────
+/** Download de uma tradução inteira para o IndexedDB */
 export async function downloadTranslationOffline(
   translation: string,
   onProgress?: (pct: number) => void
@@ -43,7 +60,6 @@ export async function downloadTranslationOffline(
   let offset = 0;
   const batchSize = 1000;
 
-  // First, get total count
   const { count } = await supabase
     .from("bible_verses")
     .select("*", { count: "exact", head: true })
@@ -65,13 +81,10 @@ export async function downloadTranslationOffline(
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) break;
 
-    // Write batch to IndexedDB
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction(STORE_NAME, "readwrite");
       const store = tx.objectStore(STORE_NAME);
-      for (const row of data) {
-        store.put(row);
-      }
+      for (const row of data) store.put(row);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
@@ -81,40 +94,35 @@ export async function downloadTranslationOffline(
     onProgress?.(Math.min(100, Math.round((totalStored / total) * 100)));
   }
 
-  // Store metadata
+  // Salva metadados
   const metaTx = db.transaction(META_STORE, "readwrite");
-  metaTx.objectStore(META_STORE).put({
+  const meta: OfflineMeta = {
     key: `downloaded_${translation}`,
     timestamp: Date.now(),
     count: totalStored,
-  });
+  };
+  metaTx.objectStore(META_STORE).put(meta);
 
   db.close();
   return totalStored;
 }
 
-/** Check if a translation is available offline */
+/** Verifica se uma tradução está disponível offline */
 export async function isTranslationOffline(translation: string): Promise<boolean> {
   try {
     const db = await openDB();
     return new Promise((resolve) => {
       const tx = db.transaction(META_STORE, "readonly");
       const req = tx.objectStore(META_STORE).get(`downloaded_${translation}`);
-      req.onsuccess = () => {
-        db.close();
-        resolve(!!req.result);
-      };
-      req.onerror = () => {
-        db.close();
-        resolve(false);
-      };
+      req.onsuccess = () => { db.close(); resolve(!!req.result); };
+      req.onerror  = () => { db.close(); resolve(false); };
     });
   } catch {
     return false;
   }
 }
 
-/** Get verses from IndexedDB */
+/** Busca versículos do IndexedDB */
 export async function getOfflineVerses(
   book: string,
   chapter: number,
@@ -131,14 +139,11 @@ export async function getOfflineVerses(
       const results = (request.result as OfflineVerse[]).sort((a, b) => a.verse - b.verse);
       resolve(results);
     };
-    request.onerror = () => {
-      db.close();
-      reject(request.error);
-    };
+    request.onerror = () => { db.close(); reject(request.error); };
   });
 }
 
-/** Delete offline data for a translation */
+/** Remove dados offline de uma tradução */
 export async function deleteOfflineTranslation(translation: string): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -148,19 +153,18 @@ export async function deleteOfflineTranslation(translation: string): Promise<voi
     const cursor = index.openCursor(IDBKeyRange.only(translation));
     cursor.onsuccess = () => {
       const c = cursor.result;
-      if (c) {
-        c.delete();
-        c.continue();
-      }
+      if (c) { c.delete(); c.continue(); }
     };
     tx.objectStore(META_STORE).delete(`downloaded_${translation}`);
     tx.oncomplete = () => { db.close(); resolve(); };
-    tx.onerror = () => { db.close(); reject(tx.error); };
+    tx.onerror    = () => { db.close(); reject(tx.error); };
   });
 }
 
-/** Get info about all offline translations */
-export async function getOfflineInfo(): Promise<Array<{ translation: string; count: number; timestamp: number }>> {
+/** Informações sobre todas as traduções offline */
+export async function getOfflineInfo(): Promise<
+  Array<{ translation: string; count: number; timestamp: number }>
+> {
   try {
     const db = await openDB();
     return new Promise((resolve) => {
@@ -168,10 +172,12 @@ export async function getOfflineInfo(): Promise<Array<{ translation: string; cou
       const req = tx.objectStore(META_STORE).getAll();
       req.onsuccess = () => {
         db.close();
+        // Tipagem explícita — sem `as any`
+        const all = (req.result ?? []) as OfflineMeta[];
         resolve(
-          (req.result || [])
-            .filter((m: any) => m.key.startsWith("downloaded_"))
-            .map((m: any) => ({
+          all
+            .filter((m) => m.key.startsWith("downloaded_"))
+            .map((m) => ({
               translation: m.key.replace("downloaded_", ""),
               count: m.count,
               timestamp: m.timestamp,

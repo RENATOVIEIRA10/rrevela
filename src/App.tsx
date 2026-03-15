@@ -12,6 +12,8 @@ import SplashScreen from "./components/SplashScreen";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 import WhatsNewModal from "./components/WhatsNewModal";
 import MomentoRevela from "./components/MomentoRevela";
+import OfflineBanner from "./components/OfflineBanner";
+import InstallBanner from "./components/InstallBanner";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
 import Reader from "./pages/Reader";
@@ -81,13 +83,12 @@ const AppRoutes = () => {
     <>
       <AnimatePresence mode="wait">
         {shouldShowMomentoRevela && user && (
-          <MomentoRevela 
+          <MomentoRevela
             key="momento-revela"
             onContinue={markCheckInComplete}
           />
         )}
       </AnimatePresence>
-      
       <Routes>
         <Route path="/" element={<Onboarding />} />
         <Route path="/auth" element={<Auth />} />
@@ -121,6 +122,9 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          {/* Banners globais — fora do Router para aparecer em qualquer rota */}
+          <OfflineBanner />
+          <InstallBanner />
           {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
           <PWAUpdatePrompt />
           <WhatsNewModal />
