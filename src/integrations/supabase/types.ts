@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_response_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          function_name: string
+          hit_count: number
+          id: string
+          response: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at?: string
+          function_name: string
+          hit_count?: number
+          id?: string
+          response: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          function_name?: string
+          hit_count?: number
+          id?: string
+          response?: Json
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -35,6 +65,39 @@ export type Database = {
           event_type?: string
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      analytics_queue: {
+        Row: {
+          book: string | null
+          chapter: number | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          user_id: string
+          verse: number | null
+        }
+        Insert: {
+          book?: string | null
+          chapter?: number | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+          verse?: number | null
+        }
+        Update: {
+          book?: string | null
+          chapter?: number | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+          verse?: number | null
         }
         Relationships: []
       }
@@ -549,9 +612,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ai_cache_stats: {
+        Row: {
+          avg_hits_per_entry: number | null
+          expired_entries: number | null
+          function_name: string | null
+          max_hits: number | null
+          newest_entry: string | null
+          oldest_entry: string | null
+          total_entries: number | null
+          total_hits: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      ai_cache_increment_hit: { Args: { row_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -559,6 +635,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      purge_expired_ai_cache: { Args: never; Returns: number }
       search_bible: {
         Args: {
           result_limit?: number
