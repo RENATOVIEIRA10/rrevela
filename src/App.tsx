@@ -10,6 +10,7 @@ import { useDailyCheckIn } from "@/hooks/useDailyCheckIn";
 import { AnimatePresence } from "framer-motion";
 import SplashScreen from "./components/SplashScreen";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
+import WhatsNewModal from "./components/WhatsNewModal";
 import MomentoRevela from "./components/MomentoRevela";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
@@ -122,6 +123,7 @@ const App = () => {
           <Sonner />
           {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
           <PWAUpdatePrompt />
+          <WhatsNewModal />
           <BrowserRouter>
             <AuthProvider>
               <AppRoutes />
