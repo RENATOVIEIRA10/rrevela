@@ -154,6 +154,7 @@ const VerseBody = ({
         return (
           <p
             key={verse.number}
+            data-verse={verse.number}
             className={[
               "font-scripture cursor-pointer transition-all duration-200",
               fontSizeClass,
@@ -161,10 +162,10 @@ const VerseBody = ({
               isDesktop
                 ? "text-foreground/85 hover:text-foreground py-0.5"
                 : "verse-line text-foreground/85 active:text-foreground",
-              // Classe única de marcação (sem categorias)
               marked ? MARK_CSS_CLASS : "",
               marked && !isDesktop ? "has-highlight" : "",
               isPinned ? "bg-accent/5 -mx-3 px-3 rounded" : "",
+              highlightedVerse === verse.number ? "verse-target-highlight" : "",
             ].join(" ")}
             onClick={() => onVerseClick(verse)}
           >
