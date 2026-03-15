@@ -37,12 +37,8 @@
 
     --radius: 0.375rem;              /* 6px — refined corners */
 
-    /* Premium Highlight system — organic, elegant */
-    --highlight-promise: 45 75% 88%;       /* Soft Gold #FDF2D0 */
-    --highlight-response: 150 30% 70%;     /* Sage Green */
-    --highlight-attribute: 215 35% 65%;    /* Soft Blue */
-    --highlight-emotion: 340 35% 75%;      /* Dusty Rose */
-    --highlight-doctrine: 280 25% 70%;     /* Muted Lavender */
+    /* Marcação simplificada — uma única cor de acento */
+    --highlight-marked: 5 35% 78%;   /* Vinho atenuado */
 
     /* Sidebar */
     --sidebar-background: 42 28% 97%;
@@ -94,12 +90,8 @@
     --input: 28 6% 18%;
     --ring: 12 40% 58%;
 
-    /* Highlights — jewel tones for dark */
-    --highlight-promise: 45 60% 40%;
-    --highlight-response: 150 30% 35%;
-    --highlight-attribute: 215 35% 45%;
-    --highlight-emotion: 340 35% 45%;
-    --highlight-doctrine: 280 25% 45%;
+    /* Marcação simplificada — dark */
+    --highlight-marked: 5 30% 38%;
 
     --sidebar-background: 28 8% 9%;
     --sidebar-foreground: 38 18% 82%;
@@ -159,43 +151,16 @@
     }
   }
   
-  /* Premium Highlight system — elegant, organic */
-  
-  /* Desktop: subtle underline + soft tint */
-  @media (min-width: 768px) {
-    .highlight-promise {
-      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-promise) / 0.35) 60%);
-      border-radius: 1px;
-      padding: 0 2px;
-      margin: 0 -2px;
-    }
-    .highlight-response {
-      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-response) / 0.25) 60%);
-      border-radius: 1px;
-      padding: 0 2px;
-      margin: 0 -2px;
-    }
-    .highlight-attribute {
-      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-attribute) / 0.25) 60%);
-      border-radius: 1px;
-      padding: 0 2px;
-      margin: 0 -2px;
-    }
-    .highlight-emotion {
-      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-emotion) / 0.25) 60%);
-      border-radius: 1px;
-      padding: 0 2px;
-      margin: 0 -2px;
-    }
-    .highlight-doctrine {
-      background: linear-gradient(to bottom, transparent 60%, hsl(var(--highlight-doctrine) / 0.25) 60%);
-      border-radius: 1px;
-      padding: 0 2px;
-      margin: 0 -2px;
-    }
+  /* Marcação simplificada — versículo marcado */
+  .highlight-marked {
+    background: linear-gradient(
+      to bottom, transparent 60%,
+      hsl(var(--highlight-marked) / 0.35) 60%
+    );
+    border-radius: 1px;
   }
 
-  /* Mobile: elegant margin dot marker */
+  /* Mobile: indicador lateral para versículos marcados */
   @media (max-width: 767px) {
     .verse-line {
       position: relative;
@@ -204,18 +169,15 @@
     .verse-line.has-highlight::before {
       content: '';
       position: absolute;
-      left: 0;
-      top: 0.65em;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      opacity: 0.85;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2.5px;
+      height: 70%;
+      border-radius: 2px;
+      background-color: hsl(var(--highlight-marked));
+      opacity: 0.7;
     }
-    .verse-line.highlight-promise::before { background-color: hsl(45 70% 55%); }
-    .verse-line.highlight-response::before { background-color: hsl(150 35% 50%); }
-    .verse-line.highlight-attribute::before { background-color: hsl(215 40% 55%); }
-    .verse-line.highlight-emotion::before { background-color: hsl(340 40% 60%); }
-    .verse-line.highlight-doctrine::before { background-color: hsl(280 30% 55%); }
   }
 
   /* Premium Notebook styling */
