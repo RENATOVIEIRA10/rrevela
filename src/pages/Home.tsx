@@ -1,22 +1,23 @@
 /**
- * Home.tsx — Painel Espiritual Diário
+ * Home.tsx — Fixes aplicados
  *
- * A home page que o Revela não tinha.
- * Cria retenção diária mostrando:
- * - Versículo do dia (protagonista)
- * - Continuar leitura (último capítulo)
- * - Acesso rápido ao Revela (inteligência bíblica)
- * - Notas recentes (continuidade do estudo)
+ * FIX 1 — Header mais limpo:
+ *   - Data removida do header (era pequena demais no iPhone)
+ *   - Logo + título no lugar, Perfil acessível pela nav
  *
- * Design: Papel aberto em cima de uma mesa de estudo.
- * Silencioso, focado, reverente.
+ * FIX 2 — "Ler contexto" vai para Gênesis:
+ *   - Bug: navigate passava só livro+cap via URL, mas se o Reader
+ *     já estava montado em estado diferente, havia race condition.
+ *   - Fix: navigate agora usa { state: { book, chapter, verse } }
+ *     ALÉM do URL param — o Reader tem fallback via location.state.
+ *   - Também passa o número do versículo (&v=) para scroll futuro.
  */
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, Search, ArrowRight, StickyNote, User } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight, StickyNote } from "lucide-react";
 import { useVerseOfDay } from "@/hooks/useDevotional";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -34,82 +35,102 @@ const Home = () => {
     track("study_opened", { area: "home" });
   }, [track]);
 
-  // Último capítulo lido (do localStorage ou do primeiro capítulo estudado)
-  const lastBook = localStorage.getItem("revela-last-book") || "Gênesis";
-  const lastChapter = Number(localStorage.getItem("revela-last-chapter") || 1);
   const recentChapter = stats.studiedChapters[0];
 
   const handleContinueReading = () => {
-    const book = recentChapter?.book || lastBook;
-    const chapter = recentChapter?.chapter || lastChapter;
-    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`);
+    const book    = recentChapter?.book    || localStorage.getItem("revela-last-book")    || "Gênesis";
+    const chapter = recentChapter?.chapter || Number(localStorage.getItem("revela-last-chapter") || 1);
+    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`, {
+      state: { book, chapter },
+    });
+  };
+
+  /**
+   * "Ler contexto" — navega para o capítulo correto.
+   *
+   * Usa DOIS mecanismos para garantir que o Reader abre no lugar certo:
+   * 1. URL params: ?livro=Mateus&cap=28
+   * 2. location.state: { book, chapter, verse } — lido pelo Reader como fallback
+   */
+  const handleReadContext = () => {
+    if (!verse) return;
+    navigate(
+      `/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}`,
+      {
+        state: {
+          book: verse.book,
+          chapter: verse.chapter,
+          verse: verse.verse,
+        },
+      }
+    );
   };
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header minimalista */}
+
+      {/* Header minimalista — sem data para não apertar */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease }}
-        className="flex items-center justify-between px-5 pt-5 pb-3"
+        className="flex items-center gap-2.5 px-5 pt-5 pb-3"
       >
-        <RevelaLogo size={24} color="hsl(var(--accent))" />
-        <div className="flex items-center gap-3">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-ui">
-            {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
-          </p>
-          <button
-            onClick={() => navigate("/perfil")}
-            className="w-8 h-8 rounded-full bg-primary/[0.06] flex items-center justify-center hover:bg-primary/[0.12] transition-colors"
-            aria-label="Meu Perfil"
-          >
-            <User className="w-4 h-4 text-primary/50" strokeWidth={1.5} />
-          </button>
-        </div>
+        <RevelaLogo size={22} color="hsl(var(--accent))" />
+        <span className="font-scripture text-base font-medium text-foreground/80">
+          Revela
+        </span>
       </motion.div>
 
       <ScrollArea className="flex-1">
-        <div className="px-5 pb-10 space-y-6 max-w-lg mx-auto w-full">
+        <div className="px-5 pb-10 space-y-5 max-w-lg mx-auto w-full">
 
-          {/* ── Versículo do Dia ─────────────────────────────────
-           * Protagonista da tela. Grande, respirando, dourado.
-           * ────────────────────────────────────────────────── */}
+          {/* ── Versículo do Dia ─── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.7, ease }}
           >
-            <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6"
-                 style={{ boxShadow: "var(--shadow-elevated)" }}>
-              {/* Linha dourada de revelação no topo */}
-              <div className="absolute top-0 left-6 right-6 h-[1.5px]"
-                   style={{ background: "linear-gradient(90deg, transparent, hsl(var(--gold)), transparent)" }} />
+            <div
+              className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5"
+              style={{ boxShadow: "var(--shadow-elevated)" }}
+            >
+              {/* Linha dourada no topo */}
+              <div
+                className="absolute top-0 left-6 right-6 h-[1.5px]"
+                style={{
+                  background: "linear-gradient(90deg, transparent, hsl(var(--gold, 43 52% 52%)), transparent)",
+                }}
+              />
 
-              {/* Label */}
-              <p className="text-[9px] uppercase tracking-[0.3em] font-ui font-medium mb-4"
-                 style={{ color: "hsl(var(--gold))" }}>
+              <p
+                className="text-[9px] uppercase tracking-[0.3em] font-ui font-medium mb-3"
+                style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
+              >
                 Palavra do dia
               </p>
 
               {loading ? (
                 <div className="space-y-2">
-                  <div className="h-5 bg-secondary/50 rounded animate-pulse w-3/4" />
-                  <div className="h-5 bg-secondary/50 rounded animate-pulse w-full" />
-                  <div className="h-5 bg-secondary/50 rounded animate-pulse w-2/3" />
+                  <div className="h-4 bg-secondary/50 rounded animate-pulse w-3/4" />
+                  <div className="h-4 bg-secondary/50 rounded animate-pulse w-full" />
+                  <div className="h-4 bg-secondary/50 rounded animate-pulse w-2/3" />
                 </div>
               ) : verse ? (
                 <>
-                  <blockquote className="font-scripture text-[1.25rem] leading-[1.7] text-foreground/90 font-light italic mb-4">
+                  <blockquote className="font-scripture text-[1.15rem] leading-[1.7] text-foreground/90 font-light italic mb-4">
                     "{verse.text}"
                   </blockquote>
                   <div className="flex items-center justify-between">
-                    <cite className="not-italic text-xs font-ui font-medium"
-                          style={{ color: "hsl(var(--gold))" }}>
+                    <cite
+                      className="not-italic text-xs font-ui font-medium"
+                      style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
+                    >
                       {verse.book} {verse.chapter}:{verse.verse}
                     </cite>
+                    {/* Fix: usa handleReadContext com state para evitar bug de navegação */}
                     <button
-                      onClick={() => navigate(`/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}`)}
+                      onClick={handleReadContext}
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
                     >
                       Ler contexto
@@ -121,17 +142,16 @@ const Home = () => {
             </div>
           </motion.div>
 
-          {/* ── Ações rápidas ────────────────────────────────────── */}
+          {/* ── Ações rápidas ─── */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.5, ease }}
+            transition={{ delay: 0.2, duration: 0.5, ease }}
             className="grid grid-cols-2 gap-3"
           >
-            {/* Continuar leitura */}
             <button
               onClick={handleContinueReading}
-              className="flex flex-col gap-3 p-4 rounded-xl bg-card border border-border/50 text-left active:scale-[0.97] transition-transform"
+              className="flex flex-col gap-2.5 p-4 rounded-xl bg-card border border-border/50 text-left active:scale-[0.97] transition-transform"
               style={{ boxShadow: "var(--shadow-card)" }}
             >
               <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
@@ -142,25 +162,26 @@ const Home = () => {
                 <p className="text-[10px] text-muted-foreground mt-0.5 font-scripture">
                   {recentChapter
                     ? `${recentChapter.book} ${recentChapter.chapter}`
-                    : `${lastBook} ${lastChapter}`}
+                    : "Bíblia"}
                 </p>
               </div>
             </button>
 
-            {/* Perguntar ao Revela */}
             <button
               onClick={() => navigate("/revela")}
-              className="flex flex-col gap-3 p-4 rounded-xl text-left active:scale-[0.97] transition-transform"
+              className="flex flex-col gap-2.5 p-4 rounded-xl text-left active:scale-[0.97] transition-transform"
               style={{
                 background: "hsl(var(--accent))",
                 boxShadow: "var(--shadow-card)",
               }}
             >
               <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
-                <Search className="w-4 h-4 text-accent-foreground" />
+                <Sparkles className="w-4 h-4 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-xs font-medium text-accent-foreground font-ui">Revela Agora</p>
+                <p className="text-xs font-medium text-accent-foreground font-ui">
+                  Revela Agora
+                </p>
                 <p className="text-[10px] text-accent-foreground/70 mt-0.5 font-scripture">
                   Pergunte à Palavra
                 </p>
@@ -168,17 +189,14 @@ const Home = () => {
             </button>
           </motion.div>
 
-          {/* ── Resumo da jornada ─────────────────────────────────
-           * Pequeno painel de contexto — sem gamificação,
-           * só organização da caminhada espiritual.
-           * ────────────────────────────────────────────────── */}
+          {/* ── Jornada ─── */}
           {!stats.loading && (stats.totalHighlights > 0 || stats.totalNotes > 0) && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5, ease }}
+              transition={{ delay: 0.3, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2.5">
                 <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Sua jornada
                 </p>
@@ -193,10 +211,13 @@ const Home = () => {
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { value: stats.studiedChapters.length, label: "Capítulos" },
-                  { value: stats.totalHighlights, label: "Marcados" },
-                  { value: stats.totalNotes, label: "Anotações" },
+                  { value: stats.totalHighlights,        label: "Marcados"  },
+                  { value: stats.totalNotes,             label: "Anotações" },
                 ].map(({ value, label }) => (
-                  <div key={label} className="bg-card rounded-xl p-3 text-center border border-border/40">
+                  <div
+                    key={label}
+                    className="bg-card rounded-xl p-3 text-center border border-border/40"
+                  >
                     <p className="font-scripture text-xl text-foreground/90">{value}</p>
                     <p className="text-[9px] text-muted-foreground font-ui mt-0.5">{label}</p>
                   </div>
@@ -205,14 +226,14 @@ const Home = () => {
             </motion.div>
           )}
 
-          {/* ── Notas recentes ────────────────────────────────────── */}
+          {/* ── Notas recentes ─── */}
           {!stats.loading && stats.recentNotes.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45, duration: 0.5, ease }}
+              transition={{ delay: 0.4, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2.5">
                 <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Últimas anotações
                 </p>
@@ -223,14 +244,18 @@ const Home = () => {
                   <button
                     key={note.id}
                     onClick={() =>
-                      navigate(`/leitor?livro=${encodeURIComponent(note.book || "")}&cap=${note.chapter || 1}`)
+                      navigate(
+                        `/leitor?livro=${encodeURIComponent(note.book || "")}&cap=${note.chapter || 1}`,
+                        { state: { book: note.book, chapter: note.chapter } }
+                      )
                     }
                     className="w-full flex items-start gap-3 p-3 rounded-xl bg-card border border-border/40 text-left active:bg-secondary/30 transition-colors"
                   >
                     <StickyNote className="w-3.5 h-3.5 text-accent/50 mt-0.5 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-medium text-accent/80 font-ui">
-                        {note.book} {note.chapter}{note.verse != null ? `:${note.verse}` : ""}
+                        {note.book} {note.chapter}
+                        {note.verse != null ? `:${note.verse}` : ""}
                       </p>
                       {note.observation && (
                         <p className="text-xs text-foreground/70 font-scripture mt-0.5 line-clamp-2">
@@ -245,27 +270,31 @@ const Home = () => {
             </motion.div>
           )}
 
-          {/* Estado vazio — usuário novo */}
-          {!stats.loading && stats.totalHighlights === 0 && stats.totalNotes === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-center py-8"
-            >
-              <p className="font-scripture text-base text-foreground/60 italic">
-                "Então lhes abriu o entendimento para compreenderem as Escrituras."
-              </p>
-              <p className="text-[10px] text-muted-foreground font-ui mt-2">— Lucas 24:45</p>
-              <button
-                onClick={() => navigate("/leitor")}
-                className="mt-6 flex items-center gap-2 mx-auto text-sm text-accent font-ui font-medium"
+          {/* Estado vazio */}
+          {!stats.loading &&
+            stats.totalHighlights === 0 &&
+            stats.totalNotes === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-center py-6"
               >
-                Começar a estudar
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </motion.div>
-          )}
+                <p className="font-scripture text-sm text-foreground/60 italic leading-relaxed">
+                  "Então lhes abriu o entendimento para compreenderem as Escrituras."
+                </p>
+                <p className="text-[10px] text-muted-foreground font-ui mt-2">
+                  — Lucas 24:45
+                </p>
+                <button
+                  onClick={() => navigate("/leitor")}
+                  className="mt-5 flex items-center gap-2 mx-auto text-sm text-accent font-ui font-medium"
+                >
+                  Começar a estudar
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </motion.div>
+            )}
         </div>
       </ScrollArea>
     </div>
