@@ -271,6 +271,20 @@
       transparent 100%
     );
   }
+
+  /* ── Destaque de versículo alvo (navegação) ──────────────── */
+  @keyframes verse-highlight-fade {
+    0% { background-color: hsl(var(--gold) / 0.18); border-left-color: hsl(var(--gold)); }
+    100% { background-color: transparent; border-left-color: transparent; }
+  }
+
+  .verse-target-highlight {
+    background-color: hsl(var(--gold) / 0.15);
+    border-left: 3px solid hsl(var(--gold));
+    padding-left: 6px;
+    border-radius: 2px;
+    animation: verse-highlight-fade 3s ease-out 0.5s forwards;
+  }
 }
 
 @layer utilities {

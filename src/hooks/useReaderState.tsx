@@ -36,10 +36,12 @@ export function useReaderState() {
   const routerNavigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const fromRevela = !!(location.state as ReaderLocationState)?.fromRevela;
+  const locationState = location.state as ReaderLocationState | null;
+  const fromRevela = !!locationState?.fromRevela;
 
   const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
   const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
+  const [targetVerse, setTargetVerse] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -96,17 +98,20 @@ export function useReaderState() {
   useEffect(() => {
     const livro = searchParams.get("livro");
     const cap = searchParams.get("cap");
+    const v = searchParams.get("v");
     if (livro && BIBLE_BOOKS.some((b) => b.name === livro)) {
       setSelectedBook(livro);
       setSelectedChapter(Number(cap) || 1);
+      if (v) setTargetVerse(Number(v));
       setSearchParams({}, { replace: true });
       return;
     }
     // Fallback: location.state passado por navigate() da Home ou outros
-    const state = location.state as { book?: string; chapter?: number } | null;
+    const state = location.state as ReaderLocationState | null;
     if (state?.book && BIBLE_BOOKS.some((b) => b.name === state.book)) {
       setSelectedBook(state.book);
       if (state.chapter) setSelectedChapter(state.chapter);
+      if (state.verse) setTargetVerse(state.verse);
     }
   }, [searchParams, setSearchParams, location.state]);
 
@@ -196,7 +201,7 @@ export function useReaderState() {
   }, []);
 
   return {
-    isMobile, fromRevela, routerNavigate,
+    isMobile, fromRevela, routerNavigate, targetVerse, setTargetVerse,
     selectedBook, setSelectedBook,
     selectedChapter, setSelectedChapter,
     chapters, goToPrev, goToNext,
