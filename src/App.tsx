@@ -12,11 +12,9 @@ import SplashScreen from "./components/SplashScreen";
 import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
 import WhatsNewModal from "./components/WhatsNewModal";
 import MomentoRevela from "./components/MomentoRevela";
-import OfflineBanner from "./components/OfflineBanner";
-import InstallBanner from "./components/InstallBanner";
-import BrandUpdateBanner from "./components/BrandUpdateBanner";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
+import Home from "./pages/Home";
 import Reader from "./pages/Reader";
 import RevelaAgora from "./pages/RevelaAgora";
 import MinhaJornada from "./pages/MinhaJornada";
@@ -68,6 +66,7 @@ const AppRoutes = () => {
   const { user, loading } = useAuth();
   const { shouldShowMomentoRevela, markCheckInComplete } = useDailyCheckIn();
   if (loading) return <div className="min-h-screen bg-background" />;
+
   return (
     <>
       <AnimatePresence mode="wait">
@@ -75,22 +74,28 @@ const AppRoutes = () => {
           <MomentoRevela key="momento-revela" onContinue={markCheckInComplete} />
         )}
       </AnimatePresence>
+
       <Routes>
+        {/* Rotas públicas */}
         <Route path="/" element={<Onboarding />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
         <Route path="/study/:book/:chapter" element={<PublicStudy />} />
         <Route path="/install" element={<InstallPWA />} />
+
+        {/* App protegido */}
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route path="/leitor" element={<Reader />} />
-          <Route path="/revela" element={<RevelaAgora />} />
-          <Route path="/busca" element={<BuscaAvancada />} />
-          <Route path="/devocional" element={<Devocional />} />
-          <Route path="/plano" element={<PlanoLeitura />} />
-          <Route path="/promessa" element={<LinhaPromessa />} />
-          <Route path="/jornada" element={<MinhaJornada />} />
-          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/home"      element={<Home />} />
+          <Route path="/leitor"    element={<Reader />} />
+          <Route path="/revela"    element={<RevelaAgora />} />
+          <Route path="/busca"     element={<BuscaAvancada />} />
+          <Route path="/devocional"element={<Devocional />} />
+          <Route path="/plano"     element={<PlanoLeitura />} />
+          <Route path="/promessa"  element={<LinhaPromessa />} />
+          <Route path="/jornada"   element={<MinhaJornada />} />
+          <Route path="/perfil"    element={<Perfil />} />
         </Route>
+
         <Route path="/admin" element={<ProtectedRoute><AdminRoute /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -101,16 +106,13 @@ const AppRoutes = () => {
 const App = () => {
   const [splashDone, setSplashDone] = useState(false);
   const handleSplashFinish = useCallback(() => setSplashDone(true), []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {/* Banners globais */}
-          <OfflineBanner />
-          <InstallBanner />
-          <BrandUpdateBanner />
           {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
           <PWAUpdatePrompt />
           <WhatsNewModal />
