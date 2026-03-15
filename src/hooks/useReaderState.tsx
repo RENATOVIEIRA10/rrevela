@@ -201,7 +201,7 @@ export function useReaderState() {
   }, []);
 
   return {
-    isMobile, fromRevela, routerNavigate,
+    isMobile, fromRevela, routerNavigate, targetVerse, setTargetVerse,
     selectedBook, setSelectedBook,
     selectedChapter, setSelectedChapter,
     chapters, goToPrev, goToNext,
