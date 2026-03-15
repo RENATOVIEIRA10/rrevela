@@ -185,7 +185,7 @@ const VerseBody = ({
 const Reader = () => {
   const state = useReaderState();
   const {
-    isMobile, fromRevela, routerNavigate,
+    isMobile, fromRevela, routerNavigate, targetVerse, setTargetVerse,
     selectedBook, setSelectedBook, selectedChapter, setSelectedChapter,
     chapters, goToPrev, goToNext, handleGoToPinned, handleNavigateToRef,
     searchQuery, setSearchQuery, searchResults, searching, showSearchResults,
