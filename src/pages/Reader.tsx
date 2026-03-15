@@ -48,6 +48,8 @@ const Reader = () => {
   const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
+  const [noteVerseText, setNoteVerseText] = useState<string | undefined>(undefined);
+  const [noteAiRevelation, setNoteAiRevelation] = useState<string | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
   const [translation, setTranslation] = useState<TranslationKey>(
@@ -104,9 +106,11 @@ const Reader = () => {
     track("verse_opened", { book: selectedBook, chapter: selectedChapter, verse: verse.number });
   };
 
-  const openVerseNote = (verseNum: number) => {
+  const openVerseNote = (verseNum: number, verseText?: string, aiRevelation?: string) => {
     if (isMobile) {
       setNoteVerse(verseNum);
+      setNoteVerseText(verseText);
+      setNoteAiRevelation(aiRevelation);
       setNoteSheetOpen(true);
       setSelectedVerse(null);
     } else {
@@ -346,7 +350,7 @@ const Reader = () => {
           verseText={selectedVerse.text}
           currentColor={getVerseHighlight(selectedVerse.number)?.color_key ?? null}
           onSelectColor={(color) => { setHighlight(selectedVerse.number, color); if (color === null) setSelectedVerse(null); }}
-          onOpenNote={() => openVerseNote(selectedVerse.number)}
+          onOpenNote={(aiRev) => openVerseNote(selectedVerse.number, selectedVerse.text, aiRev)}
           onPinVerse={handlePinVerse}
           onNavigateToRef={handleNavigateTo}
           isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerse.number)}
@@ -360,6 +364,8 @@ const Reader = () => {
         book={selectedBook}
         chapter={selectedChapter}
         verse={noteVerse}
+        verseText={noteVerseText}
+        aiRevelation={noteAiRevelation}
         notes={noteVerse !== undefined ? verseNotes.notes : chapterNotes.notes}
         onSave={noteVerse !== undefined ? verseNotes.saveNote : chapterNotes.saveNote}
         onDelete={noteVerse !== undefined ? verseNotes.deleteNote : chapterNotes.deleteNote}

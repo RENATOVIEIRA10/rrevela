@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { X, StickyNote, Pin, Sparkles, Heart } from "lucide-react";
+import { X, BookOpen, Pin, Sparkles, Heart } from "lucide-react";
 import { HIGHLIGHT_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 import { useShareVerse } from "@/hooks/useShareVerse";
 import ShareMenu from "./ShareMenu";
@@ -23,7 +23,7 @@ interface VersePanelProps {
   verseText: string;
   currentColor: HighlightColor | null;
   onSelectColor: (color: HighlightColor | null) => void;
-  onOpenNote?: () => void;
+  onOpenNote?: (aiRevelation?: string) => void;
   onPinVerse?: () => void;
   onNavigateToRef?: (book: string, chapter: number, verse: number) => void;
   isFavorite?: boolean;
@@ -146,11 +146,11 @@ const VersePanel = ({
 
               {onOpenNote && (
                 <button
-                  onClick={onOpenNote}
+                  onClick={() => onOpenNote(revealText || undefined)}
                   className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors font-ui"
                 >
-                  <StickyNote className="w-3.5 h-3.5" />
-                  Anotar
+                  <BookOpen className="w-3.5 h-3.5" />
+                  Estudar
                 </button>
               )}
             </div>
