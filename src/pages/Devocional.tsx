@@ -53,7 +53,7 @@ const Devocional = () => {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Premium Header */}
-      <div className="bg-card/80 backdrop-blur-sm px-5 py-4 space-y-3">
+      <div className="bg-card/80 backdrop-blur-sm px-5 pb-4 space-y-3 safe-top-header">
         <div className="text-center space-y-0.5">
           <h1 className="font-scripture text-lg font-semibold text-foreground tracking-wide">
             O Evangelho Revelado
