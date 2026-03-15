@@ -55,12 +55,27 @@ const Home = () => {
   const handleReadContext = () => {
     if (!verse) return;
     navigate(
-      `/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}`,
+      `/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}&v=${verse.verse}`,
       {
         state: {
           book: verse.book,
           chapter: verse.chapter,
           verse: verse.verse,
+        },
+      }
+    );
+  };
+
+  const handleRevealVerse = () => {
+    if (!verse) return;
+    navigate(
+      `/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}&v=${verse.verse}`,
+      {
+        state: {
+          book: verse.book,
+          chapter: verse.chapter,
+          verse: verse.verse,
+          fromRevela: true,
         },
       }
     );
