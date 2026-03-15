@@ -86,7 +86,7 @@ const Perfil = () => {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="glass-surface border-b border-border/40 px-5 py-3.5 safe-top">
+      <div className="glass-surface border-b border-border/40 px-5 pb-3.5 safe-top-header">
         <h1 className="font-scripture text-base font-semibold text-foreground text-center tracking-wide">
           Meu Perfil
         </h1>

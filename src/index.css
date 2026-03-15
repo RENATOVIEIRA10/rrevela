@@ -281,6 +281,10 @@
     padding-top: env(safe-area-inset-top, 0px);
   }
 
+  .safe-top-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.875rem);
+  }
+
   .glass-surface {
     background: hsl(var(--card) / 0.85);
     backdrop-filter: blur(12px);

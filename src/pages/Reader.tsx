@@ -288,7 +288,7 @@ const Reader = () => {
         </motion.button>
       )}
 
-      <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top contemplation-hide">
+      <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top-header contemplation-hide">
         <div className="flex items-center justify-between px-4 py-2.5">
           <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-1.5 py-1 text-foreground/90 active:opacity-70 transition-opacity">
             <span className="font-scripture text-base font-medium truncate max-w-[140px]">{selectedBook}</span>

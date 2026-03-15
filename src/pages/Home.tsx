@@ -74,7 +74,8 @@ const Home = () => {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease }}
-        className="flex items-center gap-2.5 px-5 pt-5 pb-3"
+        className="flex items-center gap-2.5 px-5 pb-3 safe-top"
+        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.25rem)" }}
       >
         <RevelaLogo size={22} color="hsl(var(--accent))" />
         <span className="font-scripture text-base font-medium text-foreground/80">
