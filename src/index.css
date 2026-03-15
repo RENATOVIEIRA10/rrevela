@@ -254,7 +254,7 @@
     background: linear-gradient(
       180deg,
       hsl(var(--background)) 0%,
-      hsl(42 35% 97%) 100%
+      hsl(var(--card)) 100%
     );
     border: 1px solid hsl(var(--border) / 0.7);
     box-shadow: var(--shadow-card);
