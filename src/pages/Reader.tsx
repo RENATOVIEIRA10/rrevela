@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft, ChevronRight, StickyNote, ChevronDown,
   Loader2, AlertTriangle, X, Pin, PanelLeftClose,
-  PanelRightClose, ArrowLeft, Search,
+  PanelRightClose, ArrowLeft, Search, EyeOff,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -30,6 +30,9 @@ import HistoricalContextPanel from "@/components/HistoricalContextPanel";
 import PinnedVerseCard from "@/components/PinnedVerseCard";
 import { MARK_CSS_CLASS } from "@/hooks/useHighlights";
 import { useReaderState } from "@/hooks/useReaderState";
+import { useChapterSwipe } from "@/hooks/useChapterSwipe";
+import { useContemplation } from "@/hooks/useContemplation";
+import ContemplationButton from "@/components/ContemplationButton";
 
 // ─── SearchResults ────────────────────────────────────────────
 interface SearchResultsProps {
@@ -179,6 +182,13 @@ const Reader = () => {
     depth, setDepth, bookPickerOpen, setBookPickerOpen,
   } = state;
 
+  const swipeHandlers = useChapterSwipe({
+    onPrev: goToPrev,
+    onNext: goToNext,
+    disabled: !!(selectedVerse || noteSheetOpen || bookPickerOpen),
+  });
+  const contemplation = useContemplation();
+
   // ─── DESKTOP ──────────────────────────────────────────────
   if (!isMobile) {
     return (
@@ -278,7 +288,7 @@ const Reader = () => {
         </motion.button>
       )}
 
-      <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top">
+      <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top contemplation-hide">
         <div className="flex items-center justify-between px-4 py-2.5">
           <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-1.5 py-1 text-foreground/90 active:opacity-70 transition-opacity">
             <span className="font-scripture text-base font-medium truncate max-w-[140px]">{selectedBook}</span>
@@ -293,6 +303,13 @@ const Reader = () => {
             <TranslationSelector value={translation} onChange={handleTranslationChange} />
             <button onClick={openChapterNote} className="p-2 text-muted-foreground active:text-accent transition-colors" aria-label="Caderno">
               <StickyNote className="w-4 h-4" />
+            </button>
+            <button
+              onClick={contemplation.enter}
+              className="p-2 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
+              aria-label="Modo contemplação"
+            >
+              <EyeOff className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -320,7 +337,7 @@ const Reader = () => {
       {pinnedVerse && <PinnedVerseCard pinned={pinnedVerse} onGoTo={handleGoToPinned} onUnpin={unpinVerse} />}
 
       <ScrollArea className="flex-1">
-        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-6 py-8">
+        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-6 py-8" {...swipeHandlers}>
           <header className="mb-8 text-center">
             <h2 className="font-scripture text-xl font-normal text-foreground/85">{selectedBook}</h2>
             <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">{selectedChapter}</p>
@@ -358,6 +375,7 @@ const Reader = () => {
         />
       )}
 
+      <ContemplationButton active={contemplation.active} onExit={contemplation.exit} />
       <NotebookSheet open={noteSheetOpen} onOpenChange={setNoteSheetOpen} book={selectedBook} chapter={selectedChapter} verse={noteVerse} verseText={noteVerseText} aiRevelation={noteAiRevelation} notes={noteVerse !== undefined ? verseNotes.notes : chapterNotes.notes} onSave={noteVerse !== undefined ? verseNotes.saveNote : chapterNotes.saveNote} onDelete={noteVerse !== undefined ? verseNotes.deleteNote : chapterNotes.deleteNote} />
     </div>
   );
