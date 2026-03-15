@@ -1,5 +1,12 @@
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 
+// Listen for skip waiting message from PWAUpdatePrompt
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Bypass OAuth redirects — must come before precacheAndRoute
 self.addEventListener('fetch', (event) => {
   try {
