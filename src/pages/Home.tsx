@@ -55,9 +55,18 @@ const Home = () => {
         className="flex items-center justify-between px-5 pt-5 pb-3"
       >
         <RevelaLogo size={24} color="hsl(var(--accent))" />
-        <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-ui">
-          {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-ui">
+            {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+          </p>
+          <button
+            onClick={() => navigate("/perfil")}
+            className="w-8 h-8 rounded-full bg-primary/[0.06] flex items-center justify-center hover:bg-primary/[0.12] transition-colors"
+            aria-label="Meu Perfil"
+          >
+            <User className="w-4 h-4 text-primary/50" strokeWidth={1.5} />
+          </button>
+        </div>
       </motion.div>
 
       <ScrollArea className="flex-1">
