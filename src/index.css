@@ -254,7 +254,7 @@
     background: linear-gradient(
       180deg,
       hsl(var(--background)) 0%,
-      hsl(42 35% 97%) 100%
+      hsl(var(--card)) 100%
     );
     border: 1px solid hsl(var(--border) / 0.7);
     box-shadow: var(--shadow-card);
@@ -271,6 +271,20 @@
       transparent 100%
     );
   }
+
+  /* ── Destaque de versículo alvo (navegação) ──────────────── */
+  @keyframes verse-highlight-fade {
+    0% { background-color: hsl(var(--gold) / 0.18); border-left-color: hsl(var(--gold)); }
+    100% { background-color: transparent; border-left-color: transparent; }
+  }
+
+  .verse-target-highlight {
+    background-color: hsl(var(--gold) / 0.15);
+    border-left: 3px solid hsl(var(--gold));
+    padding-left: 6px;
+    border-radius: 2px;
+    animation: verse-highlight-fade 3s ease-out 0.5s forwards;
+  }
 }
 
 @layer utilities {
@@ -279,6 +293,10 @@
   }
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-top-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.875rem);
   }
 
   .glass-surface {

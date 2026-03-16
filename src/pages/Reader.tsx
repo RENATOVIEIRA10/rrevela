@@ -7,6 +7,7 @@
  * - getHighlightClass usa highlight-marked (classe única) em vez das 5 cores
  * - hasHighlight ainda funciona para o indicador lateral
  */
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft, ChevronRight, StickyNote, ChevronDown,
@@ -101,16 +102,36 @@ interface VerseBodyProps {
   selectedBook: string;
   selectedChapter: number;
   variant: "desktop" | "mobile";
+  targetVerse?: number | null;
+  onTargetVerseScrolled?: () => void;
 }
 
 const VerseBody = ({
   verses, loading, error, fontSizeClass, isMarked,
   onVerseClick, pinnedVerse, selectedBook, selectedChapter, variant,
+  targetVerse, onTargetVerseScrolled,
 }: VerseBodyProps) => {
   const isDesktop = variant === "desktop";
   const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[2]";
   const spacing = isDesktop ? "space-y-0" : "space-y-1.5";
   const spinnerPy = isDesktop ? "py-20" : "py-16";
+  const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
+
+  // Scroll to target verse and highlight it
+  useEffect(() => {
+    if (!targetVerse || loading || verses.length === 0) return;
+    const timer = setTimeout(() => {
+      const el = document.querySelector(`[data-verse="${targetVerse}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightedVerse(targetVerse);
+        // Remove highlight after 3s
+        setTimeout(() => setHighlightedVerse(null), 3000);
+      }
+      onTargetVerseScrolled?.();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [targetVerse, loading, verses.length, onTargetVerseScrolled]);
 
   if (loading) return (
     <div className={`flex items-center justify-center ${spinnerPy}`}>
@@ -135,6 +156,7 @@ const VerseBody = ({
         return (
           <p
             key={verse.number}
+            data-verse={verse.number}
             className={[
               "font-scripture cursor-pointer transition-all duration-200",
               fontSizeClass,
@@ -142,10 +164,10 @@ const VerseBody = ({
               isDesktop
                 ? "text-foreground/85 hover:text-foreground py-0.5"
                 : "verse-line text-foreground/85 active:text-foreground",
-              // Classe única de marcação (sem categorias)
               marked ? MARK_CSS_CLASS : "",
               marked && !isDesktop ? "has-highlight" : "",
               isPinned ? "bg-accent/5 -mx-3 px-3 rounded" : "",
+              highlightedVerse === verse.number ? "verse-target-highlight" : "",
             ].join(" ")}
             onClick={() => onVerseClick(verse)}
           >
@@ -163,7 +185,7 @@ const VerseBody = ({
 const Reader = () => {
   const state = useReaderState();
   const {
-    isMobile, fromRevela, routerNavigate,
+    isMobile, fromRevela, routerNavigate, targetVerse, setTargetVerse,
     selectedBook, setSelectedBook, selectedChapter, setSelectedChapter,
     chapters, goToPrev, goToNext, handleGoToPinned, handleNavigateToRef,
     searchQuery, setSearchQuery, searchResults, searching, showSearchResults,
@@ -248,7 +270,7 @@ const Reader = () => {
                 <h2 className="font-scripture text-3xl font-light text-foreground/90 tracking-tight">{selectedBook}</h2>
                 <p className="font-scripture text-6xl font-light text-accent/60 mt-1">{selectedChapter}</p>
               </header>
-              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" />
+              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
             </motion.article>
           </ScrollArea>
         </div>
@@ -288,7 +310,7 @@ const Reader = () => {
         </motion.button>
       )}
 
-      <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top contemplation-hide">
+      <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top-header contemplation-hide">
         <div className="flex items-center justify-between px-4 py-2.5">
           <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-1.5 py-1 text-foreground/90 active:opacity-70 transition-opacity">
             <span className="font-scripture text-base font-medium truncate max-w-[140px]">{selectedBook}</span>
@@ -343,7 +365,7 @@ const Reader = () => {
             <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">{selectedChapter}</p>
           </header>
 
-          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" />
+          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
 
           {!loading && !error && verses.length > 0 && (
             <div className="mt-12 pt-8 space-y-5">

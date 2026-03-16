@@ -17,7 +17,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, Sparkles, ArrowRight, StickyNote } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight, StickyNote, User } from "lucide-react";
 import { useVerseOfDay } from "@/hooks/useDevotional";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -55,7 +55,7 @@ const Home = () => {
   const handleReadContext = () => {
     if (!verse) return;
     navigate(
-      `/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}`,
+      `/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}&v=${verse.verse}`,
       {
         state: {
           book: verse.book,
@@ -66,20 +66,51 @@ const Home = () => {
     );
   };
 
+  const handleRevealVerse = () => {
+    if (!verse) return;
+    navigate(
+      `/leitor?livro=${encodeURIComponent(verse.book)}&cap=${verse.chapter}&v=${verse.verse}`,
+      {
+        state: {
+          book: verse.book,
+          chapter: verse.chapter,
+          verse: verse.verse,
+          fromRevela: true,
+        },
+      }
+    );
+  };
+
   return (
     <div className="flex flex-col h-full bg-background">
 
-      {/* Header minimalista — sem data para não apertar */}
+      {/* Header com safe area para PWA iOS */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease }}
-        className="flex items-center gap-2.5 px-5 pt-5 pb-3"
+        className="flex items-center justify-between px-5 pb-3"
+        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.25rem)" }}
       >
-        <RevelaLogo size={22} color="hsl(var(--accent))" />
-        <span className="font-scripture text-base font-medium text-foreground/80">
-          Revela
-        </span>
+        <div className="flex items-center gap-2.5">
+          <RevelaLogo size={22} color="hsl(var(--accent))" />
+          <span className="font-scripture text-base font-medium text-foreground/80">
+            Revela
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-muted-foreground font-ui tabular-nums">
+            {new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}
+          </span>
+          <button
+            onClick={() => navigate("/perfil")}
+            className="w-8 h-8 rounded-full bg-primary/[0.06] flex items-center justify-center hover:bg-primary/[0.12] transition-colors"
+            aria-label="Meu Perfil"
+          >
+            <User className="w-4 h-4 text-primary/50" strokeWidth={1.5} />
+          </button>
+        </div>
       </motion.div>
 
       <ScrollArea className="flex-1">
@@ -128,14 +159,23 @@ const Home = () => {
                     >
                       {verse.book} {verse.chapter}:{verse.verse}
                     </cite>
-                    {/* Fix: usa handleReadContext com state para evitar bug de navegação */}
-                    <button
-                      onClick={handleReadContext}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
-                    >
-                      Ler contexto
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={handleRevealVerse}
+                        className="flex items-center gap-1 text-xs font-ui font-medium transition-colors"
+                        style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        Revelar
+                      </button>
+                      <button
+                        onClick={handleReadContext}
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
+                      >
+                        Ler contexto
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : null}

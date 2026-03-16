@@ -299,7 +299,7 @@ const MinhaJornada = () => {
 };
 
 const Header = () => (
-  <div className="bg-card/80 backdrop-blur-sm px-5 py-4">
+  <div className="bg-card/80 backdrop-blur-sm px-5 pb-4 safe-top-header">
     <h1 className="font-scripture text-lg font-semibold text-foreground text-center tracking-wide">
       Minha Jornada
     </h1>

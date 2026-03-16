@@ -143,7 +143,7 @@ const RevelaAgora = () => {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="glass-surface border-b border-border/40 px-5 py-3.5 safe-top">
+      <div className="glass-surface border-b border-border/40 px-5 pb-3.5 safe-top-header">
         <div className="flex items-center justify-between">
           <h1 className="font-scripture text-base font-semibold text-foreground tracking-wide">
             Revela Agora

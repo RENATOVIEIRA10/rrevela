@@ -36,7 +36,8 @@ export function useReaderState() {
   const routerNavigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const fromRevela = !!(location.state as ReaderLocationState)?.fromRevela;
+  const locationState = location.state as ReaderLocationState | null;
+  const fromRevela = !!locationState?.fromRevela;
 
   const _stateBook = (location.state as any)?.book as string | undefined;
   const _stateChap = (location.state as any)?.chapter as number | undefined;
@@ -109,9 +110,11 @@ export function useReaderState() {
     }
     const livro = searchParams.get("livro");
     const cap = searchParams.get("cap");
+    const v = searchParams.get("v");
     if (livro && BIBLE_BOOKS.some((b) => b.name === livro)) {
       setSelectedBook(livro);
       setSelectedChapter(Number(cap) || 1);
+      if (v) setTargetVerse(Number(v));
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams, location.state]);
@@ -202,7 +205,7 @@ export function useReaderState() {
   }, []);
 
   return {
-    isMobile, fromRevela, routerNavigate,
+    isMobile, fromRevela, routerNavigate, targetVerse, setTargetVerse,
     selectedBook, setSelectedBook,
     selectedChapter, setSelectedChapter,
     chapters, goToPrev, goToNext,

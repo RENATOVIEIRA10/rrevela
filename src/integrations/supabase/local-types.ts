@@ -6,4 +6,7 @@
 
 export interface ReaderLocationState {
   fromRevela?: boolean;
+  book?: string;
+  chapter?: number;
+  verse?: number;
 }
