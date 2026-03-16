@@ -29,6 +29,7 @@ import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
 import Perfil from "./pages/Perfil";
 import BuscaAvancada from "./pages/BuscaAvancada";
+import AtalaiaLGPD from "./pages/AtalaiaLGPD";
 import { useAdminCheck } from "./hooks/useAdminCheck";
 import { Button } from "./components/ui/button";
 
@@ -94,6 +95,7 @@ const AppRoutes = () => {
           <Route path="/promessa"  element={<LinhaPromessa />} />
           <Route path="/jornada"   element={<MinhaJornada />} />
           <Route path="/perfil"    element={<Perfil />} />
+          <Route path="/lgpd"      element={<AtalaiaLGPD />} />
         </Route>
 
         <Route path="/admin" element={<ProtectedRoute><AdminRoute /></ProtectedRoute>} />
