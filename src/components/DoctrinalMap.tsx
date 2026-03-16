@@ -76,7 +76,7 @@ const DoctrinalMap = ({ highlights }: DoctrinalMapProps) => {
               <button
                 key={`${bc.book}-${bc.chapter}-${i}`}
                 onClick={() =>
-                  navigate(`/leitor?livro=${encodeURIComponent(bc.book)}&cap=${bc.chapter}`)
+                  navigate(`/leitor?livro=${encodeURIComponent(bc.book)}&cap=${bc.chapter}`, { state: { book: bc.book, chapter: bc.chapter } })
                 }
                 className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary/40 hover:bg-secondary/70 border border-border/30 text-[10px] text-foreground/70 transition-colors"
               >

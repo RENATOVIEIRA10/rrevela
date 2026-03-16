@@ -39,9 +39,14 @@ export function useReaderState() {
   const locationState = location.state as ReaderLocationState | null;
   const fromRevela = !!locationState?.fromRevela;
 
-  const [selectedBook, setSelectedBook] = useState(searchParams.get("livro") || "Gênesis");
-  const [selectedChapter, setSelectedChapter] = useState(Number(searchParams.get("cap")) || 1);
-  const [targetVerse, setTargetVerse] = useState<number | null>(null);
+  const _stateBook = (location.state as any)?.book as string | undefined;
+  const _stateChap = (location.state as any)?.chapter as number | undefined;
+  const [selectedBook, setSelectedBook] = useState(
+    _stateBook || searchParams.get("livro") || "Gênesis"
+  );
+  const [selectedChapter, setSelectedChapter] = useState(
+    _stateChap || Number(searchParams.get("cap")) || 1
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -96,6 +101,13 @@ export function useReaderState() {
   }, [selectedBook, selectedChapter, loading, verses.length]);
 
   useEffect(() => {
+    const stateBook = (location.state as any)?.book as string | undefined;
+    const stateCap  = (location.state as any)?.chapter as number | undefined;
+    if (stateBook && BIBLE_BOOKS.some((b) => b.name === stateBook)) {
+      setSelectedBook(stateBook);
+      if (stateCap) setSelectedChapter(stateCap);
+      return;
+    }
     const livro = searchParams.get("livro");
     const cap = searchParams.get("cap");
     const v = searchParams.get("v");
@@ -104,14 +116,6 @@ export function useReaderState() {
       setSelectedChapter(Number(cap) || 1);
       if (v) setTargetVerse(Number(v));
       setSearchParams({}, { replace: true });
-      return;
-    }
-    // Fallback: location.state passado por navigate() da Home ou outros
-    const state = location.state as ReaderLocationState | null;
-    if (state?.book && BIBLE_BOOKS.some((b) => b.name === state.book)) {
-      setSelectedBook(state.book);
-      if (state.chapter) setSelectedChapter(state.chapter);
-      if (state.verse) setTargetVerse(state.verse);
     }
   }, [searchParams, setSearchParams, location.state]);
 

@@ -380,7 +380,7 @@ const ResultView = ({
   const navigate = useNavigate();
   const handleNavigateToRef = (book: string, chapter: number, verse: number) => {
     navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}&v=${verse}`, {
-      state: { fromRevela: true },
+      state: { fromRevela: true, book, chapter },
     });
   };
   const zoomIn = () => setZoom((z) => Math.min(z + 0.15, 1.6));

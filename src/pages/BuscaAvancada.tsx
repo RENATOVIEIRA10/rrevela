@@ -144,7 +144,7 @@ const BuscaAvancada = () => {
   }, [query, testament, selectedBook, highlightFilter, user]);
 
   const handleGoTo = (book: string, chapter: number) => {
-    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`);
+    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}`, { state: { book, chapter } });
   };
 
   const activeFilterCount =
