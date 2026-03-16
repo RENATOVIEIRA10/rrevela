@@ -57,6 +57,7 @@ export function useReaderState() {
   const [noteVerseText, setNoteVerseText] = useState<string | undefined>(undefined);
   const [noteAiRevelation, setNoteAiRevelation] = useState<string | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
+  const [targetVerse, setTargetVerse] = useState<number | null>(null);
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
