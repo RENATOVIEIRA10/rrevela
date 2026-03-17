@@ -52,6 +52,7 @@ export function useReaderState() {
   const [searching, setSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState<{ number: number; text: string }[]>([]);
+  const [versePanelOpen, setVersePanelOpen] = useState(false);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [noteVerseText, setNoteVerseText] = useState<string | undefined>(undefined);
@@ -159,20 +160,30 @@ export function useReaderState() {
 
   const handleVerseOpen = useCallback((verse: { number: number; text: string }) => {
     setSelectedVerses((prev) => {
-      // If panel is already open (has selections), toggle this verse in/out
-      if (prev.length > 0) {
-        const exists = prev.find((v) => v.number === verse.number);
-        if (exists) {
-          const next = prev.filter((v) => v.number !== verse.number);
-          return next; // may become empty, closing panel
-        }
-        return [...prev, verse].sort((a, b) => a.number - b.number);
+      const exists = prev.find((v) => v.number === verse.number);
+      if (exists) {
+        const next = prev.filter((v) => v.number !== verse.number);
+        // If emptied, also close panel
+        if (next.length === 0) setVersePanelOpen(false);
+        return next;
       }
-      // First tap — start selection
-      return [verse];
+      return [...prev, verse].sort((a, b) => a.number - b.number);
     });
     track("verse_opened", { book: selectedBook, chapter: selectedChapter, verse: verse.number });
   }, [selectedBook, selectedChapter, track]);
+
+  const openVersePanel = useCallback(() => {
+    if (selectedVerses.length > 0) setVersePanelOpen(true);
+  }, [selectedVerses.length]);
+
+  const closeVersePanel = useCallback(() => {
+    setVersePanelOpen(false);
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedVerses([]);
+    setVersePanelOpen(false);
+  }, []);
 
   const handlePinVerse = useCallback(() => {
     if (selectedVerses.length === 0) return;
@@ -228,6 +239,7 @@ export function useReaderState() {
     searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
     selectedVerses, setSelectedVerses,
+    versePanelOpen, openVersePanel, closeVersePanel, clearSelection,
     handleVerseOpen, handlePinVerse,
     verses, loading, error,
     translation, handleTranslationChange, fontSizeClass,

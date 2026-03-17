@@ -7,7 +7,7 @@
  * - getHighlightClass usa highlight-marked (classe única) em vez das 5 cores
  * - hasHighlight ainda funciona para o indicador lateral
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft, ChevronRight, StickyNote, ChevronDown,
@@ -34,6 +34,7 @@ import { useReaderState } from "@/hooks/useReaderState";
 import { useChapterSwipe } from "@/hooks/useChapterSwipe";
 import { useContemplation } from "@/hooks/useContemplation";
 import ContemplationButton from "@/components/ContemplationButton";
+import FloatingVerseBar from "@/components/FloatingVerseBar";
 
 // ─── SearchResults ────────────────────────────────────────────
 interface SearchResultsProps {
@@ -193,7 +194,9 @@ const Reader = () => {
     chapters, goToPrev, goToNext, handleGoToPinned, handleNavigateToRef,
     searchQuery, setSearchQuery, searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
-    selectedVerses, setSelectedVerses, handleVerseOpen, handlePinVerse,
+    selectedVerses, setSelectedVerses,
+    versePanelOpen, openVersePanel, closeVersePanel, clearSelection,
+    handleVerseOpen, handlePinVerse,
     verses, loading, error, translation, handleTranslationChange, fontSizeClass,
     // Novo: isMarked + toggleMark em vez de getHighlightClass / setHighlight
     isMarked, toggleMark,
@@ -207,10 +210,20 @@ const Reader = () => {
     depth, setDepth, bookPickerOpen, setBookPickerOpen,
   } = state;
 
+  // Format reference for floating bar
+  const selectionReference = useMemo(() => {
+    if (selectedVerses.length === 0) return "";
+    if (selectedVerses.length === 1) return `${selectedBook} ${selectedChapter}:${selectedVerses[0].number}`;
+    const nums = selectedVerses.map((v) => v.number);
+    const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+    if (isConsecutive) return `${selectedBook} ${selectedChapter}:${nums[0]}-${nums[nums.length - 1]}`;
+    return `${selectedBook} ${selectedChapter}:${nums.join(",")}`;
+  }, [selectedBook, selectedChapter, selectedVerses]);
+
   const swipeHandlers = useChapterSwipe({
     onPrev: goToPrev,
     onNext: goToNext,
-    disabled: !!(selectedVerses.length > 0 || noteSheetOpen || bookPickerOpen),
+    disabled: !!(versePanelOpen || noteSheetOpen || bookPickerOpen),
   });
   const contemplation = useContemplation();
 
@@ -286,9 +299,23 @@ const Reader = () => {
           )}
         </AnimatePresence>
 
-        {selectedVerses.length > 0 && (
+        <AnimatePresence>
+          {selectedVerses.length > 0 && !versePanelOpen && (
+            <FloatingVerseBar
+              count={selectedVerses.length}
+              reference={selectionReference}
+              isMarked={selectedVerses.every((v) => isMarked(v.number))}
+              onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+              onReveal={openVersePanel}
+              onExpand={openVersePanel}
+              onClear={clearSelection}
+            />
+          )}
+        </AnimatePresence>
+
+        {versePanelOpen && selectedVerses.length > 0 && (
           <VersePanel
-            open={selectedVerses.length > 0} onClose={() => setSelectedVerses([])}
+            open={versePanelOpen} onClose={closeVersePanel}
             book={selectedBook} chapter={selectedChapter}
             verses={selectedVerses}
             isMarked={isMarked(selectedVerses[0].number)}
@@ -386,9 +413,23 @@ const Reader = () => {
         </motion.article>
       </ScrollArea>
 
-      {selectedVerses.length > 0 && (
+      <AnimatePresence>
+        {selectedVerses.length > 0 && !versePanelOpen && (
+          <FloatingVerseBar
+            count={selectedVerses.length}
+            reference={selectionReference}
+            isMarked={selectedVerses.every((v) => isMarked(v.number))}
+            onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+            onReveal={openVersePanel}
+            onExpand={openVersePanel}
+            onClear={clearSelection}
+          />
+        )}
+      </AnimatePresence>
+
+      {versePanelOpen && selectedVerses.length > 0 && (
         <VersePanel
-          open={selectedVerses.length > 0} onClose={() => setSelectedVerses([])}
+          open={versePanelOpen} onClose={closeVersePanel}
           book={selectedBook} chapter={selectedChapter}
           verses={selectedVerses}
           isMarked={isMarked(selectedVerses[0].number)}
