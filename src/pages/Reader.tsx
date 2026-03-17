@@ -386,17 +386,17 @@ const Reader = () => {
         </motion.article>
       </ScrollArea>
 
-      {selectedVerse && (
+      {selectedVerses.length > 0 && (
         <VersePanel
-          open={!!selectedVerse} onClose={() => setSelectedVerse(null)}
+          open={selectedVerses.length > 0} onClose={() => setSelectedVerses([])}
           book={selectedBook} chapter={selectedChapter}
-          verseNumber={selectedVerse.number} verseText={selectedVerse.text}
-          isMarked={isMarked(selectedVerse.number)}
-          onToggleMark={() => toggleMark(selectedVerse.number)}
-          onOpenNote={(aiRev) => openVerseNote(selectedVerse.number, selectedVerse.text, aiRev)}
+          verses={selectedVerses}
+          isMarked={isMarked(selectedVerses[0].number)}
+          onToggleMark={() => toggleMark(selectedVerses[0].number)}
+          onOpenNote={(aiRev) => openVerseNote(selectedVerses[0].number, selectedVerses[0].text, aiRev)}
           onPinVerse={handlePinVerse} onNavigateToRef={handleNavigateToRef}
-          isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerse.number)}
-          onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerse.number, translation)}
+          isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerses[0].number)}
+          onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerses[0].number, translation)}
         />
       )}
 
