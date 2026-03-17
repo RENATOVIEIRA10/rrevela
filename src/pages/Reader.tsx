@@ -299,9 +299,23 @@ const Reader = () => {
           )}
         </AnimatePresence>
 
-        {selectedVerses.length > 0 && (
+        <AnimatePresence>
+          {selectedVerses.length > 0 && !versePanelOpen && (
+            <FloatingVerseBar
+              count={selectedVerses.length}
+              reference={selectionReference}
+              isMarked={selectedVerses.every((v) => isMarked(v.number))}
+              onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+              onReveal={openVersePanel}
+              onExpand={openVersePanel}
+              onClear={clearSelection}
+            />
+          )}
+        </AnimatePresence>
+
+        {versePanelOpen && selectedVerses.length > 0 && (
           <VersePanel
-            open={selectedVerses.length > 0} onClose={() => setSelectedVerses([])}
+            open={versePanelOpen} onClose={closeVersePanel}
             book={selectedBook} chapter={selectedChapter}
             verses={selectedVerses}
             isMarked={isMarked(selectedVerses[0].number)}
