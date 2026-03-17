@@ -97,10 +97,12 @@ const VerseRevealSection = ({
   };
 
   // Abre o Revela Agora já com o contexto do versículo pré-carregado
+  const verseLabel = verseEnd ? `${book} ${chapter}:${verse}-${verseEnd}` : `${book} ${chapter}:${verse}`;
+  
   const handleOpenInRevela = () => {
     navigate("/revela", {
       state: {
-        initialQuery: `Revelação bíblica de ${book} ${chapter}:${verse}`,
+        initialQuery: `Revelação bíblica de ${verseLabel}`,
         autoSearch: true,
       },
     });
