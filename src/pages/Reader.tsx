@@ -97,6 +97,7 @@ interface VerseBodyProps {
   error: string | null;
   fontSizeClass: string;
   isMarked: (n: number) => boolean;
+  isSelected?: (n: number) => boolean;
   onVerseClick: (v: { number: number; text: string }) => void;
   pinnedVerse?: ReturnType<typeof useReaderState>["pinnedVerse"];
   selectedBook: string;
@@ -107,7 +108,7 @@ interface VerseBodyProps {
 }
 
 const VerseBody = ({
-  verses, loading, error, fontSizeClass, isMarked,
+  verses, loading, error, fontSizeClass, isMarked, isSelected,
   onVerseClick, pinnedVerse, selectedBook, selectedChapter, variant,
   targetVerse, onTargetVerseScrolled,
 }: VerseBodyProps) => {
