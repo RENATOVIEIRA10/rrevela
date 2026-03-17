@@ -34,6 +34,7 @@ import { useReaderState } from "@/hooks/useReaderState";
 import { useChapterSwipe } from "@/hooks/useChapterSwipe";
 import { useContemplation } from "@/hooks/useContemplation";
 import ContemplationButton from "@/components/ContemplationButton";
+import FloatingVerseBar from "@/components/FloatingVerseBar";
 
 // ─── SearchResults ────────────────────────────────────────────
 interface SearchResultsProps {
