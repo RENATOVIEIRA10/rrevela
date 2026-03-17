@@ -41,6 +41,7 @@ interface VerseRevealSectionProps {
   book: string;
   chapter: number;
   verse: number;
+  verseEnd?: number;
   verseText: string;
   onNavigate?: (book: string, chapter: number, verse: number) => void;
   onRevealLoaded?: (text: string) => void;
