@@ -128,7 +128,7 @@ const VerseRevealSection = ({
             <p className="text-sm font-medium text-foreground font-ui">
               {data
                 ? expanded ? "Ocultar revelação" : "Ver revelação"
-                : "Revelar este versículo"}
+                : verseEnd ? "Revelar estes versículos" : "Revelar este versículo"}
             </p>
             {!data && !loading && (
               <p className="text-[10px] text-muted-foreground">
