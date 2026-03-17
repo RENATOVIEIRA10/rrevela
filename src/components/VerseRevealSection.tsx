@@ -48,7 +48,7 @@ interface VerseRevealSectionProps {
 }
 
 const VerseRevealSection = ({
-  book, chapter, verse, verseText, onNavigate, onRevealLoaded,
+  book, chapter, verse, verseEnd, verseText, onNavigate, onRevealLoaded,
 }: VerseRevealSectionProps) => {
   const [data, setData] = useState<RevealData | null>(null);
   const [loading, setLoading] = useState(false);
