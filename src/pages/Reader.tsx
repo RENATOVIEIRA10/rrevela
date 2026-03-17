@@ -223,7 +223,7 @@ const Reader = () => {
   const swipeHandlers = useChapterSwipe({
     onPrev: goToPrev,
     onNext: goToNext,
-    disabled: !!(selectedVerses.length > 0 || noteSheetOpen || bookPickerOpen),
+    disabled: !!(versePanelOpen || noteSheetOpen || bookPickerOpen),
   });
   const contemplation = useContemplation();
 
