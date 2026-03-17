@@ -368,7 +368,7 @@ const Reader = () => {
             <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">{selectedChapter}</p>
           </header>
 
-          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
+          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} isSelected={(n) => selectedVerses.some((v) => v.number === n)} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
 
           {!loading && !error && verses.length > 0 && (
             <div className="mt-12 pt-8 space-y-5">
