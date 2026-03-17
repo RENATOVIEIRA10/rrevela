@@ -51,7 +51,7 @@ export function useReaderState() {
   const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
+  const [selectedVerses, setSelectedVerses] = useState<{ number: number; text: string }[]>([]);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [noteVerseText, setNoteVerseText] = useState<string | undefined>(undefined);
