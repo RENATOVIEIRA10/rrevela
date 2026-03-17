@@ -51,7 +51,7 @@ export function useReaderState() {
   const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
+  const [selectedVerses, setSelectedVerses] = useState<{ number: number; text: string }[]>([]);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [noteVerseText, setNoteVerseText] = useState<string | undefined>(undefined);
@@ -154,19 +154,32 @@ export function useReaderState() {
   const handleNavigateToRef = useCallback((refBook: string, refChapter: number) => {
     setSelectedBook(refBook);
     setSelectedChapter(refChapter);
-    setSelectedVerse(null);
+    setSelectedVerses([]);
   }, []);
 
   const handleVerseOpen = useCallback((verse: { number: number; text: string }) => {
-    setSelectedVerse(verse);
+    setSelectedVerses((prev) => {
+      // If panel is already open (has selections), toggle this verse in/out
+      if (prev.length > 0) {
+        const exists = prev.find((v) => v.number === verse.number);
+        if (exists) {
+          const next = prev.filter((v) => v.number !== verse.number);
+          return next; // may become empty, closing panel
+        }
+        return [...prev, verse].sort((a, b) => a.number - b.number);
+      }
+      // First tap — start selection
+      return [verse];
+    });
     track("verse_opened", { book: selectedBook, chapter: selectedChapter, verse: verse.number });
   }, [selectedBook, selectedChapter, track]);
 
   const handlePinVerse = useCallback(() => {
-    if (!selectedVerse) return;
-    pinVerse({ translation, book: selectedBook, chapter: selectedChapter, verse: selectedVerse.number, text: selectedVerse.text });
-    setSelectedVerse(null);
-  }, [selectedVerse, translation, selectedBook, selectedChapter, pinVerse]);
+    if (selectedVerses.length === 0) return;
+    const first = selectedVerses[0];
+    pinVerse({ translation, book: selectedBook, chapter: selectedChapter, verse: first.number, text: first.text });
+    setSelectedVerses([]);
+  }, [selectedVerses, translation, selectedBook, selectedChapter, pinVerse]);
 
   const openVerseNote = useCallback((verseNum: number, verseText?: string, aiRevelation?: string) => {
     setNoteVerseText(verseText);
@@ -174,7 +187,7 @@ export function useReaderState() {
     if (isMobile) {
       setNoteVerse(verseNum);
       setNoteSheetOpen(true);
-      setSelectedVerse(null);
+      setSelectedVerses([]);
     } else {
       setDesktopNoteVerse(verseNum);
       setShowRightPanel(true);
@@ -214,7 +227,7 @@ export function useReaderState() {
     searchQuery, setSearchQuery,
     searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
-    selectedVerse, setSelectedVerse,
+    selectedVerses, setSelectedVerses,
     handleVerseOpen, handlePinVerse,
     verses, loading, error,
     translation, handleTranslationChange, fontSizeClass,
