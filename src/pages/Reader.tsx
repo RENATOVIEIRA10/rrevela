@@ -193,7 +193,7 @@ const Reader = () => {
     chapters, goToPrev, goToNext, handleGoToPinned, handleNavigateToRef,
     searchQuery, setSearchQuery, searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
-    selectedVerse, setSelectedVerse, handleVerseOpen, handlePinVerse,
+    selectedVerses, setSelectedVerses, handleVerseOpen, handlePinVerse,
     verses, loading, error, translation, handleTranslationChange, fontSizeClass,
     // Novo: isMarked + toggleMark em vez de getHighlightClass / setHighlight
     isMarked, toggleMark,
