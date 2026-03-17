@@ -150,6 +150,7 @@ const VerseBody = ({
     <div className={spacing}>
       {verses.map((verse) => {
         const marked = isMarked(verse.number);
+        const selected = isSelected?.(verse.number) ?? false;
         const isPinned = isDesktop &&
           pinnedVerse?.verse === verse.number &&
           pinnedVerse?.book === selectedBook &&
@@ -169,6 +170,7 @@ const VerseBody = ({
               marked && !isDesktop ? "has-highlight" : "",
               isPinned ? "bg-accent/5 -mx-3 px-3 rounded" : "",
               highlightedVerse === verse.number ? "verse-target-highlight" : "",
+              selected ? "bg-accent/10 -mx-1 px-1 rounded-md ring-1 ring-accent/30" : "",
             ].join(" ")}
             onClick={() => onVerseClick(verse)}
           >
