@@ -52,6 +52,7 @@ export function useReaderState() {
   const [searching, setSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState<{ number: number; text: string }[]>([]);
+  const [versePanelOpen, setVersePanelOpen] = useState(false);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [noteVerseText, setNoteVerseText] = useState<string | undefined>(undefined);
