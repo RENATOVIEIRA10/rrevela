@@ -194,7 +194,9 @@ const Reader = () => {
     chapters, goToPrev, goToNext, handleGoToPinned, handleNavigateToRef,
     searchQuery, setSearchQuery, searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
-    selectedVerses, setSelectedVerses, handleVerseOpen, handlePinVerse,
+    selectedVerses, setSelectedVerses,
+    versePanelOpen, openVersePanel, closeVersePanel, clearSelection,
+    handleVerseOpen, handlePinVerse,
     verses, loading, error, translation, handleTranslationChange, fontSizeClass,
     // Novo: isMarked + toggleMark em vez de getHighlightClass / setHighlight
     isMarked, toggleMark,
@@ -207,6 +209,16 @@ const Reader = () => {
     desktopNoteVerse, setDesktopNoteVerse,
     depth, setDepth, bookPickerOpen, setBookPickerOpen,
   } = state;
+
+  // Format reference for floating bar
+  const selectionReference = useMemo(() => {
+    if (selectedVerses.length === 0) return "";
+    if (selectedVerses.length === 1) return `${selectedBook} ${selectedChapter}:${selectedVerses[0].number}`;
+    const nums = selectedVerses.map((v) => v.number);
+    const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+    if (isConsecutive) return `${selectedBook} ${selectedChapter}:${nums[0]}-${nums[nums.length - 1]}`;
+    return `${selectedBook} ${selectedChapter}:${nums.join(",")}`;
+  }, [selectedBook, selectedChapter, selectedVerses]);
 
   const swipeHandlers = useChapterSwipe({
     onPrev: goToPrev,
