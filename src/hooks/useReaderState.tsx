@@ -158,7 +158,19 @@ export function useReaderState() {
   }, []);
 
   const handleVerseOpen = useCallback((verse: { number: number; text: string }) => {
-    setSelectedVerse(verse);
+    setSelectedVerses((prev) => {
+      // If panel is already open (has selections), toggle this verse in/out
+      if (prev.length > 0) {
+        const exists = prev.find((v) => v.number === verse.number);
+        if (exists) {
+          const next = prev.filter((v) => v.number !== verse.number);
+          return next; // may become empty, closing panel
+        }
+        return [...prev, verse].sort((a, b) => a.number - b.number);
+      }
+      // First tap — start selection
+      return [verse];
+    });
     track("verse_opened", { book: selectedBook, chapter: selectedChapter, verse: verse.number });
   }, [selectedBook, selectedChapter, track]);
 
