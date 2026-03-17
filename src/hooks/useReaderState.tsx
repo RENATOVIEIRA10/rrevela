@@ -227,7 +227,7 @@ export function useReaderState() {
     searchQuery, setSearchQuery,
     searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
-    selectedVerse, setSelectedVerse,
+    selectedVerses, setSelectedVerses,
     handleVerseOpen, handlePinVerse,
     verses, loading, error,
     translation, handleTranslationChange, fontSizeClass,
