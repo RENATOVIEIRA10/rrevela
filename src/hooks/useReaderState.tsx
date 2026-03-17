@@ -175,10 +175,11 @@ export function useReaderState() {
   }, [selectedBook, selectedChapter, track]);
 
   const handlePinVerse = useCallback(() => {
-    if (!selectedVerse) return;
-    pinVerse({ translation, book: selectedBook, chapter: selectedChapter, verse: selectedVerse.number, text: selectedVerse.text });
-    setSelectedVerse(null);
-  }, [selectedVerse, translation, selectedBook, selectedChapter, pinVerse]);
+    if (selectedVerses.length === 0) return;
+    const first = selectedVerses[0];
+    pinVerse({ translation, book: selectedBook, chapter: selectedChapter, verse: first.number, text: first.text });
+    setSelectedVerses([]);
+  }, [selectedVerses, translation, selectedBook, selectedChapter, pinVerse]);
 
   const openVerseNote = useCallback((verseNum: number, verseText?: string, aiRevelation?: string) => {
     setNoteVerseText(verseText);
