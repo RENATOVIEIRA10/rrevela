@@ -154,7 +154,7 @@ export function useReaderState() {
   const handleNavigateToRef = useCallback((refBook: string, refChapter: number) => {
     setSelectedBook(refBook);
     setSelectedChapter(refChapter);
-    setSelectedVerse(null);
+    setSelectedVerses([]);
   }, []);
 
   const handleVerseOpen = useCallback((verse: { number: number; text: string }) => {
