@@ -187,7 +187,7 @@ export function useReaderState() {
     if (isMobile) {
       setNoteVerse(verseNum);
       setNoteSheetOpen(true);
-      setSelectedVerse(null);
+      setSelectedVerses([]);
     } else {
       setDesktopNoteVerse(verseNum);
       setShowRightPanel(true);
