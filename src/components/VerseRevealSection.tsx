@@ -68,7 +68,7 @@ const VerseRevealSection = ({
 
     try {
       const { data: result, error } = await supabase.functions.invoke("verse-reveal", {
-        body: { book, chapter, verse, verseText },
+        body: { book, chapter, verse, verseEnd, verseText },
       });
       if (error) throw error;
       if (result?.error) {
