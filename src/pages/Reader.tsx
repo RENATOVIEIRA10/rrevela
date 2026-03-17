@@ -7,7 +7,7 @@
  * - getHighlightClass usa highlight-marked (classe única) em vez das 5 cores
  * - hasHighlight ainda funciona para o indicador lateral
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft, ChevronRight, StickyNote, ChevronDown,
