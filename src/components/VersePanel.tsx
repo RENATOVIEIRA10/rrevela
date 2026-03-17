@@ -1,23 +1,13 @@
 /**
- * VersePanel.tsx — Redesenhado
+ * VersePanel.tsx — Multi-verse support
  *
- * REMOVIDO:
- * - Chips de 5 cores ("O que Deus promete", "O que eu devo viver"...)
- * - Pergunta "Como este texto fala comigo?"
- * - Lógica de onSelectColor (5 opções)
- *
- * ADICIONADO:
- * - Botão "Marcar" — toggle simples, um toque marca/desmarca
- *   Visualmente claro: marcado = ícone preenchido + texto "Marcado"
- *
- * FLUXO após tocar num versículo:
- *   1. Vê o texto do versículo
- *   2. Ações: [Marcar] [Favoritar] [Fixar] [Estudar]
- *   3. Compartilhar
- *   4. Revelar (IA)
- *   5. Comparar olhares
+ * Suporta seleção de um ou mais versículos.
+ * Quando múltiplos versículos são selecionados:
+ * - Exibe o range (ex: "Romanos 8:28-30")
+ * - Combina os textos para compartilhar e revelar
+ * - Ações de marcar/favoritar aplicam-se ao primeiro versículo
  */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Pin, Sparkles, Heart, Bookmark } from "lucide-react";
 import { useShareVerse } from "@/hooks/useShareVerse";
@@ -33,25 +23,44 @@ import CompareOlhares from "./CompareOlhares";
 import VerseRevealSection from "./VerseRevealSection";
 import type { HighlightColor } from "@/hooks/useHighlights";
 
+export interface SelectedVerse {
+  number: number;
+  text: string;
+}
+
 interface VersePanelProps {
   open: boolean;
   onClose: () => void;
   book: string;
   chapter: number;
-  verseNumber: number;
-  verseText: string;
-  /** true se o versículo já está marcado */
+  /** Multiple selected verses (sorted by number) */
+  verses: SelectedVerse[];
+  /** true se o primeiro versículo já está marcado */
   isMarked: boolean;
-  /** toggle marcar/desmarcar */
+  /** toggle marcar/desmarcar primeiro versículo */
   onToggleMark: () => void;
   onOpenNote?: (aiRevelation?: string) => void;
   onPinVerse?: () => void;
   onNavigateToRef?: (book: string, chapter: number, verse: number) => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
-  // mantido para compatibilidade com Reader.tsx existente
+  // mantido para compatibilidade
   currentColor?: HighlightColor | null;
   onSelectColor?: (color: HighlightColor | null) => void;
+}
+
+function formatVerseRange(book: string, chapter: number, verses: SelectedVerse[]): string {
+  if (verses.length === 0) return "";
+  if (verses.length === 1) return `${book} ${chapter}:${verses[0].number}`;
+  
+  // Check if consecutive
+  const nums = verses.map((v) => v.number);
+  const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+  
+  if (isConsecutive) {
+    return `${book} ${chapter}:${nums[0]}-${nums[nums.length - 1]}`;
+  }
+  return `${book} ${chapter}:${nums.join(",")}`;
 }
 
 const VersePanel = ({
@@ -59,8 +68,7 @@ const VersePanel = ({
   onClose,
   book,
   chapter,
-  verseNumber,
-  verseText,
+  verses,
   isMarked,
   onToggleMark,
   onOpenNote,
@@ -73,8 +81,16 @@ const VersePanel = ({
   const [shareMode, setShareMode] = useState<"verse" | "reveal">("reveal");
   const [revealText, setRevealText] = useState<string>("");
 
+  const firstVerse = verses[0];
+  const reference = formatVerseRange(book, chapter, verses);
+  const combinedText = useMemo(
+    () => verses.map((v) => v.text).join(" "),
+    [verses]
+  );
+  const isMulti = verses.length > 1;
+
   const shareParams = {
-    book, chapter, verse: verseNumber, verseText,
+    book, chapter, verse: firstVerse?.number ?? 1, verseText: combinedText,
     includeReveal: shareMode === "reveal", revealText,
   };
 
@@ -97,23 +113,35 @@ const VersePanel = ({
     onOpenNote?.(revealText || undefined);
   };
 
+  if (!firstVerse) return null;
+
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="max-h-[82vh] bg-card border-t border-border/50 rounded-t-3xl">
         <div className="w-10 h-1 bg-border/60 rounded-full mx-auto mt-3 mb-1" />
         <DrawerHeader className="text-left pb-3 pt-2 px-6">
           <DrawerTitle className="font-scripture text-base font-medium text-foreground/90">
-            {book} {chapter}:{verseNumber}
+            {reference}
           </DrawerTitle>
-          <DrawerDescription className="font-scripture text-[0.9375rem] text-foreground/75 italic leading-relaxed mt-1.5">
-            {verseText}
+          {isMulti && (
+            <p className="text-[10px] text-accent font-ui mt-0.5">
+              {verses.length} versículos selecionados — toque em mais versículos para expandir
+            </p>
+          )}
+          <DrawerDescription className="font-scripture text-[0.9375rem] text-foreground/75 italic leading-relaxed mt-1.5 max-h-32 overflow-y-auto">
+            {verses.map((v, i) => (
+              <span key={v.number}>
+                <sup className="text-accent/60 text-[0.625rem] mr-0.5">{v.number}</sup>
+                {v.text}
+                {i < verses.length - 1 ? " " : ""}
+              </span>
+            ))}
           </DrawerDescription>
         </DrawerHeader>
 
         <div className="px-6 pb-8 space-y-5 overflow-y-auto">
           {/* ── Ações principais ─────────────────────────────── */}
           <div className="flex items-center justify-between">
-            {/* Esquerda: Marcar (destaque principal) */}
             <motion.button
               whileTap={{ scale: 0.94 }}
               onClick={onToggleMark}
@@ -132,7 +160,6 @@ const VersePanel = ({
               {isMarked ? "Marcado" : "Marcar"}
             </motion.button>
 
-            {/* Direita: ações secundárias */}
             <div className="flex items-center gap-4">
               {onToggleFavorite && (
                 <button
@@ -183,7 +210,7 @@ const VersePanel = ({
                     : "bg-secondary/30 text-foreground/60 hover:bg-secondary/50 border border-transparent"
                 }`}
               >
-                Só o versículo
+                {isMulti ? "Só os versículos" : "Só o versículo"}
               </button>
               <button
                 onClick={() => setShareMode("reveal")}
@@ -202,8 +229,8 @@ const VersePanel = ({
               onShare={handleShare}
               storyData={{
                 type: shareMode === "reveal" ? "verse-reveal" : "verse",
-                reference: `${book} ${chapter}:${verseNumber}`,
-                verseText,
+                reference,
+                verseText: combinedText,
                 insightText: shareMode === "reveal" ? revealText : undefined,
               }}
             />
@@ -215,8 +242,9 @@ const VersePanel = ({
           <VerseRevealSection
             book={book}
             chapter={chapter}
-            verse={verseNumber}
-            verseText={verseText}
+            verse={firstVerse.number}
+            verseEnd={isMulti ? verses[verses.length - 1].number : undefined}
+            verseText={combinedText}
             onNavigate={handleRefNavigate}
             onRevealLoaded={handleRevealLoaded}
           />
@@ -227,8 +255,8 @@ const VersePanel = ({
           <CompareOlhares
             book={book}
             chapter={chapter}
-            verse={verseNumber}
-            verseText={verseText}
+            verse={firstVerse.number}
+            verseText={combinedText}
             onNavigate={handleRefNavigate}
           />
         </div>
