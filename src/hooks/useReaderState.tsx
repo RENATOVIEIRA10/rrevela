@@ -160,20 +160,30 @@ export function useReaderState() {
 
   const handleVerseOpen = useCallback((verse: { number: number; text: string }) => {
     setSelectedVerses((prev) => {
-      // If panel is already open (has selections), toggle this verse in/out
-      if (prev.length > 0) {
-        const exists = prev.find((v) => v.number === verse.number);
-        if (exists) {
-          const next = prev.filter((v) => v.number !== verse.number);
-          return next; // may become empty, closing panel
-        }
-        return [...prev, verse].sort((a, b) => a.number - b.number);
+      const exists = prev.find((v) => v.number === verse.number);
+      if (exists) {
+        const next = prev.filter((v) => v.number !== verse.number);
+        // If emptied, also close panel
+        if (next.length === 0) setVersePanelOpen(false);
+        return next;
       }
-      // First tap — start selection
-      return [verse];
+      return [...prev, verse].sort((a, b) => a.number - b.number);
     });
     track("verse_opened", { book: selectedBook, chapter: selectedChapter, verse: verse.number });
   }, [selectedBook, selectedChapter, track]);
+
+  const openVersePanel = useCallback(() => {
+    if (selectedVerses.length > 0) setVersePanelOpen(true);
+  }, [selectedVerses.length]);
+
+  const closeVersePanel = useCallback(() => {
+    setVersePanelOpen(false);
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedVerses([]);
+    setVersePanelOpen(false);
+  }, []);
 
   const handlePinVerse = useCallback(() => {
     if (selectedVerses.length === 0) return;
