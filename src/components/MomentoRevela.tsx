@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useVerseOfDay } from "@/hooks/useDevotional";
 import RevelaLogo from "./RevelaLogo";
@@ -41,6 +41,19 @@ const MomentoRevela = ({ onContinue }: MomentoRevelaProps) => {
       className="fixed inset-0 z-50 flex flex-col"
       style={{ background: "linear-gradient(160deg, #1a1008 0%, #2a1a10 60%, #1a1008 100%)" }}
     >
+      {/* Botão fechar */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        onClick={onContinue}
+        aria-label="Fechar"
+        className="absolute top-4 right-4 p-2 text-[#F9F7F2]/30 hover:text-[#F9F7F2]/60 transition-colors"
+        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1rem)" }}
+      >
+        <X className="w-5 h-5" />
+      </motion.button>
+
       {/* Logo */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

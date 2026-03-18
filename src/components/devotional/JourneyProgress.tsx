@@ -25,12 +25,13 @@ const JourneyProgress = ({ completed, total }: JourneyProgressProps) => {
             Dia {currentDay} de {totalDays}
           </p>
         </div>
-        <span className="text-[11px] text-muted-foreground tabular-nums">
-          {completed}/{total}
-        </span>
+        <div className="text-right">
+          <span className="text-lg font-scripture text-accent tabular-nums">{pct}%</span>
+          <p className="text-[10px] text-muted-foreground tabular-nums">{completed}/{total} etapas</p>
+        </div>
       </div>
 
-      <div className="h-1 bg-secondary/50 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-secondary/50 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}

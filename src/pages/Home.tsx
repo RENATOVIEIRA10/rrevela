@@ -17,10 +17,11 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, Sparkles, ArrowRight, StickyNote, User } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight, StickyNote, User, CalendarDays } from "lucide-react";
 import { useVerseOfDay } from "@/hooks/useDevotional";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useReadingPlan } from "@/hooks/useReadingPlan";
 import RevelaLogo from "@/components/RevelaLogo";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -30,6 +31,7 @@ const Home = () => {
   const { verse, loading } = useVerseOfDay();
   const stats = useJourneyStats();
   const { track } = useAnalytics();
+  const { activePlan, todayReading, currentDay, isTodayComplete } = useReadingPlan();
 
   useEffect(() => {
     track("study_opened", { area: "home" });
@@ -228,6 +230,56 @@ const Home = () => {
               </div>
             </button>
           </motion.div>
+
+          {/* ── Plano de Leitura ─── */}
+          {activePlan && todayReading && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.5, ease }}
+            >
+              <div className="flex items-center gap-2 mb-2.5">
+                <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
+                  Plano de hoje
+                </p>
+                <div className="flex-1 editorial-divider" />
+                <button
+                  onClick={() => navigate("/devocional")}
+                  className="text-[10px] text-accent/70 hover:text-accent transition-colors font-ui"
+                >
+                  Ver plano
+                </button>
+              </div>
+              <button
+                onClick={() => navigate(`/leitor?livro=${encodeURIComponent(todayReading.book || "")}&cap=${todayReading.chapter || 1}`, {
+                  state: { book: todayReading.book, chapter: todayReading.chapter },
+                })}
+                className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left active:scale-[0.98] transition-all ${
+                  isTodayComplete
+                    ? "bg-accent/5 border-accent/20"
+                    : "bg-card border-border/50"
+                }`}
+                style={{ boxShadow: "var(--shadow-card)" }}
+              >
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                  isTodayComplete ? "bg-accent/15" : "bg-secondary"
+                }`}>
+                  <CalendarDays className={`w-4 h-4 ${isTodayComplete ? "text-accent" : "text-muted-foreground"}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-foreground font-ui truncate">{todayReading.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 font-ui">
+                    {activePlan.title} · Dia {currentDay}
+                  </p>
+                </div>
+                {isTodayComplete ? (
+                  <span className="text-[10px] text-accent font-medium font-ui shrink-0">Concluído</span>
+                ) : (
+                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
+                )}
+              </button>
+            </motion.div>
+          )}
 
           {/* ── Jornada ─── */}
           {!stats.loading && (stats.totalHighlights > 0 || stats.totalNotes > 0) && (

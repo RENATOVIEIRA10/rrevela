@@ -34,21 +34,29 @@ const Perfil = () => {
   const [saving, setSaving] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
-  // Reading preferences (localStorage)
-  const [fontSize, setFontSize] = useState(() => localStorage.getItem("revela-font-size") || "md");
-  const [translation, setTranslation] = useState(() => localStorage.getItem("revela-translation") || "acf");
+  // Reading preferences — sincronizadas com o Supabase, localStorage como fallback imediato
+  const [fontSize, setFontSizeState] = useState(() => localStorage.getItem("revela-font-size") || "md");
+  const [translation, setTranslationState] = useState(() => localStorage.getItem("revela-translation") || "acf");
 
   useEffect(() => {
     const loadProfile = async () => {
       if (!user) return;
       const { data } = await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name, font_size, translation")
         .eq("user_id", user.id)
         .single();
       if (data?.display_name) {
         setDisplayName(data.display_name);
         setOriginalName(data.display_name);
+      }
+      if (data?.font_size) {
+        setFontSizeState(data.font_size);
+        localStorage.setItem("revela-font-size", data.font_size);
+      }
+      if (data?.translation) {
+        setTranslationState(data.translation);
+        localStorage.setItem("revela-translation", data.translation);
       }
       setLoadingProfile(false);
     };
@@ -71,14 +79,20 @@ const Perfil = () => {
     }
   };
 
-  const handleFontSize = (value: string) => {
-    setFontSize(value);
+  const handleFontSize = async (value: string) => {
+    setFontSizeState(value);
     localStorage.setItem("revela-font-size", value);
+    if (user) {
+      await supabase.from("profiles").update({ font_size: value }).eq("user_id", user.id);
+    }
   };
 
-  const handleTranslation = (value: string) => {
-    setTranslation(value);
+  const handleTranslation = async (value: string) => {
+    setTranslationState(value);
     localStorage.setItem("revela-translation", value);
+    if (user) {
+      await supabase.from("profiles").update({ translation: value }).eq("user_id", user.id);
+    }
   };
 
   const nameChanged = displayName.trim() !== originalName && displayName.trim().length > 0;
