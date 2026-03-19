@@ -272,7 +272,7 @@ const Home = () => {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground font-ui truncate">{todayReading.label}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5 font-ui">
-                    {activePlan.title} · Dia {currentDay}
+                    {activePlan.name} · Dia {currentDay}
                   </p>
                 </div>
                 {isTodayComplete ? (

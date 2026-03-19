@@ -70,20 +70,14 @@ const Perfil = () => {
     }
   };
 
-  const handleFontSize = async (value: string) => {
+  const handleFontSize = (value: string) => {
     setFontSizeState(value);
     localStorage.setItem("revela-font-size", value);
-    if (user) {
-      await supabase.from("profiles").update({ font_size: value }).eq("user_id", user.id);
-    }
   };
 
-  const handleTranslation = async (value: string) => {
+  const handleTranslation = (value: string) => {
     setTranslationState(value);
     localStorage.setItem("revela-translation", value);
-    if (user) {
-      await supabase.from("profiles").update({ translation: value }).eq("user_id", user.id);
-    }
   };
 
   const nameChanged = displayName.trim() !== originalName && displayName.trim().length > 0;
