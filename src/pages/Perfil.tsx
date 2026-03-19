@@ -36,7 +36,7 @@ const Perfil = () => {
 
   // Reading preferences — sincronizadas com o Supabase, localStorage como fallback imediato
   const [fontSize, setFontSizeState] = useState(() => localStorage.getItem("revela-font-size") || "md");
-  const [translation, setTranslationState] = useState(() => localStorage.getItem("revela-translation") || "acf");
+  const [translation, setTranslationState] = useState(() => localStorage.getItem("revela-translation") || "arc");
 
   useEffect(() => {
     const loadProfile = async () => {

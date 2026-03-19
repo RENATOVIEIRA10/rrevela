@@ -91,7 +91,7 @@ export function usePinnedVerse() {
       .eq("book", book)
       .eq("chapter", chapter)
       .eq("verse", verse)
-      .eq("translation", "acf")
+      .eq("translation", "arc")
       .maybeSingle();
     return data?.text ?? "";
   }, []);

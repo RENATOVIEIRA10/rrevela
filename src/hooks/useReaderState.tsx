@@ -64,7 +64,7 @@ export function useReaderState() {
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
   const [translation, setTranslation] = useState<TranslationKey>(
-    () => (localStorage.getItem("revela-translation") as TranslationKey) || "acf"
+    () => (localStorage.getItem("revela-translation") as TranslationKey) || "arc"
   );
   const [fontSize, setFontSize] = useState(
     () => localStorage.getItem("revela-font-size") || "md"

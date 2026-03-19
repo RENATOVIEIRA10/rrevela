@@ -26,7 +26,7 @@ const PublicVerse = () => {
         .eq("book", bookDecoded)
         .eq("chapter", chapterNum)
         .eq("verse", verseNum)
-        .eq("translation", "acf")
+        .eq("translation", "arc")
         .limit(1);
 
       if (verseRows && verseRows.length > 0) {

@@ -71,7 +71,7 @@ const BuscaAvancada = () => {
             .eq("book", h.book)
             .eq("chapter", h.chapter)
             .eq("verse", h.verse)
-            .eq("translation", "acf")
+            .eq("translation", "arc")
             .maybeSingle();
 
           return {
@@ -97,7 +97,7 @@ const BuscaAvancada = () => {
       // Text search
       const { data } = await supabase.rpc("search_bible", {
         search_query: query,
-        translation_filter: "acf",
+        translation_filter: "arc",
         result_limit: 100,
       });
 

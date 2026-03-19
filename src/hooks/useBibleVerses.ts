@@ -15,7 +15,7 @@ export interface BibleSearchResult {
   rank: number;
 }
 
-export function useBibleVerses(book: string, chapter: number, translation: string = "acf") {
+export function useBibleVerses(book: string, chapter: number, translation: string = "arc") {
   const [verses, setVerses] = useState<BibleVerse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +64,7 @@ export function useBibleVerses(book: string, chapter: number, translation: strin
         setVerses([]);
       } else {
         setError(
-          translation !== "acf"
+          translation !== "arc"
             ? `Tradução ${translation.toUpperCase()} ainda não disponível. Use ACF.`
             : "Texto não encontrado. Verifique a tradução carregada."
         );
@@ -85,7 +85,7 @@ export async function searchBible(query: string, limit = 50): Promise<BibleSearc
 
   const { data, error } = await supabase.rpc("search_bible", {
     search_query: query,
-    translation_filter: "acf",
+    translation_filter: "arc",
     result_limit: limit,
   });
 
