@@ -16,10 +16,9 @@ const FONT_SIZES = [
 ];
 
 const TRANSLATIONS = [
-  { label: "Almeida Corrigida Fiel", value: "acf" },
   { label: "Almeida Revista e Corrigida", value: "arc" },
-  { label: "Almeida Atualizada", value: "aa" },
   { label: "Tradução Brasileira 1917", value: "tb" },
+  { label: "Bíblia Livre (CC BY 4.0)", value: "livre" },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
