@@ -42,20 +42,12 @@ const Perfil = () => {
       if (!user) return;
       const { data } = await supabase
         .from("profiles")
-        .select("display_name, font_size, translation")
+        .select("display_name")
         .eq("user_id", user.id)
         .single();
       if (data?.display_name) {
         setDisplayName(data.display_name);
         setOriginalName(data.display_name);
-      }
-      if (data?.font_size) {
-        setFontSizeState(data.font_size);
-        localStorage.setItem("revela-font-size", data.font_size);
-      }
-      if (data?.translation) {
-        setTranslationState(data.translation);
-        localStorage.setItem("revela-translation", data.translation);
       }
       setLoadingProfile(false);
     };
