@@ -159,11 +159,12 @@ export function useReaderState() {
   }, []);
 
   const handleVerseOpen = useCallback((verse: { number: number; text: string }) => {
+    // Haptic feedback on mobile (short vibration)
+    if (navigator.vibrate) navigator.vibrate(15);
     setSelectedVerses((prev) => {
       const exists = prev.find((v) => v.number === verse.number);
       if (exists) {
         const next = prev.filter((v) => v.number !== verse.number);
-        // If emptied, also close panel
         if (next.length === 0) setVersePanelOpen(false);
         return next;
       }
