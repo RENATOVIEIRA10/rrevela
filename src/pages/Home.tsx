@@ -251,9 +251,12 @@ const Home = () => {
                 </button>
               </div>
               <button
-                onClick={() => navigate(`/leitor?livro=${encodeURIComponent(todayReading.book || "")}&cap=${todayReading.chapter || 1}`, {
-                  state: { book: todayReading.book, chapter: todayReading.chapter },
-                })}
+                onClick={() => {
+                  const first = todayReading.entries?.[0];
+                  navigate(`/leitor?livro=${encodeURIComponent(first?.book || "")}&cap=${first?.chapter || 1}`, {
+                    state: { book: first?.book, chapter: first?.chapter },
+                  });
+                }}
                 className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left active:scale-[0.98] transition-all ${
                   isTodayComplete
                     ? "bg-accent/5 border-accent/20"
@@ -269,7 +272,7 @@ const Home = () => {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground font-ui truncate">{todayReading.label}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5 font-ui">
-                    {activePlan.title} · Dia {currentDay}
+                    {activePlan.name} · Dia {currentDay}
                   </p>
                 </div>
                 {isTodayComplete ? (
