@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Type, BookOpen, Sun, Moon, LogOut, ChevronRight, Check, Loader2 } from "lucide-react";
+import { User, Type, BookOpen, LogOut, ChevronRight, Check, Loader2, BookMarked, Sparkles } from "lucide-react";
 import OfflineDownloadButton from "@/components/OfflineDownloadButton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
