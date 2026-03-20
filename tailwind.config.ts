@@ -18,7 +18,7 @@ export default {
     extend: {
       fontFamily: {
         scripture: ["Crimson Pro", "Georgia", "Times New Roman", "serif"],
-        ui: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        ui: ["DM Sans", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
         border:      "hsl(var(--border))",
@@ -64,14 +64,17 @@ export default {
           border:               "hsl(var(--sidebar-border))",
           ring:                 "hsl(var(--sidebar-ring))",
         },
-        // ── Dourado de Revelação ─────────────────────────────
-        // Usado em: luz de revelação, versículo do dia,
-        // momentos especiais de descoberta bíblica.
         gold: {
           DEFAULT:    "hsl(var(--gold))",
           foreground: "hsl(var(--gold-foreground))",
           light:      "hsl(var(--gold-light))",
         },
+        // Brand v2 direct colors
+        wine: {
+          DEFAULT: "#632A26",
+          light:   "#8B3D38",
+        },
+        amber: "#FDF2D0",
       },
       borderRadius: {
         lg: "var(--radius)",
