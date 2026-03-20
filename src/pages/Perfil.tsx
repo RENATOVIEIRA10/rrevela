@@ -25,7 +25,7 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 const Perfil = () => {
   const { user, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState("");
