@@ -248,7 +248,7 @@ const VerseRevealSection = ({
                             <ConfidenceBadge confidence={confidenceMap[ref.connection_type] || "leve"} />
                           </div>
                           {ref.text && (
-                            <p className="font-scripture text-xs text-foreground/75 italic">{ref.text}</p>
+                            <p className="accent-border font-scripture text-xs text-foreground/75 italic">{ref.text}</p>
                           )}
                           <p className="text-xs text-muted-foreground">{ref.explanation}</p>
                         </div>

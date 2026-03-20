@@ -205,7 +205,7 @@ const Onboarding = () => {
             transition={{ delay: 0.6, duration: 0.6 }}
             className="text-center pt-2"
           >
-            <p className="font-scripture text-xs leading-relaxed text-foreground/50 italic">
+            <p className="accent-border font-scripture text-xs leading-relaxed text-foreground/50 italic text-left">
               "Então lhes abriu o entendimento para compreenderem as Escrituras."
             </p>
             <cite className="block text-[0.6rem] text-muted-foreground/60 font-ui not-italic tracking-widest uppercase mt-1">

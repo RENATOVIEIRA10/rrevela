@@ -80,7 +80,7 @@ const PublicVerse = () => {
         </p>
 
         {verseData ? (
-          <blockquote className="font-scripture text-xl leading-relaxed text-foreground/90 italic mb-6">
+          <blockquote className="accent-border font-scripture text-xl leading-relaxed text-foreground/90 italic mb-6">
             "{verseData.text}"
           </blockquote>
         ) : (

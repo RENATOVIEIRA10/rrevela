@@ -89,7 +89,7 @@ const MomentoRevela = ({ onContinue }: MomentoRevelaProps) => {
                 "
               </span>
 
-              <blockquote className="font-scripture text-[1.1875rem] text-[#F9F7F2]/90 leading-[1.75] italic -mt-8">
+              <blockquote className="accent-border font-scripture text-[1.1875rem] text-[#F9F7F2]/90 leading-[1.75] italic -mt-8">
                 {verse.text}
               </blockquote>
 
