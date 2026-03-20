@@ -30,6 +30,8 @@ import Admin from "./pages/Admin";
 import Perfil from "./pages/Perfil";
 import BuscaAvancada from "./pages/BuscaAvancada";
 import AtalaiaLGPD from "./pages/AtalaiaLGPD";
+import ResetPassword from "./pages/ResetPassword";
+import Pro from "./pages/Pro";
 import { useAdminCheck } from "./hooks/useAdminCheck";
 import { Button } from "./components/ui/button";
 
@@ -83,6 +85,8 @@ const AppRoutes = () => {
         <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
         <Route path="/study/:book/:chapter" element={<PublicStudy />} />
         <Route path="/install" element={<InstallPWA />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/pro" element={<Pro />} />
 
         {/* App protegido */}
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

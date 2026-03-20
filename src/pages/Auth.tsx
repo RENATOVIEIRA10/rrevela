@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Mail, Lock, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
 import RevelaLogo from "@/components/RevelaLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLoginRedirect } from "@/hooks/useLoginRedirect";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
@@ -24,12 +25,15 @@ const AppleIcon = () => (
   </svg>
 );
 
+type AuthMode = "login" | "signup" | "forgot";
+
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"google" | "apple" | null>(null);
+  const [resetSent, setResetSent] = useState(false);
   const { signIn, signUp } = useAuth();
   const { checking } = useLoginRedirect();
   const { toast } = useToast();
@@ -61,7 +65,7 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = isLogin
+    const { error } = mode === "login"
       ? await signIn(email, password)
       : await signUp(email, password);
     setLoading(false);
@@ -69,18 +73,125 @@ const Auth = () => {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
       return;
     }
-    if (!isLogin) {
+    if (mode === "signup") {
       toast({ title: "Verifique seu email", description: "Enviamos um link de confirmação para o seu email." });
     }
   };
 
-  const isBusy = loading || !!socialLoading || checking;
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Informe seu email", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      return;
+    }
+    setResetSent(true);
+  };
 
+  const isBusy = loading || !!socialLoading || checking;
   const ease = [0.22, 1, 0.36, 1] as const;
 
+  // ── MODO ESQUECI A SENHA ──────────────────────────────────────────────────
+  if (mode === "forgot") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/[0.03] blur-3xl" />
+        </div>
+
+        <motion.div
+          className="max-w-[360px] w-full relative z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease }}
+        >
+          <button
+            onClick={() => { setMode("login"); setResetSent(false); }}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-8 font-ui"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Voltar ao login
+          </button>
+
+          <AnimatePresence mode="wait">
+            {resetSent ? (
+              <motion.div
+                key="sent"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center space-y-4"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
+                  <Mail className="w-6 h-6 text-accent" />
+                </div>
+                <h2 className="font-scripture text-xl font-semibold text-foreground">
+                  Email enviado!
+                </h2>
+                <p className="text-sm text-muted-foreground font-ui leading-relaxed">
+                  Verifique sua caixa de entrada em <span className="text-foreground font-medium">{email}</span> e clique no link para redefinir sua senha.
+                </p>
+                <p className="text-xs text-muted-foreground/60 font-ui">
+                  Não recebeu? Verifique o spam ou tente novamente.
+                </p>
+                <Button
+                  variant="outline"
+                  className="w-full mt-2"
+                  onClick={() => setResetSent(false)}
+                >
+                  Tentar novamente
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="text-center mb-8">
+                  <h2 className="font-scripture text-[1.5rem] font-semibold text-foreground">
+                    Esqueceu a senha?
+                  </h2>
+                  <p className="text-[0.8125rem] text-muted-foreground mt-2 leading-relaxed">
+                    Informe seu email e enviaremos um link para redefinir sua senha.
+                  </p>
+                </div>
+
+                <form onSubmit={handleForgotPassword} className="space-y-3">
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-muted-foreground/50" />
+                    <Input
+                      type="email"
+                      placeholder="Seu email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10 h-11 bg-card/80 border-border/70 text-[0.875rem] placeholder:text-muted-foreground/40"
+                      required
+                      disabled={isBusy}
+                    />
+                  </div>
+                  <Button type="submit" disabled={isBusy} className="w-full h-11 font-scripture text-[0.9375rem]">
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Enviar link de redefinição"}
+                  </Button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── MODO LOGIN / CADASTRO ─────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 relative overflow-hidden">
-      {/* Subtle warm radial glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/[0.03] blur-3xl" />
       </div>
@@ -91,7 +202,6 @@ const Auth = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease }}
       >
-        {/* Header — editorial, contemplative */}
         <motion.div
           className="text-center mb-10"
           initial={{ opacity: 0, y: 12 }}
@@ -105,13 +215,12 @@ const Auth = () => {
             Revela
           </h1>
           <p className="text-[0.8125rem] text-muted-foreground mt-2 leading-relaxed max-w-[280px] mx-auto">
-            {isLogin
+            {mode === "login"
               ? "Entre para continuar sua jornada com a Palavra."
               : "Crie sua conta e comece a estudar a Escritura."}
           </p>
         </motion.div>
 
-        {/* Social login — premium buttons */}
         <motion.div
           className="space-y-2.5 mb-6"
           initial={{ opacity: 0 }}
@@ -139,7 +248,6 @@ const Auth = () => {
           </button>
         </motion.div>
 
-        {/* Divider — editorial */}
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 editorial-divider" />
           <span className="text-[0.6875rem] text-muted-foreground/60 uppercase tracking-[0.15em] font-medium select-none">
@@ -148,7 +256,6 @@ const Auth = () => {
           <div className="flex-1 editorial-divider" />
         </div>
 
-        {/* Email form — refined, minimal */}
         <motion.form
           onSubmit={handleSubmit}
           className="space-y-3"
@@ -182,6 +289,19 @@ const Auth = () => {
             />
           </div>
 
+          {mode === "login" && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                className="text-[0.75rem] text-muted-foreground hover:text-primary transition-colors font-ui"
+                disabled={isBusy}
+              >
+                Esqueceu a senha?
+              </button>
+            </div>
+          )}
+
           <Button
             type="submit"
             disabled={isBusy}
@@ -189,7 +309,7 @@ const Auth = () => {
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isLogin ? (
+            ) : mode === "login" ? (
               "Entrar"
             ) : (
               "Criar conta"
@@ -197,24 +317,22 @@ const Auth = () => {
           </Button>
         </motion.form>
 
-        {/* Toggle — subtle, elegant */}
         <motion.p
           className="text-center text-[0.8125rem] text-muted-foreground mt-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.55, duration: 0.5 }}
         >
-          {isLogin ? "Não tem conta? " : "Já tem conta? "}
+          {mode === "login" ? "Não tem conta? " : "Já tem conta? "}
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => setMode(mode === "login" ? "signup" : "login")}
             className="text-primary hover:text-primary/80 font-medium transition-colors underline underline-offset-4 decoration-primary/30 hover:decoration-primary/60"
             disabled={isBusy}
           >
-            {isLogin ? "Criar conta" : "Entrar"}
+            {mode === "login" ? "Criar conta" : "Entrar"}
           </button>
         </motion.p>
 
-        {/* Scripture quote — editorial touch */}
         <motion.div
           className="mt-12 text-center"
           initial={{ opacity: 0 }}

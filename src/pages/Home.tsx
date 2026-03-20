@@ -17,7 +17,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, Sparkles, ArrowRight, StickyNote, User, CalendarDays } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight, StickyNote, User, CalendarDays, MessageCircle } from "lucide-react";
 import { useVerseOfDay } from "@/hooks/useDevotional";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -228,6 +228,32 @@ const Home = () => {
                   Pergunte à Palavra
                 </p>
               </div>
+            </button>
+          </motion.div>
+
+          {/* ── Banner Pro ─── */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, duration: 0.5, ease }}
+          >
+            <button
+              onClick={() => navigate("/pro")}
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-accent/25 bg-accent/5 text-left active:scale-[0.98] transition-transform"
+            >
+              <div className="w-9 h-9 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
+                <MessageCircle className="w-4 h-4 text-accent" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-semibold text-accent font-ui">Revela Pro</p>
+                  <span className="text-[9px] bg-accent/15 text-accent font-ui font-semibold px-1.5 py-0.5 rounded-full">NOVO</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-0.5 font-ui">
+                  Bíblia e planos de leitura direto no WhatsApp
+                </p>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-accent/50 shrink-0" />
             </button>
           </motion.div>
 
