@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Type, BookOpen, Sun, Moon, LogOut, ChevronRight, Check, Loader2 } from "lucide-react";
+import { User, Type, BookOpen, LogOut, ChevronRight, Check, Loader2, BookMarked, Sparkles } from "lucide-react";
 import OfflineDownloadButton from "@/components/OfflineDownloadButton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 const Perfil = () => {
   const { user, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState("");
@@ -208,28 +208,43 @@ const Perfil = () => {
 
           <div className="editorial-divider" />
 
-          {/* Theme Toggle */}
+          {/* Mode Toggle — Contemplação / Descoberta */}
           <motion.section
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.4, ease }}
+            className="space-y-3"
           >
-            <button
-              onClick={toggleTheme}
-              className="w-full flex items-center justify-between px-4 py-3.5 rounded-lg hover:bg-secondary/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                {theme === "dark" ? (
-                  <Moon className="w-4 h-4 text-primary/60" />
-                ) : (
-                  <Sun className="w-4 h-4 text-primary/60" />
-                )}
-                <span className="text-[0.8125rem] text-foreground/80 font-medium">
-                  {theme === "dark" ? "Modo escuro" : "Modo claro"}
-                </span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
-            </button>
+            <SectionLabel icon={<Sparkles className="w-3.5 h-3.5" />} label="Modo de leitura" />
+            <div className="flex rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => { setTheme("dark"); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 text-[0.8125rem] font-medium transition-all duration-300 ${
+                  theme === "dark"
+                    ? "bg-card text-foreground border-r border-border shadow-card"
+                    : "text-muted-foreground hover:text-foreground/70"
+                }`}
+              >
+                <BookMarked className="w-3.5 h-3.5" />
+                <span className="tracking-wide">Contemplação</span>
+              </button>
+              <button
+                onClick={() => { setTheme("light"); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 text-[0.8125rem] font-medium transition-all duration-300 ${
+                  theme === "light"
+                    ? "bg-card text-foreground border-l border-border shadow-card"
+                    : "text-muted-foreground hover:text-foreground/70"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="tracking-wide">Descoberta</span>
+              </button>
+            </div>
+            <p className="text-[0.6875rem] text-muted-foreground/60 text-center">
+              {theme === "dark"
+                ? "Para quem já caminha com a Palavra — leitura profunda em silêncio"
+                : "Para quem está começando a caminhar — leitura clara e acolhedora"}
+            </p>
           </motion.section>
 
           <div className="editorial-divider" />
