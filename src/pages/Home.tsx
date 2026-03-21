@@ -151,7 +151,7 @@ const Home = () => {
                 </div>
               ) : verse ? (
                 <>
-                  <blockquote className="accent-border font-scripture text-[1.15rem] leading-[1.7] text-foreground/90 font-light italic mb-4">
+                  <blockquote className="accent-border font-scripture text-[1.25rem] leading-[1.8] text-foreground/90 font-light italic mb-5">
                     "{verse.text}"
                   </blockquote>
                   <div className="flex items-center justify-between">
