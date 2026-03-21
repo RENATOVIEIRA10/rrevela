@@ -318,7 +318,7 @@
   }
 
   .verse-num {
-    @apply text-[0.7rem] font-ui font-semibold text-accent/70 mr-2 select-none align-super;
+    @apply text-[0.65rem] font-ui font-medium text-accent/50 mr-2.5 select-none align-super;
     font-feature-settings: "tnum";
   }
 
