@@ -54,10 +54,10 @@ const MinhaJornada = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-2 py-4"
           >
-            <p className="font-scripture text-xl text-foreground tracking-wide">
+            <p className="font-scripture text-2xl text-foreground tracking-wide">
               Sua caminhada, em silêncio.
             </p>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+            <p className="text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
               Sem medalhas. Sem rótulos. Apenas o que você estudou, organizado.
             </p>
           </motion.div>
