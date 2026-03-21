@@ -325,10 +325,10 @@ const EmptyState = () => (
 );
 
 const StatCard = ({ label, value, icon }: { label: string; value: number; icon: string }) => (
-  <div className="text-center space-y-1.5 py-3">
-    <span className="text-base">{icon}</span>
-    <p className="text-xl font-semibold text-foreground font-ui tabular-nums">{value}</p>
-    <p className="text-[10px] text-muted-foreground tracking-wide">{label}</p>
+  <div className="text-center space-y-2 py-4">
+    <span className="text-lg">{icon}</span>
+    <p className="text-2xl font-semibold text-foreground font-ui tabular-nums">{value}</p>
+    <p className="text-xs text-muted-foreground tracking-wide">{label}</p>
   </div>
 );
 
