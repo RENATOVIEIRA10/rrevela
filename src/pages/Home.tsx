@@ -125,7 +125,7 @@ const Home = () => {
             transition={{ delay: 0.1, duration: 0.7, ease }}
           >
             <div
-              className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5"
+              className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6"
               style={{ boxShadow: "var(--shadow-elevated)" }}
             >
               {/* Linha dourada no topo */}
