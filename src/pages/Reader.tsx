@@ -344,7 +344,7 @@ const Reader = () => {
         <div className="flex items-center justify-between px-4 py-3">
           <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-2 py-1.5 text-foreground/90 active:opacity-70 transition-opacity">
             <span className="font-scripture text-lg font-medium truncate max-w-[160px]">{selectedBook}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/70" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground/70" />
           </button>
           <div className="flex items-center">
             <button onClick={goToPrev} disabled={selectedChapter <= 1} className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronLeft className="w-4 h-4" /></button>
