@@ -128,8 +128,8 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-ui);
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 17px;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -140,28 +140,28 @@
 
   .font-scripture {
     font-family: var(--font-scripture);
-    font-size: 1.125rem;
-    line-height: 2;
+    font-size: 1.25rem;
+    line-height: 1.9;
     letter-spacing: 0.005em;
     font-weight: 400;
   }
 
   .font-scripture-lg {
     font-family: var(--font-scripture);
-    font-size: 1.3125rem;
-    line-height: 2.1;
+    font-size: 1.4375rem;
+    line-height: 2;
     letter-spacing: 0.005em;
     font-weight: 400;
   }
 
   @media (min-width: 768px) {
     .font-scripture {
-      font-size: 1.1875rem;
-      line-height: 2.15;
+      font-size: 1.3125rem;
+      line-height: 2;
     }
     .font-scripture-lg {
-      font-size: 1.375rem;
-      line-height: 2.2;
+      font-size: 1.5rem;
+      line-height: 2.1;
     }
   }
 
