@@ -189,19 +189,19 @@ const Home = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5, ease }}
-            className="grid grid-cols-2 gap-3"
+            className="grid grid-cols-2 gap-3.5"
           >
             <button
               onClick={handleContinueReading}
-              className="flex flex-col gap-2.5 p-4 rounded-xl bg-card border border-border/50 text-left active:scale-[0.97] transition-transform"
+              className="flex flex-col gap-3 p-5 rounded-xl bg-card border border-border/50 text-left active:scale-[0.97] transition-transform"
               style={{ boxShadow: "var(--shadow-card)" }}
             >
-              <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                <BookOpen className="w-4 h-4 text-accent" />
+              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <p className="text-xs font-medium text-foreground font-ui">Continuar</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-scripture">
+                <p className="text-sm font-medium text-foreground font-ui">Continuar</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-scripture">
                   {recentChapter
                     ? `${recentChapter.book} ${recentChapter.chapter}`
                     : "Bíblia"}
@@ -211,20 +211,20 @@ const Home = () => {
 
             <button
               onClick={() => navigate("/revela")}
-              className="flex flex-col gap-2.5 p-4 rounded-xl text-left active:scale-[0.97] transition-transform"
+              className="flex flex-col gap-3 p-5 rounded-xl text-left active:scale-[0.97] transition-transform"
               style={{
                 background: "hsl(var(--accent))",
                 boxShadow: "var(--shadow-card)",
               }}
             >
-              <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-accent-foreground" />
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-xs font-medium text-accent-foreground font-ui">
+                <p className="text-sm font-medium text-accent-foreground font-ui">
                   Revela Agora
                 </p>
-                <p className="text-[10px] text-accent-foreground/70 mt-0.5 font-scripture">
+                <p className="text-xs text-accent-foreground/70 mt-0.5 font-scripture">
                   Pergunte à Palavra
                 </p>
               </div>
