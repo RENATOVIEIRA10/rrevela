@@ -116,7 +116,7 @@ const Home = () => {
       </motion.div>
 
       <ScrollArea className="flex-1">
-        <div className="px-5 pb-10 space-y-5 max-w-lg mx-auto w-full">
+        <div className="px-5 pb-12 space-y-6 max-w-lg mx-auto w-full">
 
           {/* ── Versículo do Dia ─── */}
           <motion.div
