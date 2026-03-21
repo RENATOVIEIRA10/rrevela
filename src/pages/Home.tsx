@@ -354,13 +354,13 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-2.5">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Últimas anotações
                 </p>
                 <div className="flex-1 editorial-divider" />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {stats.recentNotes.slice(0, 3).map((note) => (
                   <button
                     key={note.id}
@@ -370,21 +370,21 @@ const Home = () => {
                         { state: { book: note.book, chapter: note.chapter } }
                       )
                     }
-                    className="w-full flex items-start gap-3 p-3 rounded-xl bg-card border border-border/40 text-left active:bg-secondary/30 transition-colors"
+                    className="w-full flex items-start gap-3.5 p-4 rounded-xl bg-card border border-border/40 text-left active:bg-secondary/30 transition-colors"
                   >
-                    <StickyNote className="w-3.5 h-3.5 text-accent/50 mt-0.5 shrink-0" />
+                    <StickyNote className="w-4 h-4 text-accent/50 mt-0.5 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-medium text-accent/80 font-ui">
+                      <p className="text-xs font-medium text-accent/80 font-ui">
                         {note.book} {note.chapter}
                         {note.verse != null ? `:${note.verse}` : ""}
                       </p>
                       {note.observation && (
-                        <p className="text-xs text-foreground/70 font-scripture mt-0.5 line-clamp-2">
+                        <p className="text-sm text-foreground/70 font-scripture mt-1 line-clamp-2">
                           {note.observation}
                         </p>
                       )}
                     </div>
-                    <ArrowRight className="w-3 h-3 text-muted-foreground/30 shrink-0 mt-0.5" />
+                    <ArrowRight className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
                   </button>
                 ))}
               </div>
