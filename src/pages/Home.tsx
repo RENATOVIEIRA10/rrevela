@@ -399,20 +399,20 @@ const Home = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-center py-6"
+                className="text-center py-8"
               >
-                <p className="font-scripture text-sm text-foreground/60 italic leading-relaxed">
+                <p className="font-scripture text-base text-foreground/60 italic leading-relaxed">
                   "Então lhes abriu o entendimento para compreenderem as Escrituras."
                 </p>
-                <p className="text-[10px] text-muted-foreground font-ui mt-2">
+                <p className="text-xs text-muted-foreground font-ui mt-2">
                   — Lucas 24:45
                 </p>
                 <button
                   onClick={() => navigate("/leitor")}
-                  className="mt-5 flex items-center gap-2 mx-auto text-sm text-accent font-ui font-medium"
+                  className="mt-6 flex items-center gap-2 mx-auto text-base text-accent font-ui font-medium min-h-[44px]"
                 >
                   Começar a estudar
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </motion.div>
             )}
