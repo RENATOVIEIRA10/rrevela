@@ -91,26 +91,26 @@ const Home = () => {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease }}
-        className="flex items-center justify-between px-5 pb-3"
-        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.25rem)" }}
+        className="flex items-center justify-between px-5 pb-4"
+        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.5rem)" }}
       >
-        <div className="flex items-center gap-2.5">
-          <RevelaLogo size={22} color="hsl(var(--accent))" />
-          <span className="font-scripture text-base font-medium text-foreground/80">
+        <div className="flex items-center gap-3">
+          <RevelaLogo size={26} color="hsl(var(--accent))" />
+          <span className="font-scripture text-lg font-medium text-foreground/80">
             Revela
           </span>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-muted-foreground font-ui tabular-nums">
+          <span className="text-xs text-muted-foreground font-ui tabular-nums">
             {new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}
           </span>
           <button
             onClick={() => navigate("/perfil")}
-            className="w-8 h-8 rounded-full bg-primary/[0.06] flex items-center justify-center hover:bg-primary/[0.12] transition-colors"
+            className="w-10 h-10 rounded-full bg-primary/[0.06] flex items-center justify-center hover:bg-primary/[0.12] transition-colors"
             aria-label="Meu Perfil"
           >
-            <User className="w-4 h-4 text-primary/50" strokeWidth={1.5} />
+            <User className="w-5 h-5 text-primary/50" strokeWidth={1.5} />
           </button>
         </div>
       </motion.div>
