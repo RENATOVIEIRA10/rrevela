@@ -114,8 +114,8 @@ const VerseBody = ({
   targetVerse, onTargetVerseScrolled,
 }: VerseBodyProps) => {
   const isDesktop = variant === "desktop";
-  const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[2]";
-  const spacing = isDesktop ? "space-y-0" : "space-y-1.5";
+  const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[1.9]";
+  const spacing = isDesktop ? "space-y-1" : "space-y-4";
   const spinnerPy = isDesktop ? "py-20" : "py-16";
   const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
 
@@ -341,34 +341,34 @@ const Reader = () => {
       )}
 
       <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top-header contemplation-hide">
-        <div className="flex items-center justify-between px-4 py-2.5">
-          <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-1.5 py-1 text-foreground/90 active:opacity-70 transition-opacity">
-            <span className="font-scripture text-base font-medium truncate max-w-[140px]">{selectedBook}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/70" />
+        <div className="flex items-center justify-between px-4 py-3">
+          <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-2 py-1.5 text-foreground/90 active:opacity-70 transition-opacity">
+            <span className="font-scripture text-lg font-medium truncate max-w-[160px]">{selectedBook}</span>
+            <ChevronDown className="w-4 h-4 text-muted-foreground/70" />
           </button>
           <div className="flex items-center">
-            <button onClick={goToPrev} disabled={selectedChapter <= 1} className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronLeft className="w-4 h-4" /></button>
-            <span className="text-sm font-medium min-w-[2rem] text-center text-foreground/80 tabular-nums">{selectedChapter}</span>
-            <button onClick={goToNext} disabled={selectedChapter >= chapters} className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronRight className="w-4 h-4" /></button>
+            <button onClick={goToPrev} disabled={selectedChapter <= 1} className="p-2.5 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronLeft className="w-5 h-5" /></button>
+            <span className="text-base font-medium min-w-[2.5rem] text-center text-foreground/80 tabular-nums">{selectedChapter}</span>
+            <button onClick={goToNext} disabled={selectedChapter >= chapters} className="p-2.5 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronRight className="w-5 h-5" /></button>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <TranslationSelector value={translation} onChange={handleTranslationChange} />
-            <button onClick={openChapterNote} className="p-2 text-muted-foreground active:text-accent transition-colors" aria-label="Caderno">
-              <StickyNote className="w-4 h-4" />
+            <button onClick={openChapterNote} className="p-2.5 text-muted-foreground active:text-accent transition-colors" aria-label="Caderno">
+              <StickyNote className="w-5 h-5" />
             </button>
             <button
               onClick={contemplation.enter}
-              className="p-2 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
+              className="p-2.5 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
               aria-label="Modo contemplação"
             >
-              <EyeOff className="w-4 h-4" />
+              <EyeOff className="w-5 h-5" />
             </button>
           </div>
         </div>
         <div className="px-4 pb-2.5 relative">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
-            <Input placeholder="Buscar na Bíblia..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 pr-8 bg-secondary/30 border-0 text-sm h-9 rounded-xl placeholder:text-muted-foreground/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+            <Input placeholder="Buscar na Bíblia..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 pr-9 bg-secondary/30 border-0 text-base h-11 rounded-xl placeholder:text-muted-foreground/50" />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60">
                 <X className="w-3.5 h-3.5" />
@@ -389,10 +389,10 @@ const Reader = () => {
       {pinnedVerse && <PinnedVerseCard pinned={pinnedVerse} onGoTo={handleGoToPinned} onUnpin={unpinVerse} />}
 
       <ScrollArea className="flex-1">
-        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-6 py-8" {...swipeHandlers}>
-          <header className="mb-8 text-center">
-            <h2 className="font-scripture text-xl font-normal text-foreground/85">{selectedBook}</h2>
-            <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">{selectedChapter}</p>
+        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-5 sm:px-8 py-10 max-w-[680px] mx-auto" {...swipeHandlers}>
+          <header className="mb-10 text-center">
+            <h2 className="font-scripture text-2xl font-normal text-foreground/85">{selectedBook}</h2>
+            <p className="font-scripture text-5xl font-light text-accent/50 mt-1">{selectedChapter}</p>
           </header>
 
           <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} isSelected={(n) => selectedVerses.some((v) => v.number === n)} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
