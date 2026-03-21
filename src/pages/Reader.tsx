@@ -347,9 +347,9 @@ const Reader = () => {
             <ChevronDown className="w-4 h-4 text-muted-foreground/70" />
           </button>
           <div className="flex items-center">
-            <button onClick={goToPrev} disabled={selectedChapter <= 1} className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronLeft className="w-4 h-4" /></button>
-            <span className="text-sm font-medium min-w-[2rem] text-center text-foreground/80 tabular-nums">{selectedChapter}</span>
-            <button onClick={goToNext} disabled={selectedChapter >= chapters} className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronRight className="w-4 h-4" /></button>
+            <button onClick={goToPrev} disabled={selectedChapter <= 1} className="p-2.5 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronLeft className="w-5 h-5" /></button>
+            <span className="text-base font-medium min-w-[2.5rem] text-center text-foreground/80 tabular-nums">{selectedChapter}</span>
+            <button onClick={goToNext} disabled={selectedChapter >= chapters} className="p-2.5 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronRight className="w-5 h-5" /></button>
           </div>
           <div className="flex items-center gap-1">
             <TranslationSelector value={translation} onChange={handleTranslationChange} />
