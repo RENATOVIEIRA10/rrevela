@@ -312,13 +312,13 @@ const EmptyState = () => (
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.1 }}
-    className="text-center py-16 space-y-3"
+    className="text-center py-20 space-y-4"
   >
-    <div className="w-12 h-12 mx-auto rounded-full bg-accent/8 flex items-center justify-center">
-      <BookMarked className="w-5 h-5 text-accent/60" />
+    <div className="w-14 h-14 mx-auto rounded-full bg-accent/8 flex items-center justify-center">
+      <BookMarked className="w-6 h-6 text-accent/60" />
     </div>
-    <p className="text-sm text-foreground font-medium">Nenhum estudo registrado ainda</p>
-    <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+    <p className="text-base text-foreground font-medium">Nenhum estudo registrado ainda</p>
+    <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
       Comece a estudar no Leitor — marque textos, anote observações — e sua jornada será registrada aqui.
     </p>
   </motion.div>
