@@ -117,21 +117,21 @@ const VersePanel = ({
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="max-h-[82vh] bg-card border-t border-border/50 rounded-t-3xl">
+      <DrawerContent className="max-h-[85vh] bg-card border-t border-border/50 rounded-t-3xl">
         <div className="w-10 h-1 bg-border/60 rounded-full mx-auto mt-3 mb-1" />
-        <DrawerHeader className="text-left pb-3 pt-2 px-6">
-          <DrawerTitle className="font-scripture text-base font-medium text-foreground/90">
+        <DrawerHeader className="text-left pb-4 pt-2 px-6">
+          <DrawerTitle className="font-scripture text-lg font-medium text-foreground/90">
             {reference}
           </DrawerTitle>
           {isMulti && (
-            <p className="text-[10px] text-accent font-ui mt-0.5">
+            <p className="text-xs text-accent font-ui mt-1">
               {verses.length} versículos selecionados — toque em mais versículos para expandir
             </p>
           )}
-          <DrawerDescription className="font-scripture text-[0.9375rem] text-foreground/75 italic leading-relaxed mt-1.5 max-h-32 overflow-y-auto">
+          <DrawerDescription className="font-scripture text-base text-foreground/75 italic leading-relaxed mt-2 max-h-36 overflow-y-auto">
             {verses.map((v, i) => (
               <span key={v.number}>
-                <sup className="text-accent/60 text-[0.625rem] mr-0.5">{v.number}</sup>
+                <sup className="text-accent/50 text-[0.6875rem] mr-1">{v.number}</sup>
                 {v.text}
                 {i < verses.length - 1 ? " " : ""}
               </span>
