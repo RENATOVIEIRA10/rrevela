@@ -164,18 +164,18 @@ const Home = () => {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={handleRevealVerse}
-                        className="flex items-center gap-1 text-xs font-ui font-medium transition-colors"
+                        className="flex items-center gap-1.5 text-sm font-ui font-medium transition-colors min-h-[44px]"
                         style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
                       >
-                        <Sparkles className="w-3 h-3" />
+                        <Sparkles className="w-4 h-4" />
                         Revelar
                       </button>
                       <button
                         onClick={handleReadContext}
-                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
+                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition-colors font-ui min-h-[44px]"
                       >
                         Ler contexto
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
