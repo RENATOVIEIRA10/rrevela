@@ -347,14 +347,14 @@ const SectionCard = ({
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
-    className="space-y-3"
+    className="space-y-4"
   >
-    <div className="flex items-center gap-2.5 text-accent/70 px-1">
+    <div className="flex items-center gap-3 text-accent/70 px-1">
       {icon}
-      <h3 className="text-[10px] uppercase tracking-[0.2em] font-medium">{title}</h3>
+      <h3 className="text-xs uppercase tracking-[0.2em] font-medium">{title}</h3>
       <div className="flex-1 editorial-divider" />
     </div>
-    <div className="bg-card rounded-xl p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+    <div className="bg-card rounded-xl p-6" style={{ boxShadow: "var(--shadow-card)" }}>
       {children}
     </div>
   </motion.div>

@@ -127,9 +127,9 @@ const Devocional = () => {
                     const era = ERA_LABELS[eraKey] || { label: eraKey, emoji: "📖" };
                     return (
                       <div key={eraKey} className="space-y-3">
-                        <div className="flex items-center gap-2.5 px-1">
-                          <span className="text-sm">{era.emoji}</span>
-                          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                        <div className="flex items-center gap-3 px-1">
+                          <span className="text-base">{era.emoji}</span>
+                          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
                             {era.label}
                           </span>
                           <div className="flex-1 editorial-divider" />
