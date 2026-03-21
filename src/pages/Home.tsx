@@ -137,7 +137,7 @@ const Home = () => {
               />
 
               <p
-                className="text-[9px] uppercase tracking-[0.3em] font-ui font-medium mb-3"
+                className="text-[10px] uppercase tracking-[0.3em] font-ui font-medium mb-4"
                 style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
               >
                 Palavra do dia
