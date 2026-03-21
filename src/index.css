@@ -289,7 +289,7 @@
 
 @layer utilities {
   .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.75rem);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
   }
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
