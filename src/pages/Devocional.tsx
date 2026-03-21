@@ -93,16 +93,16 @@ const Devocional = () => {
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="px-5 py-6 max-w-2xl mx-auto w-full space-y-6 pb-10">
+        <div className="px-5 py-7 max-w-2xl mx-auto w-full space-y-7 pb-12">
           {/* Quick Devotional CTA */}
           <motion.button
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => setQuickOpen(true)}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 rounded-xl bg-accent/[0.04] border border-accent/15 text-accent hover:bg-accent/[0.08] transition-all duration-200"
+            className="w-full flex items-center justify-center gap-3 px-5 h-14 rounded-xl bg-accent/[0.04] border border-accent/15 text-accent hover:bg-accent/[0.08] transition-all duration-200"
           >
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium tracking-wide">Devocional Rápido · 3 min</span>
+            <Sparkles className="w-5 h-5" />
+            <span className="text-base font-medium tracking-wide">Devocional Rápido · 3 min</span>
           </motion.button>
 
           {loading ? (
