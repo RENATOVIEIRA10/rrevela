@@ -40,7 +40,7 @@ const AppLayout = () => {
       </main>
 
       <nav className="border-t border-border/50 bg-card/95 backdrop-blur-md safe-bottom">
-        <div className="flex items-center justify-around max-w-lg mx-auto px-1 py-1">
+        <div className="flex items-center justify-around max-w-lg mx-auto px-1 h-[70px]">
 
           {/* 5 tabs principais */}
           {TABS.map((tab) => {
