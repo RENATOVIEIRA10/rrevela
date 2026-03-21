@@ -63,9 +63,10 @@ export function useReaderState() {
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
-  const [translation, setTranslation] = useState<TranslationKey>(
-    () => (localStorage.getItem("revela-translation") as TranslationKey) || "arc"
-  );
+  const [translation, setTranslation] = useState<TranslationKey>(() => {
+    const saved = localStorage.getItem("revela-translation") as TranslationKey;
+    return saved === "livre" || !saved ? "arc" : saved;
+  });
   const [fontSize, setFontSize] = useState(
     () => localStorage.getItem("revela-font-size") || "md"
   );

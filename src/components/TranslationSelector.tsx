@@ -4,7 +4,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 const TRANSLATIONS = [
   { value: "arc", label: "ARC", fullName: "Almeida Revista e Corrigida" },
   { value: "tb", label: "TB", fullName: "Tradução Brasileira 1917" },
-  { value: "livre", label: "Livre", fullName: "Bíblia Livre (CC BY 4.0)" },
 ] as const;
 
 export type TranslationKey = (typeof TRANSLATIONS)[number]["value"];
