@@ -299,11 +299,11 @@ const MinhaJornada = () => {
 };
 
 const Header = () => (
-  <div className="bg-card/80 backdrop-blur-sm px-5 pb-4 safe-top-header">
-    <h1 className="font-scripture text-lg font-semibold text-foreground text-center tracking-wide">
+  <div className="bg-card/80 backdrop-blur-sm px-5 pb-5 safe-top-header">
+    <h1 className="font-scripture text-xl font-semibold text-foreground text-center tracking-wide">
       Minha Jornada
     </h1>
-    <div className="editorial-divider mt-3" />
+    <div className="editorial-divider mt-4" />
   </div>
 );
 
