@@ -351,17 +351,17 @@ const Reader = () => {
             <span className="text-base font-medium min-w-[2.5rem] text-center text-foreground/80 tabular-nums">{selectedChapter}</span>
             <button onClick={goToNext} disabled={selectedChapter >= chapters} className="p-2.5 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronRight className="w-5 h-5" /></button>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <TranslationSelector value={translation} onChange={handleTranslationChange} />
-            <button onClick={openChapterNote} className="p-2 text-muted-foreground active:text-accent transition-colors" aria-label="Caderno">
-              <StickyNote className="w-4 h-4" />
+            <button onClick={openChapterNote} className="p-2.5 text-muted-foreground active:text-accent transition-colors" aria-label="Caderno">
+              <StickyNote className="w-5 h-5" />
             </button>
             <button
               onClick={contemplation.enter}
-              className="p-2 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
+              className="p-2.5 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
               aria-label="Modo contemplação"
             >
-              <EyeOff className="w-4 h-4" />
+              <EyeOff className="w-5 h-5" />
             </button>
           </div>
         </div>
