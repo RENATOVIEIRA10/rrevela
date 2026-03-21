@@ -367,8 +367,8 @@ const Reader = () => {
         </div>
         <div className="px-4 pb-2.5 relative">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
-            <Input placeholder="Buscar na Bíblia..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 pr-8 bg-secondary/30 border-0 text-sm h-9 rounded-xl placeholder:text-muted-foreground/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+            <Input placeholder="Buscar na Bíblia..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 pr-9 bg-secondary/30 border-0 text-base h-11 rounded-xl placeholder:text-muted-foreground/50" />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60">
                 <X className="w-3.5 h-3.5" />
