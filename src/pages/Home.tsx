@@ -156,7 +156,7 @@ const Home = () => {
                   </blockquote>
                   <div className="flex items-center justify-between">
                     <cite
-                      className="not-italic text-xs font-ui font-medium"
+                      className="not-italic text-sm font-ui font-medium"
                       style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
                     >
                       {verse.book} {verse.chapter}:{verse.verse}
