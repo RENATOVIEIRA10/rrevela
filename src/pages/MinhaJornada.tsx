@@ -47,7 +47,7 @@ const MinhaJornada = () => {
       <Header />
 
       <ScrollArea className="flex-1">
-        <div className="px-5 py-6 max-w-2xl mx-auto w-full space-y-7 pb-10">
+        <div className="px-5 py-7 max-w-2xl mx-auto w-full space-y-8 pb-12">
           {/* Intro */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
