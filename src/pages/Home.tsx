@@ -239,21 +239,21 @@ const Home = () => {
           >
             <button
               onClick={() => navigate("/pro")}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-accent/25 bg-accent/5 text-left active:scale-[0.98] transition-transform"
+              className="w-full flex items-center gap-4 p-5 rounded-xl border border-accent/25 bg-accent/5 text-left active:scale-[0.98] transition-transform"
             >
-              <div className="w-9 h-9 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
-                <MessageCircle className="w-4 h-4 text-accent" />
+              <div className="w-11 h-11 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
+                <MessageCircle className="w-5 h-5 text-accent" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-xs font-semibold text-accent font-ui">Revela Pro</p>
-                  <span className="text-[9px] bg-accent/15 text-accent font-ui font-semibold px-1.5 py-0.5 rounded-full">NOVO</span>
+                  <p className="text-sm font-semibold text-accent font-ui">Revela Pro</p>
+                  <span className="text-[10px] bg-accent/15 text-accent font-ui font-semibold px-2 py-0.5 rounded-full">NOVO</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-ui">
+                <p className="text-xs text-muted-foreground mt-1 font-ui">
                   Bíblia e planos de leitura direto no WhatsApp
                 </p>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-accent/50 shrink-0" />
+              <ArrowRight className="w-4 h-4 text-accent/50 shrink-0" />
             </button>
           </motion.div>
 
