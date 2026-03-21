@@ -139,38 +139,38 @@ const VersePanel = ({
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="px-6 pb-8 space-y-5 overflow-y-auto">
+        <div className="px-6 pb-10 space-y-6 overflow-y-auto">
           {/* ── Ações principais ─────────────────────────────── */}
           <div className="flex items-center justify-between">
             <motion.button
               whileTap={{ scale: 0.94 }}
               onClick={onToggleMark}
               className={[
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 font-ui",
+                "flex items-center gap-2.5 px-5 h-12 rounded-xl text-[0.9375rem] transition-all duration-200 font-ui",
                 isMarked
                   ? "bg-accent/10 text-accent border border-accent/25 font-medium"
                   : "bg-secondary/40 text-foreground/60 border border-transparent hover:bg-secondary/60",
               ].join(" ")}
             >
               <Bookmark
-                className={`w-4 h-4 transition-all duration-200 ${
+                className={`w-5 h-5 transition-all duration-200 ${
                   isMarked ? "fill-current" : ""
                 }`}
               />
               {isMarked ? "Marcado" : "Marcar"}
             </motion.button>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
               {onToggleFavorite && (
                 <button
                   onClick={onToggleFavorite}
-                  className={`flex items-center gap-1.5 text-xs transition-colors font-ui ${
+                  className={`flex items-center gap-2 text-sm transition-colors font-ui min-h-[44px] ${
                     isFavorite
                       ? "text-accent"
                       : "text-muted-foreground hover:text-accent"
                   }`}
                 >
-                  <Heart className={`w-3.5 h-3.5 ${isFavorite ? "fill-current" : ""}`} />
+                  <Heart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
                   {isFavorite ? "Favorito" : "Favoritar"}
                 </button>
               )}
@@ -178,9 +178,9 @@ const VersePanel = ({
               {onPinVerse && (
                 <button
                   onClick={onPinVerse}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors font-ui min-h-[44px]"
                 >
-                  <Pin className="w-3.5 h-3.5" />
+                  <Pin className="w-5 h-5" />
                   Fixar
                 </button>
               )}
@@ -188,9 +188,9 @@ const VersePanel = ({
               {onOpenNote && (
                 <button
                   onClick={handleOpenStudy}
-                  className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors font-ui font-medium"
+                  className="flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors font-ui font-medium min-h-[44px]"
                 >
-                  <BookOpen className="w-3.5 h-3.5" />
+                  <BookOpen className="w-5 h-5" />
                   Estudar
                 </button>
               )}
