@@ -217,7 +217,7 @@ export function useVerseOfDay() {
         .eq("book", pick.book)
         .eq("chapter", pick.chapter)
         .eq("verse", pick.verse)
-        .eq("translation", "acf")
+        .eq("translation", "arc")
         .single();
 
       if (!error && data) {

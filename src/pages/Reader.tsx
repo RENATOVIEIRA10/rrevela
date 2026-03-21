@@ -7,7 +7,7 @@
  * - getHighlightClass usa highlight-marked (classe única) em vez das 5 cores
  * - hasHighlight ainda funciona para o indicador lateral
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft, ChevronRight, StickyNote, ChevronDown,
@@ -35,6 +35,7 @@ import { useChapterSwipe } from "@/hooks/useChapterSwipe";
 import { useContemplation } from "@/hooks/useContemplation";
 import { useComfortableReading } from "@/hooks/useComfortableReading";
 import ContemplationButton from "@/components/ContemplationButton";
+import FloatingVerseBar from "@/components/FloatingVerseBar";
 
 // ─── SearchResults ────────────────────────────────────────────
 interface SearchResultsProps {
@@ -98,6 +99,7 @@ interface VerseBodyProps {
   error: string | null;
   fontSizeClass: string;
   isMarked: (n: number) => boolean;
+  isSelected?: (n: number) => boolean;
   onVerseClick: (v: { number: number; text: string }) => void;
   pinnedVerse?: ReturnType<typeof useReaderState>["pinnedVerse"];
   selectedBook: string;
@@ -109,13 +111,13 @@ interface VerseBodyProps {
 }
 
 const VerseBody = ({
-  verses, loading, error, fontSizeClass, isMarked,
+  verses, loading, error, fontSizeClass, isMarked, isSelected,
   onVerseClick, pinnedVerse, selectedBook, selectedChapter, variant,
   targetVerse, onTargetVerseScrolled, comfortableReading,
 }: VerseBodyProps) => {
   const isDesktop = variant === "desktop";
-  const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[2]";
-  const spacing = isDesktop ? "space-y-0" : "space-y-1.5";
+  const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[1.9]";
+  const spacing = isDesktop ? "space-y-1" : "space-y-4";
   const spinnerPy = isDesktop ? "py-20" : "py-16";
   const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
 
@@ -151,6 +153,7 @@ const VerseBody = ({
     <div className={[spacing, comfortableReading ? "comfortable-verses" : ""].join(" ")}>
       {verses.map((verse) => {
         const marked = isMarked(verse.number);
+        const selected = isSelected?.(verse.number) ?? false;
         const isPinned = isDesktop &&
           pinnedVerse?.verse === verse.number &&
           pinnedVerse?.book === selectedBook &&
@@ -170,6 +173,7 @@ const VerseBody = ({
               marked && !isDesktop ? "has-highlight" : "",
               isPinned ? "bg-accent/5 -mx-3 px-3 rounded" : "",
               highlightedVerse === verse.number ? "verse-target-highlight" : "",
+              selected ? "bg-accent/10 -mx-1 px-1 rounded-md ring-1 ring-accent/30" : "",
             ].join(" ")}
             onClick={() => onVerseClick(verse)}
           >
@@ -192,7 +196,9 @@ const Reader = () => {
     chapters, goToPrev, goToNext, handleGoToPinned, handleNavigateToRef,
     searchQuery, setSearchQuery, searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
-    selectedVerse, setSelectedVerse, handleVerseOpen, handlePinVerse,
+    selectedVerses, setSelectedVerses,
+    versePanelOpen, openVersePanel, closeVersePanel, clearSelection,
+    handleVerseOpen, handlePinVerse,
     verses, loading, error, translation, handleTranslationChange, fontSizeClass,
     // Novo: isMarked + toggleMark em vez de getHighlightClass / setHighlight
     isMarked, toggleMark,
@@ -206,10 +212,20 @@ const Reader = () => {
     depth, setDepth, bookPickerOpen, setBookPickerOpen,
   } = state;
 
+  // Format reference for floating bar
+  const selectionReference = useMemo(() => {
+    if (selectedVerses.length === 0) return "";
+    if (selectedVerses.length === 1) return `${selectedBook} ${selectedChapter}:${selectedVerses[0].number}`;
+    const nums = selectedVerses.map((v) => v.number);
+    const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+    if (isConsecutive) return `${selectedBook} ${selectedChapter}:${nums[0]}-${nums[nums.length - 1]}`;
+    return `${selectedBook} ${selectedChapter}:${nums.join(",")}`;
+  }, [selectedBook, selectedChapter, selectedVerses]);
+
   const swipeHandlers = useChapterSwipe({
     onPrev: goToPrev,
     onNext: goToNext,
-    disabled: !!(selectedVerse || noteSheetOpen || bookPickerOpen),
+    disabled: !!(versePanelOpen || noteSheetOpen || bookPickerOpen),
   });
   const contemplation = useContemplation();
   const comfortable = useComfortableReading();
@@ -293,17 +309,31 @@ const Reader = () => {
           )}
         </AnimatePresence>
 
-        {selectedVerse && (
+        <AnimatePresence>
+          {selectedVerses.length > 0 && !versePanelOpen && (
+            <FloatingVerseBar
+              count={selectedVerses.length}
+              reference={selectionReference}
+              isMarked={selectedVerses.every((v) => isMarked(v.number))}
+              onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+              onReveal={openVersePanel}
+              onExpand={openVersePanel}
+              onClear={clearSelection}
+            />
+          )}
+        </AnimatePresence>
+
+        {versePanelOpen && selectedVerses.length > 0 && (
           <VersePanel
-            open={!!selectedVerse} onClose={() => setSelectedVerse(null)}
+            open={versePanelOpen} onClose={closeVersePanel}
             book={selectedBook} chapter={selectedChapter}
-            verseNumber={selectedVerse.number} verseText={selectedVerse.text}
-            isMarked={isMarked(selectedVerse.number)}
-            onToggleMark={() => toggleMark(selectedVerse.number)}
-            onOpenNote={(aiRev) => openVerseNote(selectedVerse.number, selectedVerse.text, aiRev)}
+            verses={selectedVerses}
+            isMarked={isMarked(selectedVerses[0].number)}
+            onToggleMark={() => toggleMark(selectedVerses[0].number)}
+            onOpenNote={(aiRev) => openVerseNote(selectedVerses[0].number, selectedVerses[0].text, aiRev)}
             onPinVerse={handlePinVerse} onNavigateToRef={handleNavigateToRef}
-            isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerse.number)}
-            onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerse.number, translation)}
+            isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerses[0].number)}
+            onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerses[0].number, translation)}
           />
         )}
       </div>
@@ -321,20 +351,20 @@ const Reader = () => {
       )}
 
       <header className="border-b border-border/50 bg-background/98 backdrop-blur-md safe-top-header contemplation-hide">
-        <div className="flex items-center justify-between px-4 py-2.5">
-          <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-1.5 py-1 text-foreground/90 active:opacity-70 transition-opacity">
-            <span className="font-scripture text-base font-medium truncate max-w-[140px]">{selectedBook}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/70" />
+        <div className="flex items-center justify-between px-4 py-3">
+          <button onClick={() => setBookPickerOpen(true)} className="flex items-center gap-2 py-1.5 text-foreground/90 active:opacity-70 transition-opacity">
+            <span className="font-scripture text-lg font-medium truncate max-w-[160px]">{selectedBook}</span>
+            <ChevronDown className="w-4 h-4 text-muted-foreground/70" />
           </button>
           <div className="flex items-center">
-            <button onClick={goToPrev} disabled={selectedChapter <= 1} className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronLeft className="w-4 h-4" /></button>
-            <span className="text-sm font-medium min-w-[2rem] text-center text-foreground/80 tabular-nums">{selectedChapter}</span>
-            <button onClick={goToNext} disabled={selectedChapter >= chapters} className="p-2 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronRight className="w-4 h-4" /></button>
+            <button onClick={goToPrev} disabled={selectedChapter <= 1} className="p-2.5 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronLeft className="w-5 h-5" /></button>
+            <span className="text-base font-medium min-w-[2.5rem] text-center text-foreground/80 tabular-nums">{selectedChapter}</span>
+            <button onClick={goToNext} disabled={selectedChapter >= chapters} className="p-2.5 text-muted-foreground active:text-foreground transition-colors disabled:opacity-25"><ChevronRight className="w-5 h-5" /></button>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <TranslationSelector value={translation} onChange={handleTranslationChange} />
-            <button onClick={openChapterNote} className="p-2 text-muted-foreground active:text-accent transition-colors" aria-label="Caderno">
-              <StickyNote className="w-4 h-4" />
+            <button onClick={openChapterNote} className="p-2.5 text-muted-foreground active:text-accent transition-colors" aria-label="Caderno">
+              <StickyNote className="w-5 h-5" />
             </button>
             <button
               onClick={comfortable.toggle}
@@ -345,17 +375,17 @@ const Reader = () => {
             </button>
             <button
               onClick={contemplation.enter}
-              className="p-2 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
+              className="p-2.5 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
               aria-label="Modo contemplação"
             >
-              <EyeOff className="w-4 h-4" />
+              <EyeOff className="w-5 h-5" />
             </button>
           </div>
         </div>
         <div className={`px-4 pb-2.5 relative comfortable-hide`}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
-            <Input placeholder="Buscar na Bíblia..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 pr-8 bg-secondary/30 border-0 text-sm h-9 rounded-xl placeholder:text-muted-foreground/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+            <Input placeholder="Buscar na Bíblia..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 pr-9 bg-secondary/30 border-0 text-base h-11 rounded-xl placeholder:text-muted-foreground/50" />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60">
                 <X className="w-3.5 h-3.5" />
@@ -400,17 +430,31 @@ const Reader = () => {
         </motion.article>
       </ScrollArea>
 
-      {selectedVerse && (
+      <AnimatePresence>
+        {selectedVerses.length > 0 && !versePanelOpen && (
+          <FloatingVerseBar
+            count={selectedVerses.length}
+            reference={selectionReference}
+            isMarked={selectedVerses.every((v) => isMarked(v.number))}
+            onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+            onReveal={openVersePanel}
+            onExpand={openVersePanel}
+            onClear={clearSelection}
+          />
+        )}
+      </AnimatePresence>
+
+      {versePanelOpen && selectedVerses.length > 0 && (
         <VersePanel
-          open={!!selectedVerse} onClose={() => setSelectedVerse(null)}
+          open={versePanelOpen} onClose={closeVersePanel}
           book={selectedBook} chapter={selectedChapter}
-          verseNumber={selectedVerse.number} verseText={selectedVerse.text}
-          isMarked={isMarked(selectedVerse.number)}
-          onToggleMark={() => toggleMark(selectedVerse.number)}
-          onOpenNote={(aiRev) => openVerseNote(selectedVerse.number, selectedVerse.text, aiRev)}
+          verses={selectedVerses}
+          isMarked={isMarked(selectedVerses[0].number)}
+          onToggleMark={() => toggleMark(selectedVerses[0].number)}
+          onOpenNote={(aiRev) => openVerseNote(selectedVerses[0].number, selectedVerses[0].text, aiRev)}
           onPinVerse={handlePinVerse} onNavigateToRef={handleNavigateToRef}
-          isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerse.number)}
-          onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerse.number, translation)}
+          isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerses[0].number)}
+          onToggleFavorite={() => toggleFavorite(selectedBook, selectedChapter, selectedVerses[0].number, translation)}
         />
       )}
 

@@ -40,7 +40,7 @@ const AppLayout = () => {
       </main>
 
       <nav className="border-t border-border/50 bg-card/95 backdrop-blur-md safe-bottom">
-        <div className="flex items-center justify-around max-w-lg mx-auto px-1 py-1">
+        <div className="flex items-center justify-around max-w-lg mx-auto px-1 h-[70px]">
 
           {/* 5 tabs principais */}
           {TABS.map((tab) => {
@@ -49,7 +49,9 @@ const AppLayout = () => {
               <NavLink
                 key={tab.to}
                 to={tab.to}
-                className="flex flex-col items-center gap-0.5 py-2 px-1.5 min-w-0 flex-1 relative"
+                aria-label={tab.label}
+                aria-current={isActive ? "page" : undefined}
+                className="flex flex-col items-center gap-1 py-2.5 px-2 min-w-0 flex-1 relative"
               >
                 {isActive && (
                   <motion.div
@@ -59,13 +61,13 @@ const AppLayout = () => {
                   />
                 )}
                 <tab.icon
-                  className={`w-[18px] h-[18px] transition-colors duration-200 ${
+                  className={`w-[22px] h-[22px] transition-colors duration-200 ${
                     isActive ? "text-accent" : "text-muted-foreground/70"
                   }`}
                   strokeWidth={isActive ? 2 : 1.5}
                 />
                 <span
-                  className={`text-[8px] leading-tight tracking-wide transition-colors duration-200 truncate font-ui w-full text-center ${
+                  className={`text-[10px] leading-tight tracking-wide transition-colors duration-200 truncate font-ui w-full text-center ${
                     isActive ? "text-accent font-medium" : "text-muted-foreground/60"
                   }`}
                 >
@@ -75,10 +77,12 @@ const AppLayout = () => {
             );
           })}
 
-          {/* Perfil — ícone separado, sem label, no final */}
+          {/* Perfil — ícone separado, no final */}
           <NavLink
             to="/perfil"
-            className="flex flex-col items-center justify-center py-2 px-1.5 min-w-0 relative"
+            aria-label="Perfil"
+            aria-current={isPerfilActive ? "page" : undefined}
+            className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 min-w-0 relative"
           >
             {isPerfilActive && (
               <motion.div
@@ -88,13 +92,13 @@ const AppLayout = () => {
               />
             )}
             <User
-              className={`w-[18px] h-[18px] transition-colors duration-200 ${
+              className={`w-[22px] h-[22px] transition-colors duration-200 ${
                 isPerfilActive ? "text-accent" : "text-muted-foreground/70"
               }`}
               strokeWidth={isPerfilActive ? 2 : 1.5}
             />
             <span
-              className={`text-[8px] leading-tight font-ui ${
+              className={`text-[10px] leading-tight font-ui ${
                 isPerfilActive ? "text-accent font-medium" : "text-muted-foreground/60"
               }`}
             >

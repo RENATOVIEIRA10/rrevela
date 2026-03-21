@@ -57,7 +57,7 @@ export function useFavorites() {
   );
 
   const toggleFavorite = useCallback(
-    async (book: string, chapter: number, verse: number, translation = "acf") => {
+    async (book: string, chapter: number, verse: number, translation = "arc") => {
       if (!user) return;
       const existing = favorites.find(
         (f) => f.book === book && f.chapter === chapter && f.verse === verse

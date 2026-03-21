@@ -51,18 +51,20 @@ export function useReaderState() {
   const [searchResults, setSearchResults] = useState<BibleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [selectedVerse, setSelectedVerse] = useState<{ number: number; text: string } | null>(null);
+  const [selectedVerses, setSelectedVerses] = useState<{ number: number; text: string }[]>([]);
+  const [versePanelOpen, setVersePanelOpen] = useState(false);
   const [noteSheetOpen, setNoteSheetOpen] = useState(false);
   const [noteVerse, setNoteVerse] = useState<number | undefined>(undefined);
   const [noteVerseText, setNoteVerseText] = useState<string | undefined>(undefined);
   const [noteAiRevelation, setNoteAiRevelation] = useState<string | undefined>(undefined);
   const [depth, setDepth] = useState<DepthLevel>("essencial");
+  const [targetVerse, setTargetVerse] = useState<number | null>(null);
   const [bookPickerOpen, setBookPickerOpen] = useState(false);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
   const [translation, setTranslation] = useState<TranslationKey>(
-    () => (localStorage.getItem("revela-translation") as TranslationKey) || "acf"
+    () => (localStorage.getItem("revela-translation") as TranslationKey) || "arc"
   );
   const [fontSize, setFontSize] = useState(
     () => localStorage.getItem("revela-font-size") || "md"
@@ -153,19 +155,43 @@ export function useReaderState() {
   const handleNavigateToRef = useCallback((refBook: string, refChapter: number) => {
     setSelectedBook(refBook);
     setSelectedChapter(refChapter);
-    setSelectedVerse(null);
+    setSelectedVerses([]);
   }, []);
 
   const handleVerseOpen = useCallback((verse: { number: number; text: string }) => {
-    setSelectedVerse(verse);
+    // Haptic feedback on mobile (short vibration)
+    if (navigator.vibrate) navigator.vibrate(15);
+    setSelectedVerses((prev) => {
+      const exists = prev.find((v) => v.number === verse.number);
+      if (exists) {
+        const next = prev.filter((v) => v.number !== verse.number);
+        if (next.length === 0) setVersePanelOpen(false);
+        return next;
+      }
+      return [...prev, verse].sort((a, b) => a.number - b.number);
+    });
     track("verse_opened", { book: selectedBook, chapter: selectedChapter, verse: verse.number });
   }, [selectedBook, selectedChapter, track]);
 
+  const openVersePanel = useCallback(() => {
+    if (selectedVerses.length > 0) setVersePanelOpen(true);
+  }, [selectedVerses.length]);
+
+  const closeVersePanel = useCallback(() => {
+    setVersePanelOpen(false);
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedVerses([]);
+    setVersePanelOpen(false);
+  }, []);
+
   const handlePinVerse = useCallback(() => {
-    if (!selectedVerse) return;
-    pinVerse({ translation, book: selectedBook, chapter: selectedChapter, verse: selectedVerse.number, text: selectedVerse.text });
-    setSelectedVerse(null);
-  }, [selectedVerse, translation, selectedBook, selectedChapter, pinVerse]);
+    if (selectedVerses.length === 0) return;
+    const first = selectedVerses[0];
+    pinVerse({ translation, book: selectedBook, chapter: selectedChapter, verse: first.number, text: first.text });
+    setSelectedVerses([]);
+  }, [selectedVerses, translation, selectedBook, selectedChapter, pinVerse]);
 
   const openVerseNote = useCallback((verseNum: number, verseText?: string, aiRevelation?: string) => {
     setNoteVerseText(verseText);
@@ -173,7 +199,7 @@ export function useReaderState() {
     if (isMobile) {
       setNoteVerse(verseNum);
       setNoteSheetOpen(true);
-      setSelectedVerse(null);
+      setSelectedVerses([]);
     } else {
       setDesktopNoteVerse(verseNum);
       setShowRightPanel(true);
@@ -213,7 +239,8 @@ export function useReaderState() {
     searchQuery, setSearchQuery,
     searchResults, searching, showSearchResults,
     navigateToSearchResult, highlightMatch,
-    selectedVerse, setSelectedVerse,
+    selectedVerses, setSelectedVerses,
+    versePanelOpen, openVersePanel, closeVersePanel, clearSelection,
     handleVerseOpen, handlePinVerse,
     verses, loading, error,
     translation, handleTranslationChange, fontSizeClass,

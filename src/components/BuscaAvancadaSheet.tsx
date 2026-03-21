@@ -83,7 +83,7 @@ const BuscaAvancadaSheet = ({ open, onOpenChange }: BuscaAvancadaSheetProps) => 
             .eq("book", h.book)
             .eq("chapter", h.chapter)
             .eq("verse", h.verse)
-            .eq("translation", "acf")
+            .eq("translation", "arc")
             .maybeSingle();
           return {
             book: h.book,
@@ -104,7 +104,7 @@ const BuscaAvancadaSheet = ({ open, onOpenChange }: BuscaAvancadaSheetProps) => 
     } else if (query.trim()) {
       const { data } = await supabase.rpc("search_bible", {
         search_query: query,
-        translation_filter: "acf",
+        translation_filter: "arc",
         result_limit: 100,
       });
       searchResults = ((data as SearchResult[]) ?? []).map((r) => ({

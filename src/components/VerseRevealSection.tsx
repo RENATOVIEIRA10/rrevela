@@ -41,13 +41,14 @@ interface VerseRevealSectionProps {
   book: string;
   chapter: number;
   verse: number;
+  verseEnd?: number;
   verseText: string;
   onNavigate?: (book: string, chapter: number, verse: number) => void;
   onRevealLoaded?: (text: string) => void;
 }
 
 const VerseRevealSection = ({
-  book, chapter, verse, verseText, onNavigate, onRevealLoaded,
+  book, chapter, verse, verseEnd, verseText, onNavigate, onRevealLoaded,
 }: VerseRevealSectionProps) => {
   const [data, setData] = useState<RevealData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -67,7 +68,7 @@ const VerseRevealSection = ({
 
     try {
       const { data: result, error } = await supabase.functions.invoke("verse-reveal", {
-        body: { book, chapter, verse, verseText },
+        body: { book, chapter, verse, verseEnd, verseText },
       });
       if (error) throw error;
       if (result?.error) {
@@ -96,10 +97,12 @@ const VerseRevealSection = ({
   };
 
   // Abre o Revela Agora já com o contexto do versículo pré-carregado
+  const verseLabel = verseEnd ? `${book} ${chapter}:${verse}-${verseEnd}` : `${book} ${chapter}:${verse}`;
+  
   const handleOpenInRevela = () => {
     navigate("/revela", {
       state: {
-        initialQuery: `Revelação bíblica de ${book} ${chapter}:${verse}`,
+        initialQuery: `Revelação bíblica de ${verseLabel}`,
         autoSearch: true,
       },
     });
@@ -125,7 +128,7 @@ const VerseRevealSection = ({
             <p className="text-sm font-medium text-foreground font-ui">
               {data
                 ? expanded ? "Ocultar revelação" : "Ver revelação"
-                : "Revelar este versículo"}
+                : verseEnd ? "Revelar estes versículos" : "Revelar este versículo"}
             </p>
             {!data && !loading && (
               <p className="text-[10px] text-muted-foreground">
@@ -245,7 +248,7 @@ const VerseRevealSection = ({
                             <ConfidenceBadge confidence={confidenceMap[ref.connection_type] || "leve"} />
                           </div>
                           {ref.text && (
-                            <p className="font-scripture text-xs text-foreground/75 italic">{ref.text}</p>
+                            <p className="accent-border font-scripture text-xs text-foreground/75 italic">{ref.text}</p>
                           )}
                           <p className="text-xs text-muted-foreground">{ref.explanation}</p>
                         </div>

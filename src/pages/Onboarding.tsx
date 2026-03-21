@@ -1,18 +1,7 @@
-/**
- * Onboarding.tsx
- *
- * MUDANÇAS NESTA VERSÃO:
- * - Verifica se o usuário já completou o onboarding E está logado.
- *   Se sim, redireciona direto para /leitor sem mostrar os slides.
- *   Isso resolve o problema de usuários logados que reinstalam o PWA
- *   e veem o onboarding desnecessariamente.
- * - Verifica também se o app foi aberto via start_url (/leitor) mas
- *   caiu aqui por algum redirect — redireciona corretamente.
- */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Lightbulb, PenLine, Share2, ChevronRight } from "lucide-react";
+import { BookOpen, Lightbulb, PenLine, Share2, MessageCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RevelaLogo from "@/components/RevelaLogo";
 import { markOnboardingComplete, hasCompletedOnboarding } from "@/lib/app-version";
@@ -45,6 +34,13 @@ const SLIDES = [
     title: "Compartilhe com facilidade",
     description: "Crie imagens bonitas dos versículos e estudos para compartilhar nas redes sociais.",
   },
+  {
+    icon: MessageCircle,
+    emoji: "💬",
+    title: "Revela Pro — a Bíblia no seu WhatsApp",
+    description: "Assine o Revela Pro e receba o versículo do dia, leia capítulos e siga planos de leitura direto pelo WhatsApp. Sem abrir o app.",
+    isPro: true,
+  },
 ];
 
 const Onboarding = () => {
@@ -54,25 +50,22 @@ const Onboarding = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      // Se já completou o onboarding, verifica se está logado
       if (hasCompletedOnboarding()) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Logado + onboarding completo → vai direto para /home
           navigate("/home", { replace: true });
           return;
         }
-        // Onboarding completo mas não logado → vai para auth
         navigate("/auth", { replace: true });
         return;
       }
-      // Primeira vez → mostra os slides
       setChecking(false);
     };
     checkSession();
   }, [navigate]);
 
   const isLastSlide = step === SLIDES.length - 1;
+  const slide = SLIDES[step];
 
   const handleNext = () => {
     if (isLastSlide) {
@@ -88,16 +81,12 @@ const Onboarding = () => {
     navigate("/auth");
   };
 
-  // Enquanto verifica a sessão, mostra fundo limpo (sem flash)
   if (checking) {
     return <div className="min-h-screen bg-background" />;
   }
 
-  const slide = SLIDES[step];
-
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Top accent line */}
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
@@ -105,7 +94,6 @@ const Onboarding = () => {
         className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent"
       />
 
-      {/* Skip button */}
       {!isLastSlide && (
         <motion.button
           initial={{ opacity: 0 }}
@@ -118,9 +106,7 @@ const Onboarding = () => {
         </motion.button>
       )}
 
-      {/* Content area */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8">
-        {/* Logo (only first slide) */}
         <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.div
@@ -136,7 +122,6 @@ const Onboarding = () => {
           )}
         </AnimatePresence>
 
-        {/* Slide content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -147,53 +132,72 @@ const Onboarding = () => {
             className="max-w-sm w-full text-center space-y-6"
           >
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-2xl bg-accent/8 border border-accent/10 flex items-center justify-center">
+              <div className={`w-20 h-20 rounded-2xl border flex items-center justify-center ${
+                slide.isPro
+                  ? "bg-accent/15 border-accent/30"
+                  : "bg-accent/8 border-accent/10"
+              }`}>
                 <span className="text-4xl">{slide.emoji}</span>
               </div>
             </div>
+
             <div className="space-y-3">
-              <h2 className="font-scripture text-xl font-semibold text-foreground leading-snug">
+              <h2 className={`font-scripture text-xl font-semibold leading-snug ${
+                slide.isPro ? "text-accent" : "text-foreground"
+              }`}>
                 {slide.title}
               </h2>
               <p className="text-sm text-muted-foreground font-ui leading-relaxed max-w-[280px] mx-auto">
                 {slide.description}
               </p>
+              {slide.isPro && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs font-ui font-medium text-accent">
+                  ✦ Recurso exclusivo Pro
+                </div>
+              )}
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Bottom navigation */}
       <div className="px-8 pb-10 space-y-6">
-        {/* Dots */}
         <div className="flex justify-center gap-2">
           {SLIDES.map((_, i) => (
             <motion.div
               key={i}
               animate={{ width: i === step ? 24 : 6, opacity: i === step ? 1 : 0.3 }}
               transition={{ duration: 0.3, ease }}
-              className="h-1.5 rounded-full bg-accent"
+              className={`h-1.5 rounded-full ${i === SLIDES.length - 1 ? "bg-accent" : "bg-accent"}`}
             />
           ))}
         </div>
 
-        {/* Button */}
-        <Button
-          onClick={handleNext}
-          size="lg"
-          className="w-full max-w-[320px] mx-auto flex font-scripture text-sm h-12 rounded-xl gap-2"
-        >
-          {isLastSlide ? (
-            "Começar a estudar"
-          ) : (
-            <>
-              Continuar
-              <ChevronRight className="w-4 h-4" />
-            </>
-          )}
-        </Button>
+        <div className="space-y-2.5 max-w-[320px] mx-auto w-full">
+          <Button
+            onClick={handleNext}
+            size="lg"
+            className="w-full flex font-scripture text-sm h-12 rounded-xl gap-2"
+          >
+            {isLastSlide ? (
+              "Começar gratuitamente"
+            ) : (
+              <>
+                Continuar
+                <ChevronRight className="w-4 h-4" />
+              </>
+            )}
+          </Button>
 
-        {/* Scripture quote on first slide */}
+          {isLastSlide && (
+            <button
+              onClick={() => { markOnboardingComplete(); navigate("/auth"); }}
+              className="w-full text-xs text-muted-foreground font-ui hover:text-foreground transition-colors py-1"
+            >
+              Já tenho conta — entrar
+            </button>
+          )}
+        </div>
+
         {step === 0 && (
           <motion.blockquote
             initial={{ opacity: 0 }}
@@ -201,7 +205,7 @@ const Onboarding = () => {
             transition={{ delay: 0.6, duration: 0.6 }}
             className="text-center pt-2"
           >
-            <p className="font-scripture text-xs leading-relaxed text-foreground/50 italic">
+            <p className="accent-border font-scripture text-xs leading-relaxed text-foreground/50 italic text-left">
               "Então lhes abriu o entendimento para compreenderem as Escrituras."
             </p>
             <cite className="block text-[0.6rem] text-muted-foreground/60 font-ui not-italic tracking-widest uppercase mt-1">

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,125 +6,119 @@
 
 @layer base {
   :root {
-    /* ── Paleta Premium: Papel, Couro, Revelação ─────────────
-     * Filosofia: Uma Bíblia de estudo aberta.
-     * Vellum quente para o fundo (papel bíblico),
-     * Burgundy profundo para autoridade e reverência,
-     * Gold sutil para momentos de revelação e descoberta.
-     * ────────────────────────────────────────────────────── */
+    /* ── Brand v2: Shared ─────────────────────────────────── */
+    --wine:        99 42 38;    /* #632A26 */
+    --wine-light:  139 61 56;   /* #8B3D38 */
+    --amber-raw:   #FDF2D0;
 
-    --background: 42 32% 96%;        /* #FAF8F4 Vellum quente */
-    --foreground: 220 10% 12%;       /* #1C1F22 Tinta rica */
+    /* ── Descoberta (light mode) ─────────────────────────── */
+    --background: 40 47% 97%;       /* #FAF8F3 Vellum */
+    --foreground: 216 8% 11%;       /* #1A1C1E Ink */
 
-    --card: 42 35% 97%;
-    --card-foreground: 220 10% 12%;
+    --card: 0 0% 100%;              /* #FFFFFF */
+    --card-foreground: 216 8% 11%;
 
-    --popover: 42 35% 98%;
-    --popover-foreground: 220 10% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 8% 11%;
 
-    --primary: 8 38% 24%;            /* #542A22 Couro Burgundy */
-    --primary-foreground: 42 32% 96%;
+    --primary: 4 42% 27%;           /* #632A26 Wine */
+    --primary-foreground: 40 47% 97%;
 
-    --secondary: 40 20% 94%;
-    --secondary-foreground: 220 10% 12%;
+    --secondary: 36 24% 93%;        /* #F2EDE3 */
+    --secondary-foreground: 216 8% 11%;
 
-    --muted: 40 15% 91%;
-    --muted-foreground: 220 8% 50%;
+    --muted: 36 24% 93%;
+    --muted-foreground: 204 5% 44%; /* #6B7175 */
 
-    --accent: 8 38% 28%;             /* Couro warm */
-    --accent-foreground: 42 32% 96%;
+    --accent: 4 42% 27%;
+    --accent-foreground: 40 47% 97%;
 
-    /* ── NOVO: Dourado de Revelação ──────────────────────────
-     * Usado em: luz de revelação, destaques especiais,
-     * momentos de descoberta bíblica, versículo do dia.
-     * Não é o acento principal — é um acento especial.
-     * ────────────────────────────────────────────────────── */
-    --gold: 43 52% 52%;              /* #C8A951 Dourado sutil */
-    --gold-foreground: 220 10% 12%;
-    --gold-light: 43 80% 88%;        /* Para backgrounds suaves */
+    /* ── Dourado de Revelação ──────────────────────────── */
+    --gold: 43 52% 52%;
+    --gold-foreground: 216 8% 11%;
+    --gold-light: 43 80% 88%;
 
     --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 18% 88%;
-    --input: 40 18% 88%;
-    --ring: 8 38% 28%;
+    --border: 36 18% 89%;           /* #E4DFD6 */
+    --input: 36 18% 89%;
+    --ring: 4 42% 27%;
 
-    --radius: 0.375rem;
+    --radius: 0.25rem;              /* 4px — autoridade tipográfica */
 
-    /* Marcação simplificada */
     --highlight-marked: 5 35% 78%;
 
     /* Sidebar */
-    --sidebar-background: 42 28% 97%;
-    --sidebar-foreground: 220 10% 12%;
-    --sidebar-primary: 8 38% 24%;
-    --sidebar-primary-foreground: 42 32% 96%;
-    --sidebar-accent: 40 20% 94%;
-    --sidebar-accent-foreground: 220 10% 12%;
-    --sidebar-border: 40 18% 90%;
-    --sidebar-ring: 8 38% 28%;
+    --sidebar-background: 40 47% 97%;
+    --sidebar-foreground: 216 8% 11%;
+    --sidebar-primary: 4 42% 27%;
+    --sidebar-primary-foreground: 40 47% 97%;
+    --sidebar-accent: 36 24% 93%;
+    --sidebar-accent-foreground: 216 8% 11%;
+    --sidebar-border: 36 18% 89%;
+    --sidebar-ring: 4 42% 27%;
 
     /* Tipografia */
     --font-scripture: 'Crimson Pro', Georgia, 'Times New Roman', serif;
-    --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
 
-    /* Sombras */
-    --shadow-soft: 0 1px 2px 0 hsl(220 10% 12% / 0.02);
-    --shadow-card: 0 2px 8px -2px hsl(220 10% 12% / 0.04), 0 1px 2px -1px hsl(220 10% 12% / 0.02);
-    --shadow-elevated: 0 8px 24px -8px hsl(220 10% 12% / 0.08), 0 4px 8px -4px hsl(220 10% 12% / 0.04);
-    --shadow-premium: 0 12px 40px -12px hsl(220 10% 12% / 0.1), 0 4px 12px -4px hsl(220 10% 12% / 0.05);
+    /* Sombras — leves, sem peso */
+    --shadow-soft: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.04);
+    --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.06);
+    --shadow-premium: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 
   .dark {
-    --background: 30 8% 8%;
-    --foreground: 38 18% 82%;
+    /* ── Contemplação (dark mode) ─────────────────────────── */
+    --background: 220 7% 8%;        /* #131416 */
+    --foreground: 36 14% 87%;       /* #EDE9E0 */
 
-    --card: 28 8% 11%;
-    --card-foreground: 38 18% 82%;
+    --card: 216 6% 11%;             /* #1A1C1E */
+    --card-foreground: 36 14% 87%;
 
-    --popover: 28 8% 12%;
-    --popover-foreground: 38 18% 82%;
+    --popover: 216 6% 11%;
+    --popover-foreground: 36 14% 87%;
 
-    --primary: 12 40% 58%;
-    --primary-foreground: 30 8% 8%;
+    --primary: 4 38% 55%;           /* #8B3D38 Wine-light */
+    --primary-foreground: 36 14% 87%;
 
-    --secondary: 28 6% 15%;
-    --secondary-foreground: 38 18% 82%;
+    --secondary: 210 6% 14%;        /* #222528 */
+    --secondary-foreground: 36 14% 87%;
 
-    --muted: 28 5% 18%;
-    --muted-foreground: 30 10% 52%;
+    --muted: 210 6% 14%;
+    --muted-foreground: 200 4% 50%; /* #7A8185 */
 
-    --accent: 12 40% 58%;
-    --accent-foreground: 30 8% 8%;
+    --accent: 4 38% 55%;
+    --accent-foreground: 36 14% 87%;
 
-    /* Dourado no dark — mais vivo */
     --gold: 43 65% 58%;
-    --gold-foreground: 30 8% 8%;
+    --gold-foreground: 220 7% 8%;
     --gold-light: 43 40% 22%;
 
     --destructive: 0 50% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 28 6% 18%;
-    --input: 28 6% 18%;
-    --ring: 12 40% 58%;
+    --border: 200 5% 20%;           /* #2E3235 */
+    --input: 200 5% 20%;
+    --ring: 4 38% 55%;
 
     --highlight-marked: 5 30% 38%;
 
-    --sidebar-background: 28 8% 9%;
-    --sidebar-foreground: 38 18% 82%;
-    --sidebar-primary: 12 40% 58%;
-    --sidebar-primary-foreground: 38 18% 82%;
-    --sidebar-accent: 28 6% 15%;
-    --sidebar-accent-foreground: 38 18% 82%;
-    --sidebar-border: 28 6% 18%;
-    --sidebar-ring: 12 40% 58%;
+    --sidebar-background: 220 7% 8%;
+    --sidebar-foreground: 36 14% 87%;
+    --sidebar-primary: 4 38% 55%;
+    --sidebar-primary-foreground: 36 14% 87%;
+    --sidebar-accent: 210 6% 14%;
+    --sidebar-accent-foreground: 36 14% 87%;
+    --sidebar-border: 200 5% 20%;
+    --sidebar-ring: 4 38% 55%;
 
-    --shadow-soft: 0 1px 2px 0 hsl(0 0% 0% / 0.1);
-    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.2), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-elevated: 0 8px 24px -8px hsl(0 0% 0% / 0.3), 0 4px 8px -4px hsl(0 0% 0% / 0.15);
-    --shadow-premium: 0 12px 40px -12px hsl(0 0% 0% / 0.4), 0 4px 12px -4px hsl(0 0% 0% / 0.2);
+    --shadow-soft: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.2);
+    --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --shadow-premium: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -134,35 +128,40 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-ui);
-    font-feature-settings: "cv11", "ss01";
+    font-size: 17px;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  h1, h2, h3, h4 {
+    font-family: var(--font-scripture);
+  }
+
   .font-scripture {
     font-family: var(--font-scripture);
-    font-size: 1.125rem;
-    line-height: 2;
+    font-size: 1.25rem;
+    line-height: 1.9;
     letter-spacing: 0.005em;
     font-weight: 400;
   }
 
   .font-scripture-lg {
     font-family: var(--font-scripture);
-    font-size: 1.3125rem;
-    line-height: 2.1;
+    font-size: 1.4375rem;
+    line-height: 2;
     letter-spacing: 0.005em;
     font-weight: 400;
   }
 
   @media (min-width: 768px) {
     .font-scripture {
-      font-size: 1.1875rem;
-      line-height: 2.15;
+      font-size: 1.3125rem;
+      line-height: 2;
     }
     .font-scripture-lg {
-      font-size: 1.375rem;
-      line-height: 2.2;
+      font-size: 1.5rem;
+      line-height: 2.1;
     }
   }
 
@@ -173,6 +172,19 @@
       hsl(var(--highlight-marked) / 0.35) 60%
     );
     border-radius: 1px;
+  }
+
+  /* ── Marca-texto âmbar (highlight bíblico) ─────────────── */
+  .highlight-amber {
+    background-color: #FDF2D0;
+    color: #1A1C1E;
+    padding: 0 3px;
+    border-radius: 2px;
+  }
+  .dark .highlight-amber {
+    background-color: rgba(253, 242, 208, 0.12);
+    color: hsl(var(--foreground));
+    border-bottom: 1px solid rgba(253, 242, 208, 0.4);
   }
 
   @media (max-width: 767px) {
@@ -194,19 +206,16 @@
     }
   }
 
-  /* ── Luz de Revelação ─────────────────────────────────────
-   * Linha dourada que aparece ao revelar um versículo.
-   * Aplicada via classe .revelation-light no VerseRevealSection.
-   * ────────────────────────────────────────────────────── */
+  /* ── Borda de acento (versículos, citações) ─────────────── */
+  .accent-border {
+    border-left: 2px solid rgb(var(--wine));
+    padding-left: 20px;
+  }
+
+  /* ── Luz de Revelação ─────────────────────────────────────  */
   @keyframes revelation-enter {
-    from {
-      opacity: 0;
-      transform: scaleX(0);
-    }
-    to {
-      opacity: 1;
-      transform: scaleX(1);
-    }
+    from { opacity: 0; transform: scaleX(0); }
+    to   { opacity: 1; transform: scaleX(1); }
   }
 
   .revelation-light {
@@ -217,9 +226,7 @@
   .revelation-light::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 2px;
     background: linear-gradient(
       90deg,
@@ -233,10 +240,7 @@
     opacity: 0.8;
   }
 
-  /* ── Modo Contemplação ────────────────────────────────────
-   * Aplicado no <body> via classe .contemplation-mode.
-   * Esconde toda a UI exceto o texto da Escritura.
-   * ────────────────────────────────────────────────────── */
+  /* ── Modo Contemplação ────────────────────────────────────  */
   .contemplation-mode header,
   .contemplation-mode nav,
   .contemplation-mode .contemplation-hide {
@@ -303,12 +307,8 @@
 
   /* ── Notebook page ─────────────────────────────────────── */
   .notebook-page {
-    background: linear-gradient(
-      180deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--card)) 100%
-    );
-    border: 1px solid hsl(var(--border) / 0.7);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
     box-shadow: var(--shadow-card);
   }
 
@@ -326,7 +326,7 @@
 
   /* ── Destaque de versículo alvo (navegação) ──────────────── */
   @keyframes verse-highlight-fade {
-    0% { background-color: hsl(var(--gold) / 0.18); border-left-color: hsl(var(--gold)); }
+    0%   { background-color: hsl(var(--gold) / 0.18); border-left-color: hsl(var(--gold)); }
     100% { background-color: transparent; border-left-color: transparent; }
   }
 
@@ -341,18 +341,17 @@
 
 @layer utilities {
   .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.75rem);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
   }
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
   }
-
   .safe-top-header {
     padding-top: calc(env(safe-area-inset-top, 0px) + 0.875rem);
   }
 
   .glass-surface {
-    background: hsl(var(--card) / 0.85);
+    background: hsl(var(--card) / 0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
@@ -371,7 +370,7 @@
   }
 
   .verse-num {
-    @apply text-[0.7rem] font-ui font-semibold text-accent/70 mr-2 select-none align-super;
+    @apply text-[0.65rem] font-ui font-medium text-accent/50 mr-2.5 select-none align-super;
     font-feature-settings: "tnum";
   }
 
@@ -384,6 +383,14 @@
   .bg-gold { background-color: hsl(var(--gold)); }
   .bg-gold-light { background-color: hsl(var(--gold-light)); }
   .border-gold { border-color: hsl(var(--gold) / 0.4); }
+
+  /* Verified badge */
+  .verified-badge {
+    @apply inline-flex items-center gap-1 text-[11px] tracking-wider uppercase px-2.5 py-0.5 rounded-full font-ui;
+    background: rgba(99, 42, 38, 0.15);
+    color: rgb(var(--wine-light));
+    border: 1px solid rgba(99, 42, 38, 0.25);
+  }
 }
 
 /* Scrollbar premium */

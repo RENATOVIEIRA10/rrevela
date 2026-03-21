@@ -26,7 +26,7 @@ const PublicVerse = () => {
         .eq("book", bookDecoded)
         .eq("chapter", chapterNum)
         .eq("verse", verseNum)
-        .eq("translation", "acf")
+        .eq("translation", "arc")
         .limit(1);
 
       if (verseRows && verseRows.length > 0) {
@@ -80,7 +80,7 @@ const PublicVerse = () => {
         </p>
 
         {verseData ? (
-          <blockquote className="font-scripture text-xl leading-relaxed text-foreground/90 italic mb-6">
+          <blockquote className="accent-border font-scripture text-xl leading-relaxed text-foreground/90 italic mb-6">
             "{verseData.text}"
           </blockquote>
         ) : (

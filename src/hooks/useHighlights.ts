@@ -46,7 +46,7 @@ const DEFAULT_MARK: HighlightColor = "PROMESSA";
  * CSS class única para versículos marcados.
  * Simplificado: todos usam o mesmo estilo de acento.
  */
-export const MARK_CSS_CLASS = "highlight-marked";
+export const MARK_CSS_CLASS = "highlight-amber";
 
 /**
  * Mantido para compatibilidade com BuscaAvancadaSheet e outros componentes

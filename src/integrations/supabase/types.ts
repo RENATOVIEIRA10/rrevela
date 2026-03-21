@@ -346,6 +346,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bot_ativo: boolean | null
           created_at: string
           display_name: string | null
           id: string
@@ -353,6 +354,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          bot_ativo?: boolean | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -360,6 +362,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          bot_ativo?: boolean | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -607,6 +610,36 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_sessions_rrevela: {
+        Row: {
+          created_at: string | null
+          name: string | null
+          phone: string
+          plano_ativo: string | null
+          plano_dia: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          name?: string | null
+          phone: string
+          plano_ativo?: string | null
+          plano_dia?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          name?: string | null
+          phone?: string
+          plano_ativo?: string | null
+          plano_dia?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
