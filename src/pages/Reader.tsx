@@ -389,10 +389,10 @@ const Reader = () => {
       {pinnedVerse && <PinnedVerseCard pinned={pinnedVerse} onGoTo={handleGoToPinned} onUnpin={unpinVerse} />}
 
       <ScrollArea className="flex-1">
-        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-6 py-8" {...swipeHandlers}>
-          <header className="mb-8 text-center">
-            <h2 className="font-scripture text-xl font-normal text-foreground/85">{selectedBook}</h2>
-            <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">{selectedChapter}</p>
+        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-5 sm:px-8 py-10 max-w-[680px] mx-auto" {...swipeHandlers}>
+          <header className="mb-10 text-center">
+            <h2 className="font-scripture text-2xl font-normal text-foreground/85">{selectedBook}</h2>
+            <p className="font-scripture text-5xl font-light text-accent/50 mt-1">{selectedChapter}</p>
           </header>
 
           <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} isSelected={(n) => selectedVerses.some((v) => v.number === n)} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
