@@ -114,8 +114,8 @@ const VerseBody = ({
   targetVerse, onTargetVerseScrolled,
 }: VerseBodyProps) => {
   const isDesktop = variant === "desktop";
-  const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[2]";
-  const spacing = isDesktop ? "space-y-0" : "space-y-1.5";
+  const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[1.9]";
+  const spacing = isDesktop ? "space-y-1" : "space-y-4";
   const spinnerPy = isDesktop ? "py-20" : "py-16";
   const [highlightedVerse, setHighlightedVerse] = useState<number | null>(null);
 
