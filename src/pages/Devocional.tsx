@@ -53,21 +53,21 @@ const Devocional = () => {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Premium Header */}
-      <div className="bg-card/80 backdrop-blur-sm px-5 pb-4 space-y-3 safe-top-header">
-        <div className="text-center space-y-0.5">
-          <h1 className="font-scripture text-lg font-semibold text-foreground tracking-wide">
+      <div className="bg-card/80 backdrop-blur-sm px-5 pb-5 space-y-4 safe-top-header">
+        <div className="text-center space-y-1">
+          <h1 className="font-scripture text-xl font-semibold text-foreground tracking-wide">
             O Evangelho Revelado
           </h1>
-          <p className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">
+          <p className="text-xs text-muted-foreground tracking-[0.2em] uppercase">
             Uma jornada pela história da redenção
           </p>
         </div>
 
         {/* Elegant tab switcher */}
-        <div className="flex items-center justify-center gap-6 pt-1">
+        <div className="flex items-center justify-center gap-8 pt-1">
           <button
             onClick={() => setViewMode("journey")}
-            className={`relative text-xs pb-1.5 transition-colors ${
+            className={`relative text-sm pb-2 transition-colors min-h-[44px] ${
               viewMode === "journey" ? "text-foreground font-medium" : "text-muted-foreground"
             }`}
           >
@@ -78,7 +78,7 @@ const Devocional = () => {
           </button>
           <button
             onClick={() => setViewMode("favorites")}
-            className={`relative text-xs pb-1.5 transition-colors ${
+            className={`relative text-sm pb-2 transition-colors min-h-[44px] ${
               viewMode === "favorites" ? "text-foreground font-medium" : "text-muted-foreground"
             }`}
           >
@@ -93,16 +93,16 @@ const Devocional = () => {
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="px-5 py-6 max-w-2xl mx-auto w-full space-y-6 pb-10">
+        <div className="px-5 py-7 max-w-2xl mx-auto w-full space-y-7 pb-12">
           {/* Quick Devotional CTA */}
           <motion.button
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => setQuickOpen(true)}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 rounded-xl bg-accent/[0.04] border border-accent/15 text-accent hover:bg-accent/[0.08] transition-all duration-200"
+            className="w-full flex items-center justify-center gap-3 px-5 h-14 rounded-xl bg-accent/[0.04] border border-accent/15 text-accent hover:bg-accent/[0.08] transition-all duration-200"
           >
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium tracking-wide">Devocional Rápido · 3 min</span>
+            <Sparkles className="w-5 h-5" />
+            <span className="text-base font-medium tracking-wide">Devocional Rápido · 3 min</span>
           </motion.button>
 
           {loading ? (
@@ -127,9 +127,9 @@ const Devocional = () => {
                     const era = ERA_LABELS[eraKey] || { label: eraKey, emoji: "📖" };
                     return (
                       <div key={eraKey} className="space-y-3">
-                        <div className="flex items-center gap-2.5 px-1">
-                          <span className="text-sm">{era.emoji}</span>
-                          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                        <div className="flex items-center gap-3 px-1">
+                          <span className="text-base">{era.emoji}</span>
+                          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
                             {era.label}
                           </span>
                           <div className="flex-1 editorial-divider" />

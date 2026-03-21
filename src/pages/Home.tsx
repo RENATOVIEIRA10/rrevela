@@ -91,32 +91,32 @@ const Home = () => {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease }}
-        className="flex items-center justify-between px-5 pb-3"
-        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.25rem)" }}
+        className="flex items-center justify-between px-5 pb-4"
+        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.5rem)" }}
       >
-        <div className="flex items-center gap-2.5">
-          <RevelaLogo size={22} color="hsl(var(--accent))" />
-          <span className="font-scripture text-base font-medium text-foreground/80">
+        <div className="flex items-center gap-3">
+          <RevelaLogo size={26} color="hsl(var(--accent))" />
+          <span className="font-scripture text-lg font-medium text-foreground/80">
             Revela
           </span>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-muted-foreground font-ui tabular-nums">
+          <span className="text-xs text-muted-foreground font-ui tabular-nums">
             {new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}
           </span>
           <button
             onClick={() => navigate("/perfil")}
-            className="w-8 h-8 rounded-full bg-primary/[0.06] flex items-center justify-center hover:bg-primary/[0.12] transition-colors"
+            className="w-10 h-10 rounded-full bg-primary/[0.06] flex items-center justify-center hover:bg-primary/[0.12] transition-colors"
             aria-label="Meu Perfil"
           >
-            <User className="w-4 h-4 text-primary/50" strokeWidth={1.5} />
+            <User className="w-5 h-5 text-primary/50" strokeWidth={1.5} />
           </button>
         </div>
       </motion.div>
 
       <ScrollArea className="flex-1">
-        <div className="px-5 pb-10 space-y-5 max-w-lg mx-auto w-full">
+        <div className="px-5 pb-12 space-y-6 max-w-lg mx-auto w-full">
 
           {/* ── Versículo do Dia ─── */}
           <motion.div
@@ -125,7 +125,7 @@ const Home = () => {
             transition={{ delay: 0.1, duration: 0.7, ease }}
           >
             <div
-              className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-5"
+              className="relative overflow-hidden rounded-2xl bg-card border border-border/50 p-6"
               style={{ boxShadow: "var(--shadow-elevated)" }}
             >
               {/* Linha dourada no topo */}
@@ -137,7 +137,7 @@ const Home = () => {
               />
 
               <p
-                className="text-[9px] uppercase tracking-[0.3em] font-ui font-medium mb-3"
+                className="text-[10px] uppercase tracking-[0.3em] font-ui font-medium mb-4"
                 style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
               >
                 Palavra do dia
@@ -151,12 +151,12 @@ const Home = () => {
                 </div>
               ) : verse ? (
                 <>
-                  <blockquote className="accent-border font-scripture text-[1.15rem] leading-[1.7] text-foreground/90 font-light italic mb-4">
+                  <blockquote className="accent-border font-scripture text-[1.25rem] leading-[1.8] text-foreground/90 font-light italic mb-5">
                     "{verse.text}"
                   </blockquote>
                   <div className="flex items-center justify-between">
                     <cite
-                      className="not-italic text-xs font-ui font-medium"
+                      className="not-italic text-sm font-ui font-medium"
                       style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
                     >
                       {verse.book} {verse.chapter}:{verse.verse}
@@ -164,18 +164,18 @@ const Home = () => {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={handleRevealVerse}
-                        className="flex items-center gap-1 text-xs font-ui font-medium transition-colors"
+                        className="flex items-center gap-1.5 text-sm font-ui font-medium transition-colors min-h-[44px]"
                         style={{ color: "hsl(var(--gold, 43 52% 52%))" }}
                       >
-                        <Sparkles className="w-3 h-3" />
+                        <Sparkles className="w-4 h-4" />
                         Revelar
                       </button>
                       <button
                         onClick={handleReadContext}
-                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-accent transition-colors font-ui"
+                        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition-colors font-ui min-h-[44px]"
                       >
                         Ler contexto
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -189,19 +189,19 @@ const Home = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5, ease }}
-            className="grid grid-cols-2 gap-3"
+            className="grid grid-cols-2 gap-3.5"
           >
             <button
               onClick={handleContinueReading}
-              className="flex flex-col gap-2.5 p-4 rounded-xl bg-card border border-border/50 text-left active:scale-[0.97] transition-transform"
+              className="flex flex-col gap-3 p-5 rounded-xl bg-card border border-border/50 text-left active:scale-[0.97] transition-transform"
               style={{ boxShadow: "var(--shadow-card)" }}
             >
-              <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                <BookOpen className="w-4 h-4 text-accent" />
+              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <p className="text-xs font-medium text-foreground font-ui">Continuar</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-scripture">
+                <p className="text-sm font-medium text-foreground font-ui">Continuar</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-scripture">
                   {recentChapter
                     ? `${recentChapter.book} ${recentChapter.chapter}`
                     : "Bíblia"}
@@ -211,20 +211,20 @@ const Home = () => {
 
             <button
               onClick={() => navigate("/revela")}
-              className="flex flex-col gap-2.5 p-4 rounded-xl text-left active:scale-[0.97] transition-transform"
+              className="flex flex-col gap-3 p-5 rounded-xl text-left active:scale-[0.97] transition-transform"
               style={{
                 background: "hsl(var(--accent))",
                 boxShadow: "var(--shadow-card)",
               }}
             >
-              <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-accent-foreground" />
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-xs font-medium text-accent-foreground font-ui">
+                <p className="text-sm font-medium text-accent-foreground font-ui">
                   Revela Agora
                 </p>
-                <p className="text-[10px] text-accent-foreground/70 mt-0.5 font-scripture">
+                <p className="text-xs text-accent-foreground/70 mt-0.5 font-scripture">
                   Pergunte à Palavra
                 </p>
               </div>
@@ -239,21 +239,21 @@ const Home = () => {
           >
             <button
               onClick={() => navigate("/pro")}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-accent/25 bg-accent/5 text-left active:scale-[0.98] transition-transform"
+              className="w-full flex items-center gap-4 p-5 rounded-xl border border-accent/25 bg-accent/5 text-left active:scale-[0.98] transition-transform"
             >
-              <div className="w-9 h-9 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
-                <MessageCircle className="w-4 h-4 text-accent" />
+              <div className="w-11 h-11 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
+                <MessageCircle className="w-5 h-5 text-accent" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-xs font-semibold text-accent font-ui">Revela Pro</p>
-                  <span className="text-[9px] bg-accent/15 text-accent font-ui font-semibold px-1.5 py-0.5 rounded-full">NOVO</span>
+                  <p className="text-sm font-semibold text-accent font-ui">Revela Pro</p>
+                  <span className="text-[10px] bg-accent/15 text-accent font-ui font-semibold px-2 py-0.5 rounded-full">NOVO</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-ui">
+                <p className="text-xs text-muted-foreground mt-1 font-ui">
                   Bíblia e planos de leitura direto no WhatsApp
                 </p>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-accent/50 shrink-0" />
+              <ArrowRight className="w-4 h-4 text-accent/50 shrink-0" />
             </button>
           </motion.div>
 
@@ -264,14 +264,14 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-2.5">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Plano de hoje
                 </p>
                 <div className="flex-1 editorial-divider" />
                 <button
                   onClick={() => navigate("/devocional")}
-                  className="text-[10px] text-accent/70 hover:text-accent transition-colors font-ui"
+                  className="text-xs text-accent/70 hover:text-accent transition-colors font-ui"
                 >
                   Ver plano
                 </button>
@@ -283,28 +283,28 @@ const Home = () => {
                     state: { book: first?.book, chapter: first?.chapter },
                   });
                 }}
-                className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left active:scale-[0.98] transition-all ${
+                className={`w-full flex items-center gap-4 p-5 rounded-xl border text-left active:scale-[0.98] transition-all ${
                   isTodayComplete
                     ? "bg-accent/5 border-accent/20"
                     : "bg-card border-border/50"
                 }`}
                 style={{ boxShadow: "var(--shadow-card)" }}
               >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
                   isTodayComplete ? "bg-accent/15" : "bg-secondary"
                 }`}>
-                  <CalendarDays className={`w-4 h-4 ${isTodayComplete ? "text-accent" : "text-muted-foreground"}`} />
+                  <CalendarDays className={`w-5 h-5 ${isTodayComplete ? "text-accent" : "text-muted-foreground"}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-foreground font-ui truncate">{todayReading.label}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 font-ui">
+                  <p className="text-sm font-medium text-foreground font-ui truncate">{todayReading.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 font-ui">
                     {activePlan.name} · Dia {currentDay}
                   </p>
                 </div>
                 {isTodayComplete ? (
-                  <span className="text-[10px] text-accent font-medium font-ui shrink-0">Concluído</span>
+                  <span className="text-xs text-accent font-medium font-ui shrink-0">Concluído</span>
                 ) : (
-                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-muted-foreground/40 shrink-0" />
                 )}
               </button>
             </motion.div>
@@ -317,19 +317,19 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-2.5">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Sua jornada
                 </p>
                 <div className="flex-1 editorial-divider" />
                 <button
                   onClick={() => navigate("/jornada")}
-                  className="text-[10px] text-accent/70 hover:text-accent transition-colors font-ui"
+                  className="text-xs text-accent/70 hover:text-accent transition-colors font-ui"
                 >
                   Ver tudo
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {[
                   { value: stats.studiedChapters.length, label: "Capítulos" },
                   { value: stats.totalHighlights,        label: "Marcados"  },
@@ -337,10 +337,10 @@ const Home = () => {
                 ].map(({ value, label }) => (
                   <div
                     key={label}
-                    className="bg-card rounded-xl p-3 text-center border border-border/40"
+                    className="bg-card rounded-xl p-4 text-center border border-border/40"
                   >
-                    <p className="font-scripture text-xl text-foreground/90">{value}</p>
-                    <p className="text-[9px] text-muted-foreground font-ui mt-0.5">{label}</p>
+                    <p className="font-scripture text-2xl text-foreground/90">{value}</p>
+                    <p className="text-[10px] text-muted-foreground font-ui mt-1">{label}</p>
                   </div>
                 ))}
               </div>
@@ -354,13 +354,13 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-2.5">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Últimas anotações
                 </p>
                 <div className="flex-1 editorial-divider" />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {stats.recentNotes.slice(0, 3).map((note) => (
                   <button
                     key={note.id}
@@ -370,21 +370,21 @@ const Home = () => {
                         { state: { book: note.book, chapter: note.chapter } }
                       )
                     }
-                    className="w-full flex items-start gap-3 p-3 rounded-xl bg-card border border-border/40 text-left active:bg-secondary/30 transition-colors"
+                    className="w-full flex items-start gap-3.5 p-4 rounded-xl bg-card border border-border/40 text-left active:bg-secondary/30 transition-colors"
                   >
-                    <StickyNote className="w-3.5 h-3.5 text-accent/50 mt-0.5 shrink-0" />
+                    <StickyNote className="w-4 h-4 text-accent/50 mt-0.5 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-medium text-accent/80 font-ui">
+                      <p className="text-xs font-medium text-accent/80 font-ui">
                         {note.book} {note.chapter}
                         {note.verse != null ? `:${note.verse}` : ""}
                       </p>
                       {note.observation && (
-                        <p className="text-xs text-foreground/70 font-scripture mt-0.5 line-clamp-2">
+                        <p className="text-sm text-foreground/70 font-scripture mt-1 line-clamp-2">
                           {note.observation}
                         </p>
                       )}
                     </div>
-                    <ArrowRight className="w-3 h-3 text-muted-foreground/30 shrink-0 mt-0.5" />
+                    <ArrowRight className="w-4 h-4 text-muted-foreground/30 shrink-0 mt-0.5" />
                   </button>
                 ))}
               </div>
@@ -399,20 +399,20 @@ const Home = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-center py-6"
+                className="text-center py-8"
               >
-                <p className="font-scripture text-sm text-foreground/60 italic leading-relaxed">
+                <p className="font-scripture text-base text-foreground/60 italic leading-relaxed">
                   "Então lhes abriu o entendimento para compreenderem as Escrituras."
                 </p>
-                <p className="text-[10px] text-muted-foreground font-ui mt-2">
+                <p className="text-xs text-muted-foreground font-ui mt-2">
                   — Lucas 24:45
                 </p>
                 <button
                   onClick={() => navigate("/leitor")}
-                  className="mt-5 flex items-center gap-2 mx-auto text-sm text-accent font-ui font-medium"
+                  className="mt-6 flex items-center gap-2 mx-auto text-base text-accent font-ui font-medium min-h-[44px]"
                 >
                   Começar a estudar
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </motion.div>
             )}
