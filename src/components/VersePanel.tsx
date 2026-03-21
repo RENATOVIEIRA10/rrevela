@@ -200,11 +200,11 @@ const VersePanel = ({
           <div className="editorial-divider" />
 
           {/* ── Compartilhar ─────────────────────────────────── */}
-          <div className="space-y-3">
-            <div className="flex gap-2">
+          <div className="space-y-4">
+            <div className="flex gap-2.5">
               <button
                 onClick={() => setShareMode("verse")}
-                className={`text-xs px-3.5 py-2 rounded-xl transition-all font-ui ${
+                className={`text-sm px-4 h-11 rounded-xl transition-all font-ui ${
                   shareMode === "verse"
                     ? "bg-accent/10 text-accent font-medium border border-accent/20"
                     : "bg-secondary/30 text-foreground/60 hover:bg-secondary/50 border border-transparent"
@@ -214,13 +214,13 @@ const VersePanel = ({
               </button>
               <button
                 onClick={() => setShareMode("reveal")}
-                className={`text-xs px-3.5 py-2 rounded-xl transition-all font-ui flex items-center gap-1.5 ${
+                className={`text-sm px-4 h-11 rounded-xl transition-all font-ui flex items-center gap-2 ${
                   shareMode === "reveal"
                     ? "bg-accent/10 text-accent font-medium border border-accent/20"
                     : "bg-secondary/30 text-foreground/60 hover:bg-secondary/50 border border-transparent"
                 }`}
               >
-                <Sparkles className="w-3 h-3" />
+                <Sparkles className="w-4 h-4" />
                 Com revelação
               </button>
             </div>
