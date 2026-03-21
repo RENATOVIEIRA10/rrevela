@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revela | Brand Guide v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--wine:#632A26;--wine-lt:#8B3D38;--amber:#FDF2D0;--border:#E8E4DB;--c-bg:#131416;--c-bg2:#1A1C1E;--c-bg3:#222528;--c-text:#EDE9E0;--c-muted:#7A8185;--c-line:#2E3235;--d-bg:#FAF8F3;--d-bg2:#FFFFFF;--d-bg3:#F2EDE3;--d-text:#1A1C1E;--d-muted:#6B7175;--d-line:#E4DFD6}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',sans-serif;background:#0F1012;color:#EDE9E0;overflow-x:hidden}
+  .mode-tab{padding:10px 24px;border:1px solid #2E3235;font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .3s ease;background:transparent;color:#7A8185;font-family:'DM Sans',sans-serif}
+  .mode-tab.active-dark{background:var(--c-bg2);color:var(--c-text);border-color:var(--c-line)}
+  .mode-tab.active-light{background:#fff;color:#1A1C1E;border-color:#D0C9BC}
+  .panel{display:none}.panel.active{display:block}
+  .nav-dark{background:rgba(19,20,22,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--c-line)}
+  .nav-light{background:rgba(250,248,243,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--d-line)}
+  .serif{font-family:'Crimson Pro',serif}
+  .mark-amber{background:var(--amber);padding:0 3px;border-radius:2px;color:#1A1C1E}
+  .mark-wine{background:var(--wine);padding:0 3px;border-radius:2px;color:#FAF8F3}
+  .verse-card{border-left:2px solid var(--wine)}
+  .verified-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:.07em;padding:3px 10px;border-radius:100px;text-transform:uppercase;font-family:'DM Sans',sans-serif}
+  .grain::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.5}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .fade-up{animation:fadeUp .7s ease both}.delay-1{animation-delay:.1s}.delay-2{animation-delay:.22s}.delay-3{animation-delay:.36s}
+  .pipe-node{border:1px solid;padding:12px 20px;font-size:12px;letter-spacing:.05em;text-align:center}
+  .pipe-arrow{display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--wine);padding:4px 0}
+  .persona-chip{display:inline-block;padding:4px 12px;border-radius:100px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-family:'DM Sans',sans-serif}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2E3235;border-radius:2px}
+</style>
+</head>
+<body>
+
+<nav id="mainNav" class="nav-dark fixed top-0 w-full z-50 transition-all duration-500">
+  <div class="max-w-6xl mx-auto px-6 md:px-10 h-14 flex items-center justify-between">
+    <div class="serif text-lg font-semibold tracking-wide flex items-center gap-1">
+      <span style="color:var(--wine)">R</span><span id="navLogo" style="color:#EDE9E0">evela.</span>
+    </div>
+    <div class="flex" id="modeSwitcher">
+      <button class="mode-tab active-dark" onclick="switchMode('dark')" id="tab-dark">Contemplação</button>
+      <button class="mode-tab" onclick="switchMode('light')" id="tab-light">Descoberta</button>
+    </div>
+    <div class="hidden md:flex gap-6 text-xs tracking-wider uppercase" style="color:#7A8185">
+      <a href="#fundacao" class="hover:text-white transition-colors">Fundação</a>
+      <a href="#filosofia" class="hover:text-white transition-colors">Filosofia</a>
+      <a href="#tech" class="hover:text-white transition-colors">Tecnologia</a>
+      <a href="#ui-demo" class="hover:text-white transition-colors">UI</a>
+    </div>
+  </div>
+</nav>
+
+<!-- DARK PANEL -->
+<div id="panel-dark" class="panel active grain" style="background:var(--c-bg)">
+  <section id="fundacao" class="min-h-screen flex flex-col justify-center items-center text-center px-6 pt-24 pb-16" style="background:radial-gradient(ellipse 80% 60% at 50% 0%,#1e1012 0%,var(--c-bg) 70%)">
+    <div class="fade-up mb-6"><span class="persona-chip" style="background:rgba(99,42,38,.25);color:var(--wine-lt);border:1px solid rgba(99,42,38,.35)">Para quem já conhece a Palavra</span></div>
+    <h1 class="serif fade-up delay-1 text-5xl md:text-7xl font-light leading-tight mb-6 max-w-3xl" style="color:var(--c-text)">Profundidade sem<br><em style="color:var(--wine-lt)">achismo.</em></h1>
+    <p class="fade-up delay-2 text-lg md:text-xl font-light mb-12 max-w-2xl leading-relaxed" style="color:var(--c-muted)">Para quem já conhece a Escritura e quer ir mais fundo.<br>Cada insight verificado. Cada conexão, ancorada na Palavra.</p>
+    <div class="fade-up delay-3 verse-card pl-5 py-3 text-left" style="max-width:440px">
+      <p class="serif italic text-lg" style="color:var(--c-text)">"Então lhes abriu o entendimento<br>para compreenderem as Escrituras."</p>
+      <span class="text-xs mt-2 block" style="color:var(--c-muted)">Lucas 24:45</span>
+    </div>
+  </section>
+
+  <section id="filosofia" class="py-20 px-6 max-w-6xl mx-auto" style="border-top:1px solid var(--c-line)">
+    <p class="text-xs uppercase tracking-widest mb-2" style="color:var(--wine)">Princípios</p>
+    <h2 class="serif text-4xl font-light mb-16" style="color:var(--c-text)">A Filosofia do Temor</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="p-8 rounded-sm" style="background:var(--c-bg2);border:1px solid var(--c-line)"><div class="w-8 h-8 flex items-center justify-center rounded mb-6 serif text-lg font-semibold" style="background:rgba(99,42,38,.2);color:var(--wine-lt)">I</div><h3 class="serif text-xl mb-3" style="color:var(--c-text)">Sem Achismo</h3><p class="text-sm leading-relaxed" style="color:var(--c-muted)">Toda revelação apresentada pelo Revela aponta para uma passagem bíblica verificada. O sistema não especula. Não interpreta além do que a própria Escritura permite.</p></div>
+      <div class="p-8 rounded-sm" style="background:var(--c-bg2);border:1px solid var(--c-line)"><div class="w-8 h-8 flex items-center justify-center rounded mb-6 serif text-lg font-semibold" style="background:rgba(99,42,38,.2);color:var(--wine-lt)">II</div><h3 class="serif text-xl mb-3" style="color:var(--c-text)">Sempre Cristocêntrico</h3><p class="text-sm leading-relaxed" style="color:var(--c-muted)">Toda conexão, toda exegese, toda descoberta aponta para Cristo. O Antigo e o Novo Testamento são lidos como uma única narrativa de redenção.</p></div>
+      <div class="p-8 rounded-sm" style="background:var(--c-bg2);border:1px solid var(--c-line)"><div class="w-8 h-8 flex items-center justify-center rounded mb-6 serif text-lg font-semibold" style="background:rgba(99,42,38,.2);color:var(--wine-lt)">III</div><h3 class="serif text-xl mb-3" style="color:var(--c-text)">A Bíblia com Temor</h3><p class="text-sm leading-relaxed" style="color:var(--c-muted)">A Palavra não é conteúdo digital. É a voz de Deus. Cada detalhe da interface foi projetado para guardar essa reverência.</p></div>
+    </div>
+    <div class="mt-16 text-center"><p class="serif italic text-2xl md:text-3xl font-light max-w-2xl mx-auto leading-relaxed" style="color:var(--c-muted)">"O Revela não te diz o que pensar.<br><span style="color:var(--c-text)">Ele te leva até onde a Palavra já disse."</span></p></div>
+  </section>
+
+  <section id="tech" class="py-20 px-6 max-w-6xl mx-auto" style="border-top:1px solid var(--c-line)">
+    <p class="text-xs uppercase tracking-widest mb-2" style="color:var(--wine)">Tecnologia</p>
+    <h2 class="serif text-4xl font-light mb-4" style="color:var(--c-text)">Confiança Verificável</h2>
+    <p class="max-w-xl mb-14 leading-relaxed text-sm" style="color:var(--c-muted)">A tecnologia serve ao texto — e nunca o substitui.</p>
+    <div class="flex flex-col items-center gap-1 max-w-md mx-auto">
+      <div class="pipe-node w-full rounded-sm text-sm font-medium" style="background:var(--c-bg2);border-color:var(--c-line);color:var(--c-text)">Pergunta ou Trecho Selecionado</div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-node w-full rounded-sm" style="background:rgba(99,42,38,.12);border-color:rgba(99,42,38,.3);color:var(--wine-lt);font-size:12px">Modelo de Linguagem (contexto bíblico limitado)</div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-node w-full rounded-sm" style="background:var(--c-bg2);border-color:var(--c-line);color:var(--c-muted);font-size:12px">Verificação de Referências → Corpus Bíblico</div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-node w-full rounded-sm" style="background:var(--c-bg2);border-color:var(--c-line);color:var(--c-muted);font-size:12px">Filtro Cristocêntrico + Detecção de Especulação</div>
+      <div class="pipe-arrow">↓</div>
+      <div class="pipe-node w-full rounded-sm" style="background:rgba(253,242,208,.08);border-color:rgba(253,242,208,.2);color:#FDF2D0;font-size:12px">✦ Resposta com Referências Verificadas</div>
+    </div>
+    <div class="flex flex-wrap justify-center gap-2 mt-12">
+      <span class="text-xs px-3 py-1 rounded-sm" style="background:var(--c-bg3);color:var(--c-muted);border:1px solid var(--c-line)">PWA</span>
+      <span class="text-xs px-3 py-1 rounded-sm" style="background:var(--c-bg3);color:var(--c-muted);border:1px solid var(--c-line)">Offline-first</span>
+      <span class="text-xs px-3 py-1 rounded-sm" style="background:var(--c-bg3);color:var(--c-muted);border:1px solid var(--c-line)">RAG Bíblico</span>
+      <span class="text-xs px-3 py-1 rounded-sm" style="background:var(--c-bg3);color:var(--c-muted);border:1px solid var(--c-line)">Hebraico &amp; Grego Original</span>
+      <span class="text-xs px-3 py-1 rounded-sm" style="background:var(--c-bg3);color:var(--c-muted);border:1px solid var(--c-line)">Cross-reference Engine</span>
+      <span class="text-xs px-3 py-1 rounded-sm" style="background:var(--c-bg3);color:var(--c-muted);border:1px solid var(--c-line)">Zero especulação</span>
+    </div>
+  </section>
+
+  <section id="ui-demo" class="py-20 px-6 max-w-4xl mx-auto" style="border-top:1px solid var(--c-line)">
+    <p class="text-xs uppercase tracking-widest mb-2" style="color:var(--wine)">Interface</p>
+    <h2 class="serif text-4xl font-light mb-14" style="color:var(--c-text)">Modo Contemplação</h2>
+    <div class="rounded-sm max-w-2xl mx-auto" style="background:var(--c-bg2);border:1px solid var(--c-line);box-shadow:0 24px 80px rgba(0,0,0,.5)">
+      <div class="flex items-center justify-between px-6 py-3" style="border-bottom:1px solid var(--c-line)">
+        <div class="flex items-center gap-3"><div class="serif text-sm font-semibold" style="color:var(--wine)">R</div><span class="text-xs uppercase tracking-widest" style="color:var(--c-muted)">Modo Contemplação</span></div>
+        <div class="flex gap-4 text-xs" style="color:var(--c-muted)"><span class="cursor-pointer hover:text-white">Comparar</span><span class="cursor-pointer hover:text-white">Anotar</span><span class="cursor-pointer hover:text-white">Grego</span></div>
+      </div>
+      <div class="px-8 py-10">
+        <h3 class="serif text-3xl mb-8" style="color:var(--c-text)">João 1 <span style="color:var(--c-muted);font-weight:300">· 1–5</span></h3>
+        <div class="space-y-5 serif text-lg leading-relaxed" style="color:var(--c-text)">
+          <p><sup class="text-xs mr-1" style="color:var(--c-muted)">1</sup>No princípio era o Verbo, e o Verbo estava com Deus, e o Verbo era Deus.</p>
+          <p><sup class="text-xs mr-1" style="color:var(--c-muted)">5</sup>A luz resplandece nas trevas, e as trevas não prevaleceram contra ela.</p>
+        </div>
+        <div class="mt-10 p-5 rounded-sm" style="background:var(--c-bg3);border:1px solid var(--c-line)">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="serif text-sm" style="color:var(--wine-lt)">Tutor Silencioso</span>
+            <span class="verified-pill" style="background:rgba(99,42,38,.2);color:var(--wine-lt);border:1px solid rgba(99,42,38,.3)">✦ 3 referências verificadas</span>
+          </div>
+          <p class="text-sm leading-relaxed" style="color:var(--c-muted)"><em style="color:var(--c-text)">Logos</em> (λόγος) em João 1:1 retoma a sabedoria criadora de Provérbios 8:22–31. <span class="mark-wine text-xs">→ Gn 1:1</span> <span class="mark-wine text-xs">→ Hb 1:1–3</span>.</p>
+          <div class="flex gap-3 mt-5">
+            <button class="text-xs px-4 py-2 rounded-sm" style="border:1px solid var(--c-line);color:var(--c-text);background:var(--c-bg2)">Raiz Grega</button>
+            <button class="text-xs px-4 py-2 rounded-sm" style="background:var(--wine);color:#FAF8F3">Conexões AT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-14 px-6 text-center" style="background:var(--c-bg);border-top:1px solid var(--c-line)">
+    <div class="serif text-2xl mb-3" style="color:var(--wine-lt)">Revela.</div>
+    <p class="text-sm" style="color:var(--c-muted)">Contemplação · Estudo · Formação</p>
+    <div class="text-xs mt-6 uppercase tracking-widest" style="color:var(--c-line)">Brand Guidelines v2 · Versão Contemplação</div>
+  </footer>
+</div>
+
+<!-- LIGHT PANEL -->
+<div id="panel-light" class="panel" style="background:var(--d-bg)">
+  <section class="min-h-screen flex flex-col justify-center items-center text-center px-6 pt-24 pb-16" style="background:radial-gradient(ellipse 90% 60% at 50% -10%,#fdf0d8 0%,var(--d-bg) 65%)">
+    <div class="mb-6"><span class="persona-chip" style="background:rgba(99,42,38,.1);color:var(--wine);border:1px solid rgba(99,42,38,.2)">Para quem está começando a caminhar</span></div>
+    <h1 class="serif text-5xl md:text-7xl font-light leading-tight mb-6 max-w-3xl" style="color:var(--d-text)">A Palavra aberta<br><em style="color:var(--wine)">para você.</em></h1>
+    <p class="text-lg md:text-xl font-light mb-12 max-w-2xl leading-relaxed" style="color:var(--d-muted)">Para quem se converteu e quer entender.<br>Simples no começo. Profundo por dentro. Sempre verificado.</p>
+    <div class="verse-card pl-5 py-3 text-left" style="max-width:440px">
+      <p class="serif italic text-lg" style="color:var(--d-text)">"A entrada das tuas palavras dá luz<br>e dá entendimento aos simples."</p>
+      <span class="text-xs mt-2 block" style="color:var(--d-muted)">Salmos 119:130</span>
+    </div>
+  </section>
+
+  <section class="py-20 px-6 max-w-6xl mx-auto" style="border-top:1px solid var(--d-line)">
+    <p class="text-xs uppercase tracking-widest mb-2" style="color:var(--wine)">Princípios</p>
+    <h2 class="serif text-4xl font-light mb-16" style="color:var(--d-text)">Simples na Entrada.<br>Profundo no Interior.</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="p-8 rounded-sm" style="background:var(--d-bg2);border:1px solid var(--d-line)"><div class="w-8 h-8 flex items-center justify-center rounded mb-6 serif text-lg font-semibold" style="background:rgba(99,42,38,.1);color:var(--wine)">I</div><h3 class="serif text-xl mb-3" style="color:var(--d-text)">Nada sem Fundamento</h3><p class="text-sm leading-relaxed" style="color:var(--d-muted)">O Revela não inventa explicações. Cada insight tem uma referência bíblica verificada para você conferir com seus próprios olhos.</p></div>
+      <div class="p-8 rounded-sm" style="background:var(--d-bg2);border:1px solid var(--d-line)"><div class="w-8 h-8 flex items-center justify-center rounded mb-6 serif text-lg font-semibold" style="background:rgba(99,42,38,.1);color:var(--wine)">II</div><h3 class="serif text-xl mb-3" style="color:var(--d-text)">Tudo Aponta para Cristo</h3><p class="text-sm leading-relaxed" style="color:var(--d-muted)">Do Gênesis ao Apocalipse, toda leitura no Revela ajuda você a enxergar Cristo — como Ele mesmo disse (João 5:39).</p></div>
+      <div class="p-8 rounded-sm" style="background:var(--d-bg2);border:1px solid var(--d-line)"><div class="w-8 h-8 flex items-center justify-center rounded mb-6 serif text-lg font-semibold" style="background:rgba(99,42,38,.1);color:var(--wine)">III</div><h3 class="serif text-xl mb-3" style="color:var(--d-text)">Palavra Tratada com Reverência</h3><p class="text-sm leading-relaxed" style="color:var(--d-muted)">Aqui a Bíblia não é conteúdo — é a voz de Deus. Por isso cada detalhe foi pensado: sem ruído, sem distrações.</p></div>
+    </div>
+  </section>
+
+  <footer class="py-14 px-6 text-center" style="background:var(--d-bg3);border-top:1px solid var(--d-line)">
+    <div class="serif text-2xl mb-3" style="color:var(--wine)">Revela.</div>
+    <p class="text-sm" style="color:var(--d-muted)">Descoberta · Clareza · Crescimento</p>
+    <div class="text-xs mt-6 uppercase tracking-widest" style="color:var(--d-line)">Brand Guidelines v2 · Versão Descoberta</div>
+  </footer>
+</div>
+
+<script>
+let currentMode='dark';
+function switchMode(mode){
+  currentMode=mode;
+  document.getElementById('panel-dark').classList.toggle('active',mode==='dark');
+  document.getElementById('panel-light').classList.toggle('active',mode==='light');
+  const nav=document.getElementById('mainNav');
+  const logo=document.getElementById('navLogo');
+  if(mode==='dark'){nav.className='nav-dark fixed top-0 w-full z-50 transition-all duration-500';logo.style.color='#EDE9E0';document.getElementById('tab-dark').className='mode-tab active-dark';document.getElementById('tab-light').className='mode-tab';document.body.style.background='#0F1012';}
+  else{nav.className='nav-light fixed top-0 w-full z-50 transition-all duration-500';logo.style.color='#1A1C1E';document.getElementById('tab-dark').className='mode-tab';document.getElementById('tab-light').className='mode-tab active-light';document.body.style.background='#FAF8F3';}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
