@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Solid background — bleeds to edges for maskable -->
+  <rect width="512" height="512" fill="#131416"/>
+  <!-- R logo scaled down 20% extra to fit in safe zone (inner 80%) -->
+  <!-- Safe zone: 51px padding each side → active area 410x410 centered at 256,256 -->
+  <!-- Original R in 512: 182-344 wide, 136-386 tall → scale 0.8, center -->
+  <!-- Scaled: center at 256, scale(0.78) from center -->
+  <g transform="translate(256,261) scale(0.78) translate(-263,-261)">
+    <line x1="182" y1="136" x2="182" y2="386"
+          stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+    <path d="M182,136 C353,136 353,274 182,274"
+          stroke="#EDE9E0" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="182" y1="274" x2="228" y2="274"
+          stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+    <line x1="228" y1="274" x2="281" y2="342"
+          stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+    <line x1="281" y1="342" x2="270" y2="386"
+          stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+    <line x1="281" y1="342" x2="344" y2="386"
+          stroke="#8B3D38" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="344" cy="386" r="9" fill="#8B3D38" opacity="0.85"/>
+  </g>
+</svg>

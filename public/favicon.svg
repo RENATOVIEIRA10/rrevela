@@ -1,20 +1,23 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="92" fill="#632A26"/>
-  <path
-    d="M256 410 Q250 300 160 80"
-    stroke="#F9F7F2"
-    stroke-width="28"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    fill="none"
-  />
-  <path
-    d="M256 410 Q262 300 352 80"
-    stroke="#F9F7F2"
-    stroke-width="28"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    fill="none"
-  />
-  <circle cx="256" cy="422" r="14" fill="#F9F7F2"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#131416"/>
+  <!-- R logo — spine -->
+  <line x1="182" y1="136" x2="182" y2="386"
+        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+  <!-- Bowl -->
+  <path d="M182,136 C353,136 353,274 182,274"
+        stroke="#EDE9E0" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Shoulder -->
+  <line x1="182" y1="274" x2="228" y2="274"
+        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+  <!-- Leg to fork -->
+  <line x1="228" y1="274" x2="281" y2="342"
+        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+  <!-- Left fork -->
+  <line x1="281" y1="342" x2="270" y2="386"
+        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
+  <!-- Right fork — wine accent -->
+  <line x1="281" y1="342" x2="344" y2="386"
+        stroke="#8B3D38" stroke-width="11" stroke-linecap="round"/>
+  <!-- Accent dot -->
+  <circle cx="344" cy="386" r="9" fill="#8B3D38" opacity="0.85"/>
 </svg>
