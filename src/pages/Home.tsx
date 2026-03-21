@@ -317,19 +317,19 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-2.5">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Sua jornada
                 </p>
                 <div className="flex-1 editorial-divider" />
                 <button
                   onClick={() => navigate("/jornada")}
-                  className="text-[10px] text-accent/70 hover:text-accent transition-colors font-ui"
+                  className="text-xs text-accent/70 hover:text-accent transition-colors font-ui"
                 >
                   Ver tudo
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {[
                   { value: stats.studiedChapters.length, label: "Capítulos" },
                   { value: stats.totalHighlights,        label: "Marcados"  },
@@ -337,10 +337,10 @@ const Home = () => {
                 ].map(({ value, label }) => (
                   <div
                     key={label}
-                    className="bg-card rounded-xl p-3 text-center border border-border/40"
+                    className="bg-card rounded-xl p-4 text-center border border-border/40"
                   >
-                    <p className="font-scripture text-xl text-foreground/90">{value}</p>
-                    <p className="text-[9px] text-muted-foreground font-ui mt-0.5">{label}</p>
+                    <p className="font-scripture text-2xl text-foreground/90">{value}</p>
+                    <p className="text-[10px] text-muted-foreground font-ui mt-1">{label}</p>
                   </div>
                 ))}
               </div>
