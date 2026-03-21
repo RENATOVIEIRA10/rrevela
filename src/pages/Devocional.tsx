@@ -53,21 +53,21 @@ const Devocional = () => {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Premium Header */}
-      <div className="bg-card/80 backdrop-blur-sm px-5 pb-4 space-y-3 safe-top-header">
-        <div className="text-center space-y-0.5">
-          <h1 className="font-scripture text-lg font-semibold text-foreground tracking-wide">
+      <div className="bg-card/80 backdrop-blur-sm px-5 pb-5 space-y-4 safe-top-header">
+        <div className="text-center space-y-1">
+          <h1 className="font-scripture text-xl font-semibold text-foreground tracking-wide">
             O Evangelho Revelado
           </h1>
-          <p className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">
+          <p className="text-xs text-muted-foreground tracking-[0.2em] uppercase">
             Uma jornada pela história da redenção
           </p>
         </div>
 
         {/* Elegant tab switcher */}
-        <div className="flex items-center justify-center gap-6 pt-1">
+        <div className="flex items-center justify-center gap-8 pt-1">
           <button
             onClick={() => setViewMode("journey")}
-            className={`relative text-xs pb-1.5 transition-colors ${
+            className={`relative text-sm pb-2 transition-colors min-h-[44px] ${
               viewMode === "journey" ? "text-foreground font-medium" : "text-muted-foreground"
             }`}
           >
@@ -78,7 +78,7 @@ const Devocional = () => {
           </button>
           <button
             onClick={() => setViewMode("favorites")}
-            className={`relative text-xs pb-1.5 transition-colors ${
+            className={`relative text-sm pb-2 transition-colors min-h-[44px] ${
               viewMode === "favorites" ? "text-foreground font-medium" : "text-muted-foreground"
             }`}
           >
