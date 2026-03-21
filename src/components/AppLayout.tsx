@@ -51,7 +51,7 @@ const AppLayout = () => {
                 to={tab.to}
                 aria-label={tab.label}
                 aria-current={isActive ? "page" : undefined}
-                className="flex flex-col items-center gap-0.5 py-2 px-1.5 min-w-0 flex-1 relative"
+                className="flex flex-col items-center gap-1 py-2.5 px-2 min-w-0 flex-1 relative"
               >
                 {isActive && (
                   <motion.div
@@ -61,13 +61,13 @@ const AppLayout = () => {
                   />
                 )}
                 <tab.icon
-                  className={`w-[18px] h-[18px] transition-colors duration-200 ${
+                  className={`w-[22px] h-[22px] transition-colors duration-200 ${
                     isActive ? "text-accent" : "text-muted-foreground/70"
                   }`}
                   strokeWidth={isActive ? 2 : 1.5}
                 />
                 <span
-                  className={`text-[8px] leading-tight tracking-wide transition-colors duration-200 truncate font-ui w-full text-center ${
+                  className={`text-[10px] leading-tight tracking-wide transition-colors duration-200 truncate font-ui w-full text-center ${
                     isActive ? "text-accent font-medium" : "text-muted-foreground/60"
                   }`}
                 >
