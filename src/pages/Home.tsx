@@ -264,14 +264,14 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.5, ease }}
             >
-              <div className="flex items-center gap-2 mb-2.5">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-ui font-medium">
                   Plano de hoje
                 </p>
                 <div className="flex-1 editorial-divider" />
                 <button
                   onClick={() => navigate("/devocional")}
-                  className="text-[10px] text-accent/70 hover:text-accent transition-colors font-ui"
+                  className="text-xs text-accent/70 hover:text-accent transition-colors font-ui"
                 >
                   Ver plano
                 </button>
