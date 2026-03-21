@@ -253,6 +253,58 @@
     opacity: 0.3;
   }
 
+  /* ── Modo Leitura Confortável ──────────────────────────────
+   * Aplicado no <html> via classe .comfortable-reading.
+   * Aumenta fonte e espaçamento, suprime painéis de estudo.
+   * ────────────────────────────────────────────────────── */
+
+  /* Oculta elementos de distração */
+  .comfortable-reading .comfortable-hide {
+    display: none !important;
+  }
+
+  /* Reduz sutileza dos números de versículo */
+  .comfortable-reading .verse-num {
+    opacity: 0.28;
+    font-size: 0.65em;
+  }
+
+  /* Fonte maior, espaçamento generoso */
+  .comfortable-reading .comfortable-verses p,
+  .comfortable-reading .comfortable-verses p.font-scripture {
+    font-size: 1.375rem !important;   /* ~22px */
+    line-height: 2.6 !important;
+    letter-spacing: 0.01em;
+  }
+
+  /* Desktop: fonte ainda maior */
+  @media (min-width: 768px) {
+    .comfortable-reading .comfortable-verses p,
+    .comfortable-reading .comfortable-verses p.font-scripture {
+      font-size: 1.5rem !important;   /* 24px */
+      line-height: 2.7 !important;
+    }
+  }
+
+  /* Coluna mais estreita para maior conforto */
+  .comfortable-reading .comfortable-article {
+    max-width: 56ch !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+
+  @media (min-width: 768px) {
+    .comfortable-reading .comfortable-article {
+      padding-left: 4rem !important;
+      padding-right: 4rem !important;
+    }
+  }
+
+  /* Título do capítulo mais espaçado */
+  .comfortable-reading .comfortable-chapter-header {
+    margin-bottom: 3rem !important;
+  }
+
   /* ── Notebook page ─────────────────────────────────────── */
   .notebook-page {
     background: hsl(var(--card));

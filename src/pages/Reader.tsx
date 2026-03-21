@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft, ChevronRight, StickyNote, ChevronDown,
   Loader2, AlertTriangle, X, Pin, PanelLeftClose,
-  PanelRightClose, ArrowLeft, Search, EyeOff,
+  PanelRightClose, ArrowLeft, Search, EyeOff, ALargeSmall,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,6 +33,7 @@ import { MARK_CSS_CLASS } from "@/hooks/useHighlights";
 import { useReaderState } from "@/hooks/useReaderState";
 import { useChapterSwipe } from "@/hooks/useChapterSwipe";
 import { useContemplation } from "@/hooks/useContemplation";
+import { useComfortableReading } from "@/hooks/useComfortableReading";
 import ContemplationButton from "@/components/ContemplationButton";
 import FloatingVerseBar from "@/components/FloatingVerseBar";
 
@@ -106,12 +107,13 @@ interface VerseBodyProps {
   variant: "desktop" | "mobile";
   targetVerse?: number | null;
   onTargetVerseScrolled?: () => void;
+  comfortableReading?: boolean;
 }
 
 const VerseBody = ({
   verses, loading, error, fontSizeClass, isMarked, isSelected,
   onVerseClick, pinnedVerse, selectedBook, selectedChapter, variant,
-  targetVerse, onTargetVerseScrolled,
+  targetVerse, onTargetVerseScrolled, comfortableReading,
 }: VerseBodyProps) => {
   const isDesktop = variant === "desktop";
   const lineHeight = isDesktop ? "leading-[2.2]" : "leading-[1.9]";
@@ -148,7 +150,7 @@ const VerseBody = ({
   );
 
   return (
-    <div className={spacing}>
+    <div className={[spacing, comfortableReading ? "comfortable-verses" : ""].join(" ")}>
       {verses.map((verse) => {
         const marked = isMarked(verse.number);
         const selected = isSelected?.(verse.number) ?? false;
@@ -226,6 +228,7 @@ const Reader = () => {
     disabled: !!(versePanelOpen || noteSheetOpen || bookPickerOpen),
   });
   const contemplation = useContemplation();
+  const comfortable = useComfortableReading();
 
   // ─── DESKTOP ──────────────────────────────────────────────
   if (!isMobile) {
@@ -269,6 +272,13 @@ const Reader = () => {
               </div>
               {/* HighlightLegend REMOVIDO */}
               <div className="flex items-center gap-2">
+                <button
+                  onClick={comfortable.toggle}
+                  className={`p-1.5 rounded-md transition-colors ${comfortable.active ? "text-accent bg-accent/10" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"}`}
+                  title={comfortable.active ? "Sair do modo Leitura Confortável" : "Leitura Confortável"}
+                >
+                  <ALargeSmall className="w-4 h-4" />
+                </button>
                 <button onClick={openChapterNote} className="p-1.5 rounded-md text-muted-foreground hover:text-accent hover:bg-accent/5 transition-colors" title="Anotações do capítulo">
                   <StickyNote className="w-4 h-4" />
                 </button>
@@ -281,12 +291,12 @@ const Reader = () => {
           </div>
 
           <ScrollArea className="flex-1">
-            <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, ease: "easeOut" }} className="px-12 lg:px-20 xl:px-28 py-12 max-w-4xl mx-auto">
-              <header className="mb-10 text-center">
+            <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, ease: "easeOut" }} className={`px-12 lg:px-20 xl:px-28 py-12 max-w-4xl mx-auto comfortable-article transition-all duration-300`}>
+              <header className={`mb-10 text-center comfortable-chapter-header`}>
                 <h2 className="font-scripture text-3xl font-light text-foreground/90 tracking-tight">{selectedBook}</h2>
                 <p className="font-scripture text-6xl font-light text-accent/60 mt-1">{selectedChapter}</p>
               </header>
-              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} isSelected={(n) => selectedVerses.some((v) => v.number === n)} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
+              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
             </motion.article>
           </ScrollArea>
         </div>
@@ -357,6 +367,13 @@ const Reader = () => {
               <StickyNote className="w-5 h-5" />
             </button>
             <button
+              onClick={comfortable.toggle}
+              className={`p-2 transition-colors contemplation-hide ${comfortable.active ? "text-accent" : "text-muted-foreground active:text-foreground"}`}
+              aria-label={comfortable.active ? "Sair da leitura confortável" : "Leitura confortável"}
+            >
+              <ALargeSmall className="w-4 h-4" />
+            </button>
+            <button
               onClick={contemplation.enter}
               className="p-2.5 text-muted-foreground active:text-foreground transition-colors contemplation-hide"
               aria-label="Modo contemplação"
@@ -365,7 +382,7 @@ const Reader = () => {
             </button>
           </div>
         </div>
-        <div className="px-4 pb-2.5 relative">
+        <div className={`px-4 pb-2.5 relative comfortable-hide`}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
             <Input placeholder="Buscar na Bíblia..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 pr-9 bg-secondary/30 border-0 text-base h-11 rounded-xl placeholder:text-muted-foreground/50" />
@@ -389,16 +406,16 @@ const Reader = () => {
       {pinnedVerse && <PinnedVerseCard pinned={pinnedVerse} onGoTo={handleGoToPinned} onUnpin={unpinVerse} />}
 
       <ScrollArea className="flex-1">
-        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-5 sm:px-8 py-10 max-w-[680px] mx-auto" {...swipeHandlers}>
-          <header className="mb-10 text-center">
-            <h2 className="font-scripture text-2xl font-normal text-foreground/85">{selectedBook}</h2>
-            <p className="font-scripture text-5xl font-light text-accent/50 mt-1">{selectedChapter}</p>
+        <motion.article key={`${selectedBook}-${selectedChapter}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35, ease: "easeOut" }} className="px-6 py-8 comfortable-article transition-all duration-300" {...swipeHandlers}>
+          <header className="mb-8 text-center comfortable-chapter-header">
+            <h2 className="font-scripture text-xl font-normal text-foreground/85">{selectedBook}</h2>
+            <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">{selectedChapter}</p>
           </header>
 
-          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} isSelected={(n) => selectedVerses.some((v) => v.number === n)} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} />
+          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
 
           {!loading && !error && verses.length > 0 && (
-            <div className="mt-12 pt-8 space-y-5">
+            <div className={`mt-12 pt-8 space-y-5 comfortable-hide`}>
               <div className="editorial-divider mb-6" />
               <DepthSelector value={depth} onChange={setDepth} />
               <RedemptionTimeline book={selectedBook} chapter={selectedChapter} />
