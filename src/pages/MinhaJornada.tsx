@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map, Heart } from "lucide-react";
+import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map, Heart, Flame } from "lucide-react";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useTags } from "@/hooks/useTags";
@@ -231,10 +231,10 @@ const MinhaJornada = () => {
 
               {/* Recent notes */}
               {stats.recentNotes.length > 0 && (
-                <SectionCard icon={<RotateCcw className="w-4 h-4" />} title="Revisitar com consciência" delay={0.3}>
+                <SectionCard icon={<RotateCcw className="w-4 h-4" />} title="Anotações" delay={0.3}>
                   <div className="space-y-4">
                     <p className="text-[10px] text-muted-foreground">
-                      Suas anotações recentes. Revisitar permite comparar compreensão anterior e atual.
+                      Seus estudos pelo Método Revela. Revisitar permite comparar compreensão anterior e atual.
                     </p>
                     {stats.recentNotes.map((note, i) => (
                       <motion.div
@@ -242,7 +242,7 @@ const MinhaJornada = () => {
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.35 + i * 0.04 }}
-                        className="space-y-2 pb-4"
+                        className="space-y-3 pb-4"
                         style={{ borderBottom: i < stats.recentNotes.length - 1 ? '1px solid hsl(var(--border) / 0.5)' : 'none' }}
                       >
                         <div className="flex items-center justify-between">
@@ -250,29 +250,52 @@ const MinhaJornada = () => {
                             {note.book} {note.chapter}
                             {note.verse != null ? `:${note.verse}` : ""}
                           </p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-secondary/50 text-muted-foreground">
-                              {note.type === "verse" ? "verso" : note.type === "chapter" ? "capítulo" : "tema"}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground tabular-nums">
-                              {new Date(note.created_at).toLocaleDateString("pt-BR")}
-                            </span>
-                          </div>
+                          <span className="text-[10px] text-muted-foreground tabular-nums">
+                            {new Date(note.created_at).toLocaleDateString("pt-BR")}
+                          </span>
                         </div>
 
-                        {note.observation && (
-                          <div>
-                            <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Observação</p>
-                            <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.observation}</p>
-                          </div>
-                        )}
+                        <div className="space-y-2">
+                          {note.observation && (
+                            <div className="flex gap-2">
+                              <Eye className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Ver</p>
+                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.observation}</p>
+                              </div>
+                            </div>
+                          )}
 
-                        {note.christocentric && (
-                          <div>
-                            <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Cristo</p>
-                            <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.christocentric}</p>
-                          </div>
-                        )}
+                          {note.christocentric && (
+                            <div className="flex gap-2">
+                              <Sparkles className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Revelar</p>
+                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.christocentric}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {note.application && (
+                            <div className="flex gap-2">
+                              <Flame className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Viver</p>
+                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.application}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {note.prayer && (
+                            <div className="flex gap-2">
+                              <Heart className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Orar</p>
+                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.prayer}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
 
                         <button
                           onClick={() => navigate(`/leitor?livro=${encodeURIComponent(note.book || "")}&cap=${note.chapter || 1}`, { state: { book: note.book, chapter: note.chapter || 1 } })}
