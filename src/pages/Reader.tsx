@@ -202,8 +202,8 @@ const Reader = () => {
     versePanelOpen, openVersePanel, closeVersePanel, clearSelection,
     handleVerseOpen, handlePinVerse,
     verses, loading, error, translation, handleTranslationChange, fontSizeClass,
-    // Novo: isMarked + toggleMark em vez de getHighlightClass / setHighlight
-    isMarked, toggleMark,
+    // Highlight system
+    isMarked, toggleMark, getVersePenClass, setHighlight,
     isFavorite, toggleFavorite,
     pinnedVerse, unpinVerse,
     noteSheetOpen, setNoteSheetOpen, noteVerse, openVerseNote, openChapterNote,
