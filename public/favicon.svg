@@ -1,23 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#131416"/>
-  <!-- R logo — spine -->
-  <line x1="182" y1="136" x2="182" y2="386"
-        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
-  <!-- Bowl -->
-  <path d="M182,136 C353,136 353,274 182,274"
-        stroke="#EDE9E0" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- Shoulder -->
-  <line x1="182" y1="274" x2="228" y2="274"
-        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
-  <!-- Leg to fork -->
-  <line x1="228" y1="274" x2="281" y2="342"
-        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
-  <!-- Left fork -->
-  <line x1="281" y1="342" x2="270" y2="386"
-        stroke="#EDE9E0" stroke-width="11" stroke-linecap="round"/>
-  <!-- Right fork — wine accent -->
-  <line x1="281" y1="342" x2="344" y2="386"
-        stroke="#8B3D38" stroke-width="11" stroke-linecap="round"/>
-  <!-- Accent dot -->
-  <circle cx="344" cy="386" r="9" fill="#8B3D38" opacity="0.85"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 35.5 200 200">
+  <!-- Background fills the entire square -->
+  <rect x="0" y="0" width="200" height="500" fill="#131416"/>
+
+  <!-- Pages: 11 folhas em leque, rotate(angle, 100, 146) -->
+  <g transform="rotate(-68, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#282624"/></g>
+  <g transform="rotate(-60, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#322F2C"/></g>
+  <g transform="rotate(-52, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#3D3A37"/></g>
+  <g transform="rotate(-44, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#484441"/></g>
+  <g transform="rotate(-36, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#534F4B"/></g>
+  <g transform="rotate(-28, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#5E5955"/></g>
+  <g transform="rotate(-20, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#6A645F"/></g>
+  <g transform="rotate(-12, 100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#78706A"/></g>
+  <g transform="rotate(-4,  100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#868070"/></g>
+  <g transform="rotate(4,   100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#958F7F"/></g>
+  <g transform="rotate(12,  100, 146)"><polygon points="97,146 103,146 111,56 89,56" fill="#A39D8D"/></g>
+
+  <!-- Letra "r": haste + arco -->
+  <line x1="100" y1="146" x2="100" y2="215" stroke="#F5F0E8" stroke-width="13" stroke-linecap="round"/>
+  <path d="M 100,161 C 100,149 129,148 134,163" stroke="#F5F0E8" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
