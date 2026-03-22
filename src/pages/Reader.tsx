@@ -317,7 +317,8 @@ const Reader = () => {
               count={selectedVerses.length}
               reference={selectionReference}
               isMarked={selectedVerses.every((v) => isMarked(v.number))}
-              onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+              currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
+              onSelectColor={(color) => selectedVerses.forEach((v) => setHighlight(v.number, color))}
               onReveal={openVersePanel}
               onExpand={openVersePanel}
               onClear={clearSelection}
