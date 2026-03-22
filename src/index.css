@@ -45,8 +45,12 @@
 
     --radius: 0.25rem;               /* 4px — autoridade tipográfica */
 
-    /* Marcação */
-    --highlight-marked: 5 35% 78%;
+    /* Marcação — cores de caneta */
+    --pen-yellow: 45 90% 55%;
+    --pen-green: 145 55% 42%;
+    --pen-blue: 215 70% 52%;
+    --pen-pink: 340 65% 55%;
+    --pen-purple: 270 50% 52%;
 
     /* Sidebar */
     --sidebar-background: 43 41% 97%;
