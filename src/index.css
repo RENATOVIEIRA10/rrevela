@@ -111,7 +111,11 @@
     --input: 206 7% 19%;
     --ring: 4 43% 38%;
 
-    --highlight-marked: 5 30% 38%;
+    --pen-yellow: 45 80% 50%;
+    --pen-green: 145 50% 38%;
+    --pen-blue: 215 60% 48%;
+    --pen-pink: 340 55% 50%;
+    --pen-purple: 270 45% 48%;
 
     --sidebar-background: 220 7% 8%;
     --sidebar-foreground: 42 27% 90%;
