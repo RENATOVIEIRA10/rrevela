@@ -11,6 +11,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Pin, Sparkles, Heart, Bookmark } from "lucide-react";
 import { useShareVerse } from "@/hooks/useShareVerse";
+import { useNotes } from "@/hooks/useNotes";
 import ShareMenu from "./ShareMenu";
 import {
   Drawer,
@@ -83,6 +84,9 @@ const VersePanel = ({
 
   const firstVerse = verses[0];
   const reference = formatVerseRange(book, chapter, verses);
+
+  // Load the user's note for this verse to enrich the story template
+  const { notes: verseNotes } = useNotes(book, chapter, verses.length === 1 ? firstVerse?.number : null);
   const combinedText = useMemo(
     () => verses.map((v) => v.text).join(" "),
     [verses]
@@ -232,6 +236,10 @@ const VersePanel = ({
                 reference,
                 verseText: combinedText,
                 insightText: shareMode === "reveal" ? revealText : undefined,
+                observation:    verseNotes[0]?.observation    || undefined,
+                christocentric: verseNotes[0]?.christocentric || undefined,
+                application:    verseNotes[0]?.application    || undefined,
+                prayer:         verseNotes[0]?.prayer         || undefined,
               }}
             />
           </div>
