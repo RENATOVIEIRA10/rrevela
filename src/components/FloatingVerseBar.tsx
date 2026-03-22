@@ -1,30 +1,30 @@
 /**
- * FloatingVerseBar.tsx — Barra flutuante de ações para versículos selecionados
- *
- * Aparece na parte inferior quando 1+ versículos estão selecionados.
- * Botões: Marcar, Compartilhar/Revelar, Abrir painel completo, Limpar seleção.
+ * FloatingVerseBar.tsx — Barra flutuante com seletor de cor (caneta)
  */
 import { motion } from "framer-motion";
-import { Bookmark, Sparkles, ChevronUp, X } from "lucide-react";
+import { Sparkles, ChevronUp, X, Eraser } from "lucide-react";
+import { PEN_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 
 interface FloatingVerseBarProps {
   count: number;
   reference: string;
-  onMark: () => void;
+  onSelectColor: (color: HighlightColor | null) => void;
   onReveal: () => void;
   onExpand: () => void;
   onClear: () => void;
   isMarked: boolean;
+  currentColor: HighlightColor | null;
 }
 
 const FloatingVerseBar = ({
   count,
   reference,
-  onMark,
+  onSelectColor,
   onReveal,
   onExpand,
   onClear,
   isMarked,
+  currentColor,
 }: FloatingVerseBarProps) => {
   return (
     <motion.div
@@ -52,22 +52,44 @@ const FloatingVerseBar = ({
           </button>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2.5">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={onMark}
-            className={[
-              "flex-1 flex items-center justify-center gap-2 h-12 rounded-xl text-[0.9375rem] font-ui transition-all",
-              isMarked
-                ? "bg-accent/15 text-accent border border-accent/25 font-medium"
-                : "bg-secondary/50 text-foreground/70 border border-transparent hover:bg-secondary/70",
-            ].join(" ")}
-          >
-            <Bookmark className={`w-5 h-5 ${isMarked ? "fill-current" : ""}`} />
-            {isMarked ? "Marcado" : "Marcar"}
-          </motion.button>
+        {/* Color picker + actions */}
+        <div className="flex items-center gap-3">
+          {/* Pen color dots */}
+          <div className="flex items-center gap-1.5">
+            {PEN_COLORS.map((pen) => (
+              <button
+                key={pen.key}
+                onClick={() => onSelectColor(pen.key)}
+                className={[
+                  "w-8 h-8 rounded-full transition-all duration-200 flex items-center justify-center",
+                  currentColor === pen.key
+                    ? "ring-2 ring-offset-2 ring-offset-card scale-110"
+                    : "hover:scale-110",
+                ].join(" ")}
+                style={{
+                  backgroundColor: `hsl(${pen.dot})`,
+                  ["--tw-ring-color" as string]: `hsl(${pen.dot})`,
+                }}
+                aria-label={`Marcar com ${pen.label}`}
+                title={pen.label}
+              />
+            ))}
+            {/* Eraser */}
+            {isMarked && (
+              <button
+                onClick={() => onSelectColor(null)}
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary/60 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                aria-label="Apagar marca"
+                title="Apagar"
+              >
+                <Eraser className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
 
+          <div className="h-6 w-px bg-border/50 mx-1" />
+
+          {/* Reveal + Expand */}
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onReveal}

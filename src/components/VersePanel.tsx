@@ -1,15 +1,9 @@
 /**
- * VersePanel.tsx — Multi-verse support
- *
- * Suporta seleção de um ou mais versículos.
- * Quando múltiplos versículos são selecionados:
- * - Exibe o range (ex: "Romanos 8:28-30")
- * - Combina os textos para compartilhar e revelar
- * - Ações de marcar/favoritar aplicam-se ao primeiro versículo
+ * VersePanel.tsx — Multi-verse support + color picker (caneta bíblica)
  */
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Pin, Sparkles, Heart, Bookmark } from "lucide-react";
+import { BookOpen, Pin, Sparkles, Heart, Eraser } from "lucide-react";
 import { useShareVerse } from "@/hooks/useShareVerse";
 import ShareMenu from "./ShareMenu";
 import {
@@ -21,7 +15,7 @@ import {
 } from "@/components/ui/drawer";
 import CompareOlhares from "./CompareOlhares";
 import VerseRevealSection from "./VerseRevealSection";
-import type { HighlightColor } from "@/hooks/useHighlights";
+import { PEN_COLORS, type HighlightColor } from "@/hooks/useHighlights";
 
 export interface SelectedVerse {
   number: number;
@@ -33,33 +27,25 @@ interface VersePanelProps {
   onClose: () => void;
   book: string;
   chapter: number;
-  /** Multiple selected verses (sorted by number) */
   verses: SelectedVerse[];
-  /** true se o primeiro versículo já está marcado */
   isMarked: boolean;
-  /** toggle marcar/desmarcar primeiro versículo */
-  onToggleMark: () => void;
+  currentColor: HighlightColor | null;
+  onSelectColor: (color: HighlightColor | null) => void;
   onOpenNote?: (aiRevelation?: string) => void;
   onPinVerse?: () => void;
   onNavigateToRef?: (book: string, chapter: number, verse: number) => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
-  // mantido para compatibilidade
-  currentColor?: HighlightColor | null;
-  onSelectColor?: (color: HighlightColor | null) => void;
+  // legacy compat
+  onToggleMark?: () => void;
 }
 
 function formatVerseRange(book: string, chapter: number, verses: SelectedVerse[]): string {
   if (verses.length === 0) return "";
   if (verses.length === 1) return `${book} ${chapter}:${verses[0].number}`;
-  
-  // Check if consecutive
   const nums = verses.map((v) => v.number);
   const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
-  
-  if (isConsecutive) {
-    return `${book} ${chapter}:${nums[0]}-${nums[nums.length - 1]}`;
-  }
+  if (isConsecutive) return `${book} ${chapter}:${nums[0]}-${nums[nums.length - 1]}`;
   return `${book} ${chapter}:${nums.join(",")}`;
 }
 
@@ -70,7 +56,8 @@ const VersePanel = ({
   chapter,
   verses,
   isMarked,
-  onToggleMark,
+  currentColor,
+  onSelectColor,
   onOpenNote,
   onPinVerse,
   onNavigateToRef,
@@ -125,7 +112,7 @@ const VersePanel = ({
           </DrawerTitle>
           {isMulti && (
             <p className="text-xs text-accent font-ui mt-1">
-              {verses.length} versículos selecionados — toque em mais versículos para expandir
+              {verses.length} versículos selecionados
             </p>
           )}
           <DrawerDescription className="font-scripture text-base text-foreground/75 italic leading-relaxed mt-2 max-h-36 overflow-y-auto">
@@ -140,26 +127,50 @@ const VersePanel = ({
         </DrawerHeader>
 
         <div className="px-6 pb-10 space-y-6 overflow-y-auto">
-          {/* ── Ações principais ─────────────────────────────── */}
-          <div className="flex items-center justify-between">
-            <motion.button
-              whileTap={{ scale: 0.94 }}
-              onClick={onToggleMark}
-              className={[
-                "flex items-center gap-2.5 px-5 h-12 rounded-xl text-[0.9375rem] transition-all duration-200 font-ui",
-                isMarked
-                  ? "bg-accent/10 text-accent border border-accent/25 font-medium"
-                  : "bg-secondary/40 text-foreground/60 border border-transparent hover:bg-secondary/60",
-              ].join(" ")}
-            >
-              <Bookmark
-                className={`w-5 h-5 transition-all duration-200 ${
-                  isMarked ? "fill-current" : ""
-                }`}
-              />
-              {isMarked ? "Marcado" : "Marcar"}
-            </motion.button>
+          {/* ── Cores de caneta (marca-texto) ─────────────────── */}
+          <div className="space-y-3">
+            <p className="text-xs font-ui text-muted-foreground uppercase tracking-widest">
+              Marcar com caneta
+            </p>
+            <div className="flex items-center gap-2">
+              {PEN_COLORS.map((pen) => (
+                <motion.button
+                  key={pen.key}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => onSelectColor(pen.key)}
+                  className={[
+                    "w-10 h-10 rounded-full transition-all duration-200 flex flex-col items-center justify-center gap-0.5",
+                    currentColor === pen.key
+                      ? "ring-2 ring-offset-2 ring-offset-card scale-110"
+                      : "hover:scale-105",
+                  ].join(" ")}
+                  style={{
+                    backgroundColor: `hsl(${pen.dot})`,
+                    ["--tw-ring-color" as string]: `hsl(${pen.dot})`,
+                  }}
+                  aria-label={`Marcar com ${pen.label}`}
+                  title={pen.label}
+                />
+              ))}
+              {/* Eraser */}
+              {isMarked && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => onSelectColor(null)}
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/60 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                  aria-label="Apagar marca"
+                  title="Apagar marca"
+                >
+                  <Eraser className="w-4 h-4" />
+                </motion.button>
+              )}
+            </div>
+          </div>
 
+          <div className="editorial-divider" />
+
+          {/* ── Ações ─────────────────────────────────────────── */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-5">
               {onToggleFavorite && (
                 <button
