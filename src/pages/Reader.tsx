@@ -29,7 +29,7 @@ import TranslationSelector from "@/components/TranslationSelector";
 import RedemptionTimeline from "@/components/RedemptionTimeline";
 import HistoricalContextPanel from "@/components/HistoricalContextPanel";
 import PinnedVerseCard from "@/components/PinnedVerseCard";
-import { MARK_CSS_CLASS } from "@/hooks/useHighlights";
+import { MARK_CSS_CLASS, getPenClass } from "@/hooks/useHighlights";
 import { useReaderState } from "@/hooks/useReaderState";
 import { useChapterSwipe } from "@/hooks/useChapterSwipe";
 import { useContemplation } from "@/hooks/useContemplation";
@@ -99,6 +99,7 @@ interface VerseBodyProps {
   error: string | null;
   fontSizeClass: string;
   isMarked: (n: number) => boolean;
+  getVersePenClass: (n: number) => string;
   isSelected?: (n: number) => boolean;
   onVerseClick: (v: { number: number; text: string }) => void;
   pinnedVerse?: ReturnType<typeof useReaderState>["pinnedVerse"];
@@ -111,7 +112,7 @@ interface VerseBodyProps {
 }
 
 const VerseBody = ({
-  verses, loading, error, fontSizeClass, isMarked, isSelected,
+  verses, loading, error, fontSizeClass, isMarked, getVersePenClass, isSelected,
   onVerseClick, pinnedVerse, selectedBook, selectedChapter, variant,
   targetVerse, onTargetVerseScrolled, comfortableReading,
 }: VerseBodyProps) => {
@@ -153,6 +154,7 @@ const VerseBody = ({
     <div className={[spacing, comfortableReading ? "comfortable-verses" : ""].join(" ")}>
       {verses.map((verse) => {
         const marked = isMarked(verse.number);
+        const penClass = getVersePenClass(verse.number);
         const selected = isSelected?.(verse.number) ?? false;
         const isPinned = isDesktop &&
           pinnedVerse?.verse === verse.number &&
@@ -169,7 +171,7 @@ const VerseBody = ({
               isDesktop
                 ? "text-foreground/85 hover:text-foreground py-0.5"
                 : "verse-line text-foreground/85 active:text-foreground",
-              marked ? MARK_CSS_CLASS : "",
+              marked ? penClass : "",
               marked && !isDesktop ? "has-highlight" : "",
               isPinned ? "bg-accent/5 -mx-3 px-3 rounded" : "",
               highlightedVerse === verse.number ? "verse-target-highlight" : "",
@@ -200,8 +202,8 @@ const Reader = () => {
     versePanelOpen, openVersePanel, closeVersePanel, clearSelection,
     handleVerseOpen, handlePinVerse,
     verses, loading, error, translation, handleTranslationChange, fontSizeClass,
-    // Novo: isMarked + toggleMark em vez de getHighlightClass / setHighlight
-    isMarked, toggleMark,
+    // Highlight system
+    isMarked, toggleMark, getVersePenClass, setHighlight, getVerseHighlight,
     isFavorite, toggleFavorite,
     pinnedVerse, unpinVerse,
     noteSheetOpen, setNoteSheetOpen, noteVerse, openVerseNote, openChapterNote,
@@ -296,7 +298,7 @@ const Reader = () => {
                 <h2 className="font-scripture text-3xl font-light text-foreground/90 tracking-tight">{selectedBook}</h2>
                 <p className="font-scripture text-6xl font-light text-accent/60 mt-1">{selectedChapter}</p>
               </header>
-              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
+              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} getVersePenClass={getVersePenClass} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
             </motion.article>
           </ScrollArea>
         </div>
@@ -315,7 +317,8 @@ const Reader = () => {
               count={selectedVerses.length}
               reference={selectionReference}
               isMarked={selectedVerses.every((v) => isMarked(v.number))}
-              onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+              currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
+              onSelectColor={(color) => selectedVerses.forEach((v) => setHighlight(v.number, color))}
               onReveal={openVersePanel}
               onExpand={openVersePanel}
               onClear={clearSelection}
@@ -329,7 +332,8 @@ const Reader = () => {
             book={selectedBook} chapter={selectedChapter}
             verses={selectedVerses}
             isMarked={isMarked(selectedVerses[0].number)}
-            onToggleMark={() => toggleMark(selectedVerses[0].number)}
+            currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
+            onSelectColor={(color) => setHighlight(selectedVerses[0].number, color)}
             onOpenNote={(aiRev) => openVerseNote(selectedVerses[0].number, selectedVerses[0].text, aiRev)}
             onPinVerse={handlePinVerse} onNavigateToRef={handleNavigateToRef}
             isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerses[0].number)}
@@ -412,7 +416,7 @@ const Reader = () => {
             <p className="font-scripture text-4xl font-light text-accent/50 mt-0.5">{selectedChapter}</p>
           </header>
 
-          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
+          <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} getVersePenClass={getVersePenClass} onVerseClick={handleVerseOpen} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="mobile" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
 
           {!loading && !error && verses.length > 0 && (
             <div className={`mt-12 pt-8 space-y-5 comfortable-hide`}>
@@ -436,7 +440,8 @@ const Reader = () => {
             count={selectedVerses.length}
             reference={selectionReference}
             isMarked={selectedVerses.every((v) => isMarked(v.number))}
-            onMark={() => selectedVerses.forEach((v) => toggleMark(v.number))}
+            currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
+            onSelectColor={(color) => selectedVerses.forEach((v) => setHighlight(v.number, color))}
             onReveal={openVersePanel}
             onExpand={openVersePanel}
             onClear={clearSelection}
@@ -450,7 +455,8 @@ const Reader = () => {
           book={selectedBook} chapter={selectedChapter}
           verses={selectedVerses}
           isMarked={isMarked(selectedVerses[0].number)}
-          onToggleMark={() => toggleMark(selectedVerses[0].number)}
+          currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
+          onSelectColor={(color) => setHighlight(selectedVerses[0].number, color)}
           onOpenNote={(aiRev) => openVerseNote(selectedVerses[0].number, selectedVerses[0].text, aiRev)}
           onPinVerse={handlePinVerse} onNavigateToRef={handleNavigateToRef}
           isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerses[0].number)}

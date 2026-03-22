@@ -65,7 +65,7 @@ export function useReaderState() {
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
   const [translation, setTranslation] = useState<TranslationKey>(() => {
     const saved = localStorage.getItem("revela-translation") as TranslationKey;
-    return saved === "livre" || !saved ? "arc" : saved;
+    return saved === "arc" || saved === "tb" ? saved : "arc";
   });
   const [fontSize, setFontSize] = useState(
     () => localStorage.getItem("revela-font-size") || "md"
@@ -87,8 +87,8 @@ export function useReaderState() {
   const { verses, loading, error } = useBibleVerses(selectedBook, selectedChapter, translation);
   const { pinned: pinnedVerse, pin: pinVerse, unpin: unpinVerse } = usePinnedVerse();
   const { isFavorite, toggleFavorite } = useFavorites();
-  // Novo: toggleMark e isMarked em vez de setHighlight / getHighlightClass
-  const { toggleMark, isMarked, getVerseHighlight } = useHighlights(selectedBook, selectedChapter);
+  // Highlight system with colors
+  const { toggleMark, isMarked, getVerseHighlight, getVersePenClass, setHighlight } = useHighlights(selectedBook, selectedChapter);
   const chapterNotes = useNotes(selectedBook, selectedChapter);
   const verseNotes = useNotes(selectedBook, selectedChapter, noteVerse ?? desktopNoteVerse);
 
@@ -245,9 +245,11 @@ export function useReaderState() {
     handleVerseOpen, handlePinVerse,
     verses, loading, error,
     translation, handleTranslationChange, fontSizeClass,
-    // Novo sistema de marcação
+    // Highlight system
     isMarked,
     toggleMark,
+    getVersePenClass,
+    setHighlight,
     // Mantido para DesktopStudyMargin e BuscaAvancada
     getVerseHighlight,
     isFavorite, toggleFavorite,
