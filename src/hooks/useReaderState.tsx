@@ -65,7 +65,7 @@ export function useReaderState() {
   const [desktopNoteVerse, setDesktopNoteVerse] = useState<number | undefined>(undefined);
   const [translation, setTranslation] = useState<TranslationKey>(() => {
     const saved = localStorage.getItem("revela-translation") as TranslationKey;
-    return saved === "livre" || !saved ? "arc" : saved;
+    return saved === "arc" || saved === "tb" ? saved : "arc";
   });
   const [fontSize, setFontSize] = useState(
     () => localStorage.getItem("revela-font-size") || "md"
