@@ -298,7 +298,7 @@ const Reader = () => {
                 <h2 className="font-scripture text-3xl font-light text-foreground/90 tracking-tight">{selectedBook}</h2>
                 <p className="font-scripture text-6xl font-light text-accent/60 mt-1">{selectedChapter}</p>
               </header>
-              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
+              <VerseBody verses={verses} loading={loading} error={error} fontSizeClass={fontSizeClass} isMarked={isMarked} getVersePenClass={getVersePenClass} onVerseClick={handleVerseOpen} pinnedVerse={pinnedVerse} selectedBook={selectedBook} selectedChapter={selectedChapter} variant="desktop" targetVerse={targetVerse} onTargetVerseScrolled={() => setTargetVerse(null)} comfortableReading={comfortable.active} />
             </motion.article>
           </ScrollArea>
         </div>
