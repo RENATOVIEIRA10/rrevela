@@ -245,9 +245,11 @@ export function useReaderState() {
     handleVerseOpen, handlePinVerse,
     verses, loading, error,
     translation, handleTranslationChange, fontSizeClass,
-    // Novo sistema de marcação
+    // Highlight system
     isMarked,
     toggleMark,
+    getVersePenClass,
+    setHighlight,
     // Mantido para DesktopStudyMargin e BuscaAvancada
     getVerseHighlight,
     isFavorite, toggleFavorite,
