@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_response_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          function_name: string
+          hit_count: number
+          id: string
+          response: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at?: string
+          function_name: string
+          hit_count?: number
+          id?: string
+          response: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          function_name?: string
+          hit_count?: number
+          id?: string
+          response?: Json
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -35,6 +65,39 @@ export type Database = {
           event_type?: string
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      analytics_queue: {
+        Row: {
+          book: string | null
+          chapter: number | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          user_id: string
+          verse: number | null
+        }
+        Insert: {
+          book?: string | null
+          chapter?: number | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+          verse?: number | null
+        }
+        Update: {
+          book?: string | null
+          chapter?: number | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+          verse?: number | null
         }
         Relationships: []
       }
@@ -70,6 +133,147 @@ export type Database = {
           text_search?: unknown
           translation?: string
           updated_at?: string
+          verse?: number
+        }
+        Relationships: []
+      }
+      devotional_entries: {
+        Row: {
+          book: string
+          chapter_end: number | null
+          chapter_start: number
+          christocentric_connection: string
+          created_at: string
+          era_key: string
+          gospel_revelation: string
+          id: string
+          order_index: number
+          reflection_questions: Json
+          subtitle: string
+          title: string
+          verse_end: number | null
+          verse_start: number | null
+        }
+        Insert: {
+          book: string
+          chapter_end?: number | null
+          chapter_start?: number
+          christocentric_connection: string
+          created_at?: string
+          era_key: string
+          gospel_revelation: string
+          id?: string
+          order_index: number
+          reflection_questions?: Json
+          subtitle: string
+          title: string
+          verse_end?: number | null
+          verse_start?: number | null
+        }
+        Update: {
+          book?: string
+          chapter_end?: number | null
+          chapter_start?: number
+          christocentric_connection?: string
+          created_at?: string
+          era_key?: string
+          gospel_revelation?: string
+          id?: string
+          order_index?: number
+          reflection_questions?: Json
+          subtitle?: string
+          title?: string
+          verse_end?: number | null
+          verse_start?: number | null
+        }
+        Relationships: []
+      }
+      favorite_tags: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      favorite_verse_tags: {
+        Row: {
+          created_at: string
+          favorite_id: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          favorite_id: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          favorite_id?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_verse_tags_favorite_id_fkey"
+            columns: ["favorite_id"]
+            isOneToOne: false
+            referencedRelation: "favorite_verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorite_verse_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "favorite_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorite_verses: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          translation: string
+          user_id: string
+          verse: number
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          translation?: string
+          user_id: string
+          verse: number
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          translation?: string
+          user_id?: string
           verse?: number
         }
         Relationships: []
@@ -142,6 +346,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bot_ativo: boolean | null
           created_at: string
           display_name: string | null
           id: string
@@ -149,6 +354,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          bot_ativo?: boolean | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -156,11 +362,78 @@ export type Database = {
           user_id: string
         }
         Update: {
+          bot_ativo?: boolean | null
           created_at?: string
           display_name?: string | null
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          subscription: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          subscription: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          subscription?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shared_studies: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          insight_text: string
+          mode: string
+          share_text: string
+          share_type: string
+          title: string
+          user_id: string | null
+          verse: number | null
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          insight_text?: string
+          mode?: string
+          share_text: string
+          share_type?: string
+          title?: string
+          user_id?: string | null
+          verse?: number | null
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          insight_text?: string
+          mode?: string
+          share_text?: string
+          share_type?: string
+          title?: string
+          user_id?: string | null
+          verse?: number | null
         }
         Relationships: []
       }
@@ -251,6 +524,77 @@ export type Database = {
         }
         Relationships: []
       }
+      user_devotional_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          devotional_id: string
+          favorited: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          devotional_id: string
+          favorited?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          devotional_id?: string
+          favorited?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_devotional_progress_devotional_id_fkey"
+            columns: ["devotional_id"]
+            isOneToOne: false
+            referencedRelation: "devotional_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_reading_progress: {
+        Row: {
+          completed_days: number[]
+          created_at: string
+          id: string
+          plan_id: string
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_days?: number[]
+          created_at?: string
+          id?: string
+          plan_id: string
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_days?: number[]
+          created_at?: string
+          id?: string
+          plan_id?: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -269,11 +613,54 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_sessions_rrevela: {
+        Row: {
+          created_at: string | null
+          name: string | null
+          phone: string
+          plano_ativo: string | null
+          plano_dia: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          name?: string | null
+          phone: string
+          plano_ativo?: string | null
+          plano_dia?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          name?: string | null
+          phone?: string
+          plano_ativo?: string | null
+          plano_dia?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      ai_cache_stats: {
+        Row: {
+          avg_hits_per_entry: number | null
+          expired_entries: number | null
+          function_name: string | null
+          max_hits: number | null
+          newest_entry: string | null
+          oldest_entry: string | null
+          total_entries: number | null
+          total_hits: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      ai_cache_increment_hit: { Args: { row_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -281,6 +668,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      purge_expired_ai_cache: { Args: never; Returns: number }
       search_bible: {
         Args: {
           result_limit?: number

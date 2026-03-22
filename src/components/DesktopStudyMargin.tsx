@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Pin, StickyNote, Cross, Repeat, HelpCircle, BookOpen } from "lucide-react";
+import RedemptionTimeline from "./RedemptionTimeline";
+import HistoricalContextPanel from "./HistoricalContextPanel";
 import NoteEditor from "./NoteEditor";
 import MessianicLinePanel from "./MessianicLinePanel";
 import BiblicalPatternsPanel from "./BiblicalPatternsPanel";
@@ -20,7 +21,6 @@ interface DesktopStudyMarginProps {
   onUnpin: () => void;
   onGoToPinned: (book: string, chapter: number, verse: number) => void;
   onNavigateToRef?: (book: string, chapter: number, verse: number) => void;
-  // Notes
   chapterNotes: {
     notes: StructuredNote[];
     saveNote: (note: Partial<StructuredNote> & { type: NoteType }) => Promise<StructuredNote | null>;
@@ -56,25 +56,25 @@ const DesktopStudyMargin = ({
   const existingNote = activeNotes.notes[0];
 
   return (
-    <div className="h-full flex flex-col border-l border-border bg-card/30">
-      {/* Tabs */}
-      <div className="flex border-b border-border/50">
+    <div className="h-full flex flex-col border-l border-border/50 bg-sidebar/30">
+      {/* Elegant tabs */}
+      <div className="flex border-b border-border/40">
         <button
           onClick={() => setActiveTab("study")}
-          className={`flex-1 text-xs py-2.5 font-medium transition-colors ${
+          className={`flex-1 text-xs py-3 font-ui font-medium transition-all duration-200 ${
             activeTab === "study"
-              ? "text-accent border-b-2 border-accent"
-              : "text-muted-foreground hover:text-foreground"
+              ? "text-accent border-b-2 border-accent -mb-px"
+              : "text-muted-foreground/70 hover:text-foreground"
           }`}
         >
           Estudo
         </button>
         <button
           onClick={() => setActiveTab("notes")}
-          className={`flex-1 text-xs py-2.5 font-medium transition-colors ${
+          className={`flex-1 text-xs py-3 font-ui font-medium transition-all duration-200 ${
             activeTab === "notes"
-              ? "text-accent border-b-2 border-accent"
-              : "text-muted-foreground hover:text-foreground"
+              ? "text-accent border-b-2 border-accent -mb-px"
+              : "text-muted-foreground/70 hover:text-foreground"
           }`}
         >
           Anotações
@@ -82,7 +82,7 @@ const DesktopStudyMargin = ({
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
+        <div className="p-5 space-y-5">
           {/* Pinned verse */}
           {pinnedVerse && (
             <PinnedVerseCard
@@ -95,6 +95,8 @@ const DesktopStudyMargin = ({
           {activeTab === "study" && (
             <>
               <DepthSelector value={depth} onChange={onDepthChange} />
+              <RedemptionTimeline book={book} chapter={chapter} />
+              <HistoricalContextPanel book={book} chapter={chapter} />
               <MessianicLinePanel book={book} chapter={chapter} onNavigate={onNavigateToRef} />
               {(depth === "intermediario" || depth === "profundo") && (
                 <BiblicalPatternsPanel book={book} chapter={chapter} depth={depth} onNavigate={onNavigateToRef} />
@@ -109,7 +111,8 @@ const DesktopStudyMargin = ({
 
               {/* Cross references for pinned verse */}
               {pinnedVerse && (
-                <div className="border-t border-border/50 pt-4">
+                <div className="pt-5">
+                  <div className="editorial-divider mb-5" />
                   <CompareOlhares
                     book={pinnedVerse.book}
                     chapter={pinnedVerse.chapter}
@@ -123,14 +126,14 @@ const DesktopStudyMargin = ({
 
           {activeTab === "notes" && (
             <>
-              {/* Verse/Chapter selector */}
+              {/* Verse/Chapter selector — refined chips */}
               <div className="flex gap-2">
                 <button
                   onClick={() => onSelectVerseForNote(undefined)}
-                  className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                  className={`text-xs px-3.5 py-2 rounded-xl transition-all font-ui ${
                     selectedVerseForNote === undefined
-                      ? "bg-accent/10 text-accent font-medium"
-                      : "bg-secondary/40 text-foreground/60 hover:bg-secondary"
+                      ? "bg-accent/10 text-accent font-medium border border-accent/15"
+                      : "bg-secondary/30 text-foreground/60 hover:bg-secondary/50 border border-transparent"
                   }`}
                 >
                   Capítulo
@@ -138,10 +141,10 @@ const DesktopStudyMargin = ({
                 {pinnedVerse && (
                   <button
                     onClick={() => onSelectVerseForNote(pinnedVerse.verse)}
-                    className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                    className={`text-xs px-3.5 py-2 rounded-xl transition-all font-ui ${
                       selectedVerseForNote === pinnedVerse.verse
-                        ? "bg-accent/10 text-accent font-medium"
-                        : "bg-secondary/40 text-foreground/60 hover:bg-secondary"
+                        ? "bg-accent/10 text-accent font-medium border border-accent/15"
+                        : "bg-secondary/30 text-foreground/60 hover:bg-secondary/50 border border-transparent"
                     }`}
                   >
                     v. {pinnedVerse.verse}
@@ -160,20 +163,21 @@ const DesktopStudyMargin = ({
               />
 
               {activeNotes.notes.length > 1 && (
-                <div className="space-y-3 border-t border-border/50 pt-4">
-                  <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-medium">
+                <div className="space-y-3 pt-5">
+                  <div className="editorial-divider mb-4" />
+                  <p className="text-[9px] uppercase tracking-widest text-muted-foreground/60 font-ui font-medium">
                     Anteriores
                   </p>
                   {activeNotes.notes.slice(1).map((prevNote) => (
                     <div
                       key={prevNote.id}
-                      className="bg-secondary/20 rounded-lg p-3 space-y-1.5 border border-border/30"
+                      className="bg-secondary/20 rounded-xl p-4 space-y-1.5 border border-border/30"
                     >
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-muted-foreground/60 font-ui">
                         {new Date(prevNote.created_at).toLocaleDateString("pt-BR")}
                       </p>
                       {prevNote.observation && (
-                        <p className="text-xs text-foreground/70 font-scripture line-clamp-3">{prevNote.observation}</p>
+                        <p className="text-sm text-foreground/70 font-scripture line-clamp-3">{prevNote.observation}</p>
                       )}
                     </div>
                   ))}

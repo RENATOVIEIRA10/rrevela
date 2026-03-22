@@ -18,6 +18,21 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+interface MetricAuditEntry {
+  key: string;
+  source: string;
+  query: string;
+  status: "ok" | "empty" | "error";
+  error: string | null;
+}
+
+interface MetricStateEntry {
+  key: string;
+  status: "ok" | "empty" | "error";
+  message?: string;
+  source?: string;
+}
+
 interface AdminMetrics {
   totalUsers: number;
   activeTodayCount: number;
@@ -29,6 +44,7 @@ interface AdminMetrics {
   notesCreated: number;
   highlightsMade: number;
   sharesCount: number;
+  questionsAsked: number;
   revelationMode: number;
   totalNotes: number;
   noteUserPct: number;
@@ -37,9 +53,107 @@ interface AdminMetrics {
   topPassages: { passage: string; count: number }[];
   growthData: { date: string; count: number }[];
   users: { user_id: string; display_name: string; email: string; created_at: string; last_sign_in: string | null }[];
+  __meta?: {
+    status: "ok" | "partial";
+    httpStatus?: number;
+    metricErrors: Record<string, string>;
+    metricState?: Record<string, MetricStateEntry>;
+    requestAudit?: {
+      metrics: MetricAuditEntry[];
+      auth: {
+        hasAuthorizationHeader: boolean;
+        userId: string | null;
+        email: string | null;
+        adminCheck: "ok" | "forced_admin_email" | "failed";
+      };
+    };
+    analyticsAudit?: {
+      events_table_selected: string | null;
+      required_tables?: Record<string, boolean>;
+      missing_or_invalid?: { key: string; reason: string; message: string }[];
+    };
+  };
 }
 
-const MetricCard = ({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string | number; sub?: string }) => (
+interface AdminMetricsApiResponse {
+  total_users?: number;
+  active_today?: number;
+  active_week?: number;
+  active_month?: number;
+  chapters_read?: number;
+  revela_usage?: number;
+  notes_created?: number;
+  highlights_created?: number;
+  shares_created?: number;
+  questions_asked?: number;
+  revelation_mode?: number;
+  revela_verse?: number;
+  note_user_pct?: number;
+  questions?: { query?: string; created_at?: string; user_id?: string | null }[];
+  top_passages?: { passage: string; count: number }[];
+  recent_shares?: { book: string; chapter: number; verse: number; share_text: string; created_at: string }[];
+  growth_data?: { date: string; count: number }[];
+  users?: { user_id: string; display_name: string; email: string; created_at: string; last_sign_in: string | null }[];
+  __meta?: {
+    endpoint?: string;
+    status?: "ok" | "partial";
+    httpStatus?: number;
+    metricErrors?: Record<string, string>;
+    metricState?: Record<string, MetricStateEntry>;
+    requestAudit?: {
+      metrics: MetricAuditEntry[];
+      auth: {
+        hasAuthorizationHeader: boolean;
+        userId: string | null;
+        email: string | null;
+        adminCheck: "ok" | "forced_admin_email" | "failed";
+      };
+    };
+    analyticsAudit?: {
+      events_table_selected: string | null;
+      required_tables?: Record<string, boolean>;
+      missing_or_invalid?: { key: string; reason: string; message: string }[];
+    };
+  };
+}
+
+const EMPTY_METRICS: AdminMetrics = {
+  totalUsers: 0,
+  activeTodayCount: 0,
+  activeWeekCount: 0,
+  activeMonthCount: 0,
+  versesRead: 0,
+  revelaUsage: 0,
+  revelaVerse: 0,
+  notesCreated: 0,
+  highlightsMade: 0,
+  sharesCount: 0,
+  questionsAsked: 0,
+  revelationMode: 0,
+  totalNotes: 0,
+  noteUserPct: 0,
+  recentShares: [],
+  recentQueries: [],
+  topPassages: [],
+  growthData: [],
+  users: [],
+  __meta: {
+    status: "ok",
+    httpStatus: 200,
+    metricErrors: {},
+    requestAudit: {
+      metrics: [],
+      auth: {
+        hasAuthorizationHeader: false,
+        userId: null,
+        email: null,
+        adminCheck: "failed",
+      },
+    },
+  },
+};
+
+const MetricCard = ({ icon: Icon, label, value, sub, state }: { icon: any; label: string; value: string | number; sub?: string; state?: MetricStateEntry }) => (
   <Card>
     <CardContent className="p-4 flex items-center gap-3">
       <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
@@ -48,11 +162,18 @@ const MetricCard = ({ icon: Icon, label, value, sub }: { icon: any; label: strin
       <div>
         <p className="text-2xl font-semibold text-foreground tabular-nums">{value}</p>
         <p className="text-xs text-muted-foreground">{label}</p>
-        {sub && <p className="text-[10px] text-muted-foreground/70">{sub}</p>}
+        {state?.status === "error" ? (
+          <p className="text-[10px] text-destructive">Erro ao carregar</p>
+        ) : state?.status === "empty" ? (
+          <p className="text-[10px] text-muted-foreground/70">Sem dados ainda</p>
+        ) : (
+          sub && <p className="text-[10px] text-muted-foreground/70">{sub}</p>
+        )}
       </div>
     </CardContent>
   </Card>
 );
+
 
 const Admin = () => {
   const { isAdmin, loading: roleLoading, role, email } = useAdminCheck();
@@ -60,6 +181,16 @@ const Admin = () => {
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [metricsStatus, setMetricsStatus] = useState<"idle" | "loading" | "ok" | "partial" | "failed">("idle");
+  const [metricsDebug, setMetricsDebug] = useState({
+    endpoint: "admin-metrics",
+    statusCode: 0,
+    responseStatus: "ok" as "ok" | "partial",
+    okKeys: [] as string[],
+    failedKeys: [] as string[],
+    requestAudit: [] as MetricAuditEntry[],
+    error: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,32 +198,110 @@ const Admin = () => {
     const fetchMetrics = async () => {
       setLoading(true);
       setError("");
+      setMetricsStatus("loading");
 
       try {
-        const { data, error } = await supabase.functions.invoke("admin-metrics");
+        const endpoint = "admin-metrics";
+        let payload: AdminMetricsApiResponse | null = null;
+        let statusCode = 200;
+        let endpointError = "";
 
-        if (error) {
-          setMetrics(null);
-          setError("Não foi possível carregar métricas.");
-          return;
+        try {
+          const { data, error } = await supabase.functions.invoke(endpoint);
+          payload = (data as AdminMetricsApiResponse | null) ?? null;
+          if (error || !payload) {
+            statusCode = (error as any)?.context?.status ?? 0;
+            endpointError = (error as any)?.message ?? (!payload ? "Resposta vazia" : "Erro desconhecido");
+            throw new Error(endpointError);
+          }
+        } catch (invokeError) {
+          statusCode = statusCode || 0;
+          endpointError = endpointError || String(invokeError);
+          throw new Error(endpointError);
         }
 
-        if (!data) {
-          setMetrics(null);
-          setError("Painel sem dados no momento.");
-          return;
+        const parsed: AdminMetrics = {
+          ...EMPTY_METRICS,
+          totalUsers: payload.total_users ?? 0,
+          activeTodayCount: payload.active_today ?? 0,
+          activeWeekCount: payload.active_week ?? 0,
+          activeMonthCount: payload.active_month ?? 0,
+          versesRead: payload.chapters_read ?? 0,
+          revelaUsage: payload.revela_usage ?? 0,
+          notesCreated: payload.notes_created ?? 0,
+          highlightsMade: payload.highlights_created ?? 0,
+          sharesCount: payload.shares_created ?? 0,
+          questionsAsked: payload.questions_asked ?? 0,
+          revelationMode: payload.revelation_mode ?? 0,
+          revelaVerse: payload.revela_verse ?? 0,
+          totalNotes: payload.notes_created ?? 0,
+          noteUserPct: payload.note_user_pct ?? 0,
+          recentQueries: (payload.questions ?? []).map((q) => ({
+            event_data: { query: q.query ?? "" },
+            created_at: q.created_at ?? new Date(0).toISOString(),
+            user_id: q.user_id ?? null,
+          })),
+          topPassages: payload.top_passages ?? [],
+          recentShares: (payload.recent_shares ?? []).map((s) => ({
+            book: s.book,
+            chapter: s.chapter,
+            verse: s.verse,
+            share_text: s.share_text,
+            created_at: s.created_at,
+          })),
+          growthData: payload.growth_data ?? [],
+          users: payload.users ?? [],
+          __meta: {
+            status: (payload.__meta?.status ?? "ok") as "ok" | "partial",
+            httpStatus: payload.__meta?.httpStatus ?? statusCode,
+            metricErrors: payload.__meta?.metricErrors ?? {},
+            metricState: payload.__meta?.metricState ?? {},
+            requestAudit: payload.__meta?.requestAudit ?? EMPTY_METRICS.__meta?.requestAudit,
+            analyticsAudit: payload.__meta?.analyticsAudit,
+          },
+        };
+
+        const stateValues = Object.values(parsed.__meta?.metricState ?? {});
+        const okKeys = stateValues.length > 0
+          ? stateValues.filter((m) => m.status !== "error").map((m) => m.key)
+          : Object.keys(parsed.__meta?.metricErrors ?? {}).length === 0
+            ? ["total_users", "active_today", "active_week", "active_month", "chapters_read", "revela_usage", "notes_created", "highlights_created", "shares_created", "questions_asked", "recent_questions", "most_accessed_passages"]
+            : [];
+        const failedKeys = stateValues.length > 0
+          ? stateValues.filter((m) => m.status === "error").map((m) => m.key)
+          : Object.keys(parsed.__meta?.metricErrors ?? {});
+
+        setMetricsDebug({
+          endpoint: payload.__meta?.endpoint ?? endpoint,
+          statusCode: payload.__meta?.httpStatus ?? statusCode,
+          responseStatus: (payload.__meta?.status ?? "ok") as "ok" | "partial",
+          okKeys,
+          failedKeys,
+          requestAudit: payload.__meta?.requestAudit?.metrics ?? [],
+          error: endpointError,
+        });
+
+        if (Object.keys(parsed.__meta?.metricErrors ?? {}).length > 0) {
+          console.warn("[admin] métricas parciais:", parsed.__meta?.metricErrors);
         }
 
-        setMetrics(data as AdminMetrics);
-      } catch {
-        setMetrics(null);
-        setError("Não foi possível carregar métricas.");
+        setMetrics(parsed);
+        setMetricsStatus(parsed.__meta?.status ?? "ok");
+      } catch (err) {
+        console.error("[admin] falha inesperada ao buscar métricas:", err);
+        setMetrics(EMPTY_METRICS);
+        setMetricsStatus("failed");
+        setMetricsDebug({ endpoint: "admin-metrics", statusCode: 0, responseStatus: "partial", okKeys: [], failedKeys: [], requestAudit: [], error: String(err) });
+        setError("Falha inesperada ao carregar métricas.");
       } finally {
         setLoading(false);
       }
     };
     fetchMetrics();
   }, [isAdmin, roleLoading]);
+
+  const metricState = metrics.__meta?.metricState ?? {};
+  const metricErrors = metrics.__meta?.metricErrors ?? {};
 
   if (roleLoading) {
     return (
@@ -113,22 +322,6 @@ const Admin = () => {
           <Loader2 className="w-6 h-6 text-accent animate-spin mx-auto" />
           <p className="text-sm text-muted-foreground">Carregando painel…</p>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-destructive">{error}</p>
-      </div>
-    );
-  }
-
-  if (!metrics) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Painel sem dados no momento.</p>
       </div>
     );
   }
@@ -162,32 +355,33 @@ const Admin = () => {
               <Users className="w-4 h-4 text-accent" /> Métricas Gerais
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <MetricCard icon={Users} label="Total de Usuários" value={metrics.totalUsers} />
-              <MetricCard icon={Users} label="Ativos Hoje" value={metrics.activeTodayCount} />
-              <MetricCard icon={Users} label="Ativos na Semana" value={metrics.activeWeekCount} />
-              <MetricCard icon={Users} label="Ativos no Mês" value={metrics.activeMonthCount} />
+              <MetricCard icon={Users} label="Total de Usuários" value={metrics.totalUsers} state={metricState.total_users} />
+              <MetricCard icon={Users} label="Ativos Hoje" value={metrics.activeTodayCount} state={metricState.active_today} />
+              <MetricCard icon={Users} label="Ativos na Semana" value={metrics.activeWeekCount} state={metricState.active_week} />
+              <MetricCard icon={Users} label="Ativos no Mês" value={metrics.activeMonthCount} state={metricState.active_month} />
             </div>
           </section>
 
-          {/* 2. Activity */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-accent" /> Atividade no App
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <MetricCard icon={BookOpen} label="Capítulos Lidos" value={metrics.versesRead} />
-              <MetricCard icon={Search} label="Buscas no Revela" value={metrics.revelaUsage} />
-              <MetricCard icon={StickyNote} label="Anotações Criadas" value={metrics.notesCreated} />
-              <MetricCard icon={Palette} label="Destaques Feitos" value={metrics.highlightsMade} />
-              <MetricCard icon={Share2} label="Compartilhamentos" value={metrics.sharesCount} />
+              <MetricCard icon={BookOpen} label="Capítulos Lidos" value={metrics.versesRead} state={metricState.chapters_read} />
+              <MetricCard icon={Search} label="Uso do Revela" value={metrics.revelaUsage} state={metricState.revela_usage} />
+              <MetricCard icon={StickyNote} label="Anotações Criadas" value={metrics.notesCreated} state={metricState.notes_created} />
+              <MetricCard icon={Palette} label="Destaques Feitos" value={metrics.highlightsMade} state={metricState.highlights_created} />
+              <MetricCard icon={Share2} label="Compartilhamentos" value={metrics.sharesCount} state={metricState.shares_created} />
             </div>
           </section>
 
-          {/* 3. Revela Queries */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Search className="w-4 h-4 text-accent" /> Perguntas no Revela
             </h2>
+            <div className="mb-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <MetricCard icon={Search} label="Perguntas Feitas" value={metrics.questionsAsked} state={metricState.questions_asked} />
+            </div>
             <Card>
               <CardContent className="p-0">
                 <div className="max-h-64 overflow-y-auto">
@@ -208,7 +402,7 @@ const Admin = () => {
                         </TableRow>
                       ))}
                       {metrics.recentQueries.length === 0 && (
-                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">Nenhuma pergunta ainda</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">{metricState.recent_questions?.status === "error" ? "Erro ao carregar" : "Nenhuma pergunta ainda"}</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -217,7 +411,6 @@ const Admin = () => {
             </Card>
           </section>
 
-          {/* 4. Top Passages */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-accent" /> Passagens Mais Acessadas
@@ -237,22 +430,21 @@ const Admin = () => {
                     </div>
                   ))}
                   {metrics.topPassages.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">Sem dados ainda</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">{metricState.most_accessed_passages?.status === "error" ? "Erro ao carregar" : "Sem dados ainda"}</p>
                   )}
                 </div>
               </CardContent>
             </Card>
           </section>
 
-          {/* 5. Revelation Mode + Notes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <section>
               <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-accent" /> Modo Revelação
               </h2>
               <div className="grid grid-cols-2 gap-3">
-                <MetricCard icon={Sparkles} label="Vezes Ativado" value={metrics.revelationMode} />
-                <MetricCard icon={Search} label="Revela por Verso" value={metrics.revelaVerse} />
+                <MetricCard icon={Sparkles} label="Vezes Ativado" value={metrics.revelationMode} state={metricState.revelation_mode} />
+                <MetricCard icon={Search} label="Revela por Verso" value={metrics.revelaVerse} state={metricState.revela_verse} />
               </div>
             </section>
 
@@ -261,13 +453,12 @@ const Admin = () => {
                 <StickyNote className="w-4 h-4 text-accent" /> Anotações
               </h2>
               <div className="grid grid-cols-2 gap-3">
-                <MetricCard icon={StickyNote} label="Total de Notas" value={metrics.totalNotes} />
-                <MetricCard icon={Users} label="Usuários que Anotam" value={`${metrics.noteUserPct}%`} />
+                <MetricCard icon={StickyNote} label="Total de Notas" value={metrics.totalNotes} state={metricState.total_notes} />
+                <MetricCard icon={Users} label="Usuários que Anotam" value={`${metrics.noteUserPct}%`} state={metricState.note_user_pct} />
               </div>
             </section>
           </div>
 
-          {/* 6. Shares */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Share2 className="w-4 h-4 text-accent" /> Compartilhamentos Recentes
@@ -292,7 +483,7 @@ const Admin = () => {
                         </TableRow>
                       ))}
                       {metrics.recentShares.length === 0 && (
-                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">Nenhum compartilhamento</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={2} className="text-center text-muted-foreground text-sm py-4">{metricState.recent_shares?.status === "error" ? "Erro ao carregar" : "Nenhum compartilhamento"}</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
@@ -301,7 +492,6 @@ const Admin = () => {
             </Card>
           </section>
 
-          {/* 7. Growth Chart */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-accent" /> Crescimento (últimos 30 dias)
@@ -340,13 +530,12 @@ const Admin = () => {
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">Sem dados de crescimento</p>
+                  <p className="text-sm text-muted-foreground text-center py-8">{metricState.growth_data?.status === "error" ? "Erro ao carregar" : "Sem dados de crescimento"}</p>
                 )}
               </CardContent>
             </Card>
           </section>
 
-          {/* 8. User List */}
           <section>
             <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Users className="w-4 h-4 text-accent" /> Lista de Usuários

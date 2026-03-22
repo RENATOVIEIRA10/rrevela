@@ -8,6 +8,7 @@ import RichText from "./RichText";
 import { parseReferences } from "@/lib/reference-parser";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import StudyShareButton from "./StudyShareButton";
 
 interface MessianicConnection {
   verse_range: string;
@@ -180,6 +181,16 @@ const MessianicLinePanel = ({ book, chapter, onNavigate }: MessianicLinePanelPro
               <p className="text-[10px] text-muted-foreground text-center">
                 Todas as conexões exibem fonte bíblica, tipo e grau de confiança.
               </p>
+
+              {/* Share study button */}
+              <StudyShareButton
+                book={book}
+                chapter={chapter}
+                mode="messianica"
+                title={`Linha Messiânica — ${book} ${chapter}`}
+                summary={data.summary || `Análise da linha messiânica em ${book} ${chapter}.`}
+                insightText={data.connections?.[0]?.christocentric_connection || data.summary || ""}
+              />
             </div>
           </motion.div>
         )}

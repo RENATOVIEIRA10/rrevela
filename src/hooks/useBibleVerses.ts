@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOfflineVerses, isTranslationOffline } from "@/lib/offline-bible";
 
 export interface BibleVerse {
   number: number;
@@ -14,7 +15,7 @@ export interface BibleSearchResult {
   rank: number;
 }
 
-export function useBibleVerses(book: string, chapter: number) {
+export function useBibleVerses(book: string, chapter: number, translation: string = "arc") {
   const [verses, setVerses] = useState<BibleVerse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,32 +26,56 @@ export function useBibleVerses(book: string, chapter: number) {
     setError(null);
 
     const fetchVerses = async () => {
+      // Try online first
       const { data, error: fetchError } = await supabase
         .from("bible_verses")
         .select("verse, text")
         .eq("book", book)
         .eq("chapter", chapter)
-        .eq("translation", "acf")
+        .eq("translation", translation)
         .order("verse", { ascending: true });
+
+      if (cancelled) return;
+
+      if (!fetchError && data && data.length > 0) {
+        setVerses(data.map((v) => ({ number: v.verse, text: v.text })));
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      // Fallback to offline IndexedDB
+      try {
+        const offline = await getOfflineVerses(book, chapter, translation);
+        if (!cancelled && offline.length > 0) {
+          setVerses(offline.map((v) => ({ number: v.verse, text: v.text })));
+          setError(null);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // IndexedDB unavailable
+      }
 
       if (cancelled) return;
 
       if (fetchError) {
         setError("Erro ao carregar versículos.");
         setVerses([]);
-      } else if (!data || data.length === 0) {
-        setError("Texto não encontrado. Verifique a tradução carregada.");
-        setVerses([]);
       } else {
-        setVerses(data.map((v) => ({ number: v.verse, text: v.text })));
-        setError(null);
+        setError(
+          translation !== "arc"
+            ? `Tradução ${translation.toUpperCase()} ainda não disponível. Use ACF.`
+            : "Texto não encontrado. Verifique a tradução carregada."
+        );
+        setVerses([]);
       }
       setLoading(false);
     };
 
     fetchVerses();
     return () => { cancelled = true; };
-  }, [book, chapter]);
+  }, [book, chapter, translation]);
 
   return { verses, loading, error };
 }
@@ -60,7 +85,7 @@ export async function searchBible(query: string, limit = 50): Promise<BibleSearc
 
   const { data, error } = await supabase.rpc("search_bible", {
     search_query: query,
-    translation_filter: "acf",
+    translation_filter: "arc",
     result_limit: limit,
   });
 

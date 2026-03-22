@@ -17,7 +17,7 @@ const ReferenceChip = ({ reference, label, onNavigate }: ReferenceChipProps) => 
       onNavigate(reference.book, reference.chapter, reference.verseStart);
     } else {
       // Navigate to reader with query params
-      navigate(`/leitor?livro=${encodeURIComponent(reference.book)}&cap=${reference.chapter}&v=${reference.verseStart}`);
+      navigate(`/leitor?livro=${encodeURIComponent(reference.book)}&cap=${reference.chapter}&v=${reference.verseStart}`, { state: { book: reference.book, chapter: reference.chapter } });
     }
   };
 

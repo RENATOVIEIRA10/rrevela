@@ -16,6 +16,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const FORCED_ADMIN_EMAIL = "renatovieiraaurelio@gmail.com";
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -63,6 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       await loadRole(session.user.id);
+      await loadRole(session.user.id, session.user.email);
       setLoading(false);
     });
 
@@ -79,7 +82,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data.user) {
+      const payload = {
+        user_id: data.user.id,
+        event_type: "user_signed_in",
+      };
+
+      Promise.allSettled([
+        supabase.from("analytics_events").insert({
+          ...payload,
+          event_data: { email: data.user.email ?? "" },
+        }),
+        supabase.from("app_events" as any).insert({
+          ...payload,
+          metadata: { email: data.user.email ?? "" },
+        }),
+      ]).then(() => {});
+    }
     return { error: error as Error | null };
   };
 

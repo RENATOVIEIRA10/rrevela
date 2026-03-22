@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,206 +6,417 @@
 
 @layer base {
   :root {
-    /* Branding: Papel e Tinta */
-    --background: 40 27% 96%;        /* #F9F7F2 Vellum */
+    /* ── Brand Guide v2 — Modo Descoberta (light) ────────────
+     * Vellum quente · Tinta profunda · Theology Wine
+     * ────────────────────────────────────────────────────── */
+
+    --background: 43 41% 97%;        /* #FAF8F3 Vellum Quente */
     --foreground: 210 7% 11%;        /* #1A1C1E Deep Ink */
 
-    --card: 40 30% 97%;              /* warm paper surface */
+    --card: 0 0% 100%;               /* #FFFFFF */
     --card-foreground: 210 7% 11%;
 
-    --popover: 40 30% 97%;
+    --popover: 0 0% 100%;
     --popover-foreground: 210 7% 11%;
 
-    --primary: 3 44% 27%;            /* #632A26 Theology Wine */
-    --primary-foreground: 40 27% 96%;
+    --primary: 4 45% 27%;            /* #632A26 Theology Wine */
+    --primary-foreground: 43 41% 97%;
 
-    --secondary: 37 25% 92%;         /* warm muted surface */
+    --secondary: 38 27% 92%;         /* #F2EDE3 */
     --secondary-foreground: 210 7% 11%;
 
-    --muted: 37 18% 90%;
-    --muted-foreground: 200 5% 47%;  /* #70777A Dusty Slate */
+    --muted: 38 27% 92%;
+    --muted-foreground: 204 5% 44%;  /* #6B7175 */
 
-    --accent: 3 44% 27%;             /* Theology Wine */
-    --accent-foreground: 40 27% 96%;
+    --accent: 4 45% 27%;             /* #632A26 Theology Wine */
+    --accent-foreground: 43 41% 97%;
 
-    --destructive: 0 60% 50%;
+    /* ── Dourado de Revelação ──────────────────────────────── */
+    --gold: 43 52% 52%;              /* #C8A951 */
+    --gold-foreground: 210 7% 11%;
+    --gold-light: 43 80% 88%;
+
+    --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 37 20% 89%;            /* #E8E4DB */
-    --input: 37 20% 89%;
-    --ring: 3 44% 27%;
+    --border: 39 21% 87%;            /* #E4DFD6 Areia Fina */
+    --input: 39 21% 87%;
+    --ring: 4 45% 27%;
 
-    --radius: 0.25rem;               /* 4px — bordas mínimas */
+    --radius: 0.25rem;               /* 4px — autoridade tipográfica */
 
-    /* Highlight system */
-    --highlight-promise: 45 85% 88%;       /* Soft Amber #FDF2D0 */
-    --highlight-response: 140 35% 60%;
-    --highlight-attribute: 210 45% 55%;
-    --highlight-emotion: 330 40% 70%;
-    --highlight-doctrine: 270 35% 55%;
+    /* Marcação — cores de caneta */
+    --pen-yellow: 45 90% 55%;
+    --pen-green: 145 55% 42%;
+    --pen-blue: 215 70% 52%;
+    --pen-pink: 340 65% 55%;
+    --pen-purple: 270 50% 52%;
 
     /* Sidebar */
-    --sidebar-background: 40 25% 96%;
+    --sidebar-background: 43 41% 97%;
     --sidebar-foreground: 210 7% 11%;
-    --sidebar-primary: 3 44% 27%;
-    --sidebar-primary-foreground: 40 27% 96%;
-    --sidebar-accent: 37 25% 92%;
+    --sidebar-primary: 4 45% 27%;
+    --sidebar-primary-foreground: 43 41% 97%;
+    --sidebar-accent: 38 27% 92%;
     --sidebar-accent-foreground: 210 7% 11%;
-    --sidebar-border: 37 20% 89%;
-    --sidebar-ring: 3 44% 27%;
+    --sidebar-border: 39 21% 87%;
+    --sidebar-ring: 4 45% 27%;
 
-    /* Typography */
+    /* Tipografia */
     --font-scripture: 'Crimson Pro', Georgia, 'Times New Roman', serif;
-    --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
 
-    /* Shadows — minimal, paper-like */
-    --shadow-soft: 0 1px 2px 0 hsl(210 7% 11% / 0.03);
-    --shadow-card: 0 1px 3px -1px hsl(210 7% 11% / 0.04), 0 1px 0 0 hsl(37 20% 89% / 0.6);
-    --shadow-elevated: 0 4px 12px -4px hsl(210 7% 11% / 0.06);
+    /* Sombras — máx 2px, sem peso */
+    --shadow-soft: 0 1px 2px 0 hsl(210 7% 11% / 0.02);
+    --shadow-card: 0 2px 10px -2px hsl(210 7% 11% / 0.04), 0 1px 2px -1px hsl(210 7% 11% / 0.02);
+    --shadow-elevated: 0 8px 24px -8px hsl(210 7% 11% / 0.08), 0 4px 8px -4px hsl(210 7% 11% / 0.04);
+    --shadow-premium: 0 12px 40px -12px hsl(210 7% 11% / 0.1), 0 4px 12px -4px hsl(210 7% 11% / 0.05);
   }
 
   .dark {
-    --background: 210 10% 8%;       /* Deep dark */
-    --foreground: 37 15% 88%;
+    /* ── Brand Guide v2 — Modo Contemplação (dark) ───────────
+     * Noite Profunda · Pergaminho Noturno · Theology Wine
+     * ────────────────────────────────────────────────────── */
 
-    --card: 210 8% 12%;
-    --card-foreground: 37 15% 88%;
+    --background: 220 7% 8%;         /* #131416 Noite Profunda */
+    --foreground: 42 27% 90%;        /* #EDE9E0 Pergaminho Noturno */
 
-    --popover: 210 8% 12%;
-    --popover-foreground: 37 15% 88%;
+    --card: 210 7% 11%;              /* #1A1C1E */
+    --card-foreground: 42 27% 90%;
 
-    --primary: 3 40% 55%;           /* Lighter wine for dark */
-    --primary-foreground: 210 10% 8%;
+    --popover: 210 8% 15%;           /* #222528 */
+    --popover-foreground: 42 27% 90%;
 
-    --secondary: 210 8% 16%;
-    --secondary-foreground: 37 15% 88%;
+    --primary: 4 43% 38%;            /* #8B3D38 Wine Light */
+    --primary-foreground: 220 7% 8%;
 
-    --muted: 210 6% 18%;
-    --muted-foreground: 200 5% 55%;
+    --secondary: 210 8% 15%;         /* #222528 */
+    --secondary-foreground: 42 27% 90%;
 
-    --accent: 3 40% 55%;
-    --accent-foreground: 37 15% 88%;
+    --muted: 210 8% 15%;
+    --muted-foreground: 202 4% 50%;  /* #7A8185 */
 
-    --destructive: 0 55% 40%;
+    --accent: 4 43% 38%;             /* #8B3D38 Wine Light */
+    --accent-foreground: 220 7% 8%;
+
+    /* Dourado no dark — mais vivo */
+    --gold: 43 65% 58%;
+    --gold-foreground: 220 7% 8%;
+    --gold-light: 43 40% 22%;
+
+    --destructive: 0 50% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 6% 18%;
-    --input: 210 6% 18%;
-    --ring: 3 40% 55%;
+    --border: 206 7% 19%;            /* #2E3235 Carbon */
+    --input: 206 7% 19%;
+    --ring: 4 43% 38%;
 
-    --sidebar-background: 210 8% 10%;
-    --sidebar-foreground: 37 15% 88%;
-    --sidebar-primary: 3 40% 55%;
-    --sidebar-primary-foreground: 37 15% 88%;
-    --sidebar-accent: 210 6% 16%;
-    --sidebar-accent-foreground: 37 15% 88%;
-    --sidebar-border: 210 6% 18%;
-    --sidebar-ring: 3 40% 55%;
+    --pen-yellow: 45 80% 50%;
+    --pen-green: 145 50% 38%;
+    --pen-blue: 215 60% 48%;
+    --pen-pink: 340 55% 50%;
+    --pen-purple: 270 45% 48%;
+
+    --sidebar-background: 220 7% 8%;
+    --sidebar-foreground: 42 27% 90%;
+    --sidebar-primary: 4 43% 38%;
+    --sidebar-primary-foreground: 42 27% 90%;
+    --sidebar-accent: 210 8% 15%;
+    --sidebar-accent-foreground: 42 27% 90%;
+    --sidebar-border: 206 7% 19%;
+    --sidebar-ring: 4 43% 38%;
+
+    --shadow-soft: 0 1px 2px 0 hsl(0 0% 0% / 0.15);
+    --shadow-card: 0 2px 10px -2px hsl(0 0% 0% / 0.25), 0 1px 2px -1px hsl(0 0% 0% / 0.12);
+    --shadow-elevated: 0 8px 24px -8px hsl(0 0% 0% / 0.35), 0 4px 8px -4px hsl(0 0% 0% / 0.18);
+    --shadow-premium: 0 12px 40px -12px hsl(0 0% 0% / 0.45), 0 4px 12px -4px hsl(0 0% 0% / 0.22);
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-ui);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Scripture text styling */
   .font-scripture {
     font-family: var(--font-scripture);
     font-size: 1.125rem;
-    line-height: 1.75;
-    letter-spacing: 0.01em;
+    line-height: 2;
+    letter-spacing: 0.005em;
+    font-weight: 400;
   }
 
   .font-scripture-lg {
     font-family: var(--font-scripture);
-    font-size: 1.25rem;
-    line-height: 1.8;
-    letter-spacing: 0.01em;
+    font-size: 1.3125rem;
+    line-height: 2.1;
+    letter-spacing: 0.005em;
+    font-weight: 400;
   }
 
-  /* Highlight system — desktop: subtle underline + tint; mobile: clean dot marker */
-  
-  /* Desktop highlights */
   @media (min-width: 768px) {
-    .highlight-promise {
-      background-color: hsl(var(--highlight-promise) / 0.2);
-      border-bottom: 2px solid hsl(var(--highlight-promise) / 0.5);
-      border-radius: 2px;
-      padding: 1px 2px;
+    .font-scripture {
+      font-size: 1.1875rem;
+      line-height: 2.15;
     }
-    .highlight-response {
-      background-color: hsl(var(--highlight-response) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-response) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
-    }
-    .highlight-attribute {
-      background-color: hsl(var(--highlight-attribute) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-attribute) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
-    }
-    .highlight-emotion {
-      background-color: hsl(var(--highlight-emotion) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-emotion) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
-    }
-    .highlight-doctrine {
-      background-color: hsl(var(--highlight-doctrine) / 0.15);
-      border-bottom: 2px solid hsl(var(--highlight-doctrine) / 0.4);
-      border-radius: 2px;
-      padding: 1px 2px;
+    .font-scripture-lg {
+      font-size: 1.375rem;
+      line-height: 2.2;
     }
   }
 
-  /* Mobile highlights — NO background paint, dots handled via pseudo-element */
+  /* ── Marca-texto: sublinhado colorido (caneta bíblica) ── */
+  .pen-underline {
+    text-decoration: underline;
+    text-decoration-thickness: 2.5px;
+    text-underline-offset: 3px;
+    text-decoration-skip-ink: none;
+  }
+  .pen-yellow  { text-decoration-color: hsl(var(--pen-yellow)); }
+  .pen-green   { text-decoration-color: hsl(var(--pen-green)); }
+  .pen-blue    { text-decoration-color: hsl(var(--pen-blue)); }
+  .pen-pink    { text-decoration-color: hsl(var(--pen-pink)); }
+  .pen-purple  { text-decoration-color: hsl(var(--pen-purple)); }
+
+  /* Dark mode: underlines slightly more translucent */
+  .dark .pen-underline {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Mobile dot indicator for highlighted verses */
   @media (max-width: 767px) {
     .verse-line {
       position: relative;
-      padding-left: 1rem;
+      padding-left: 0.875rem;
     }
     .verse-line.has-highlight::before {
       content: '';
       position: absolute;
       left: 0;
-      top: 0.55em;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2.5px;
+      height: 70%;
+      border-radius: 2px;
+      opacity: 0.7;
     }
-    .verse-line.highlight-promise::before { background-color: hsl(var(--highlight-promise)); }
-    .verse-line.highlight-response::before { background-color: hsl(var(--highlight-response)); }
-    .verse-line.highlight-attribute::before { background-color: hsl(var(--highlight-attribute)); }
-    .verse-line.highlight-emotion::before { background-color: hsl(var(--highlight-emotion)); }
-    .verse-line.highlight-doctrine::before { background-color: hsl(var(--highlight-doctrine)); }
+    .verse-line.has-highlight.pen-yellow::before  { background-color: hsl(var(--pen-yellow)); }
+    .verse-line.has-highlight.pen-green::before   { background-color: hsl(var(--pen-green)); }
+    .verse-line.has-highlight.pen-blue::before    { background-color: hsl(var(--pen-blue)); }
+    .verse-line.has-highlight.pen-pink::before    { background-color: hsl(var(--pen-pink)); }
+    .verse-line.has-highlight.pen-purple::before  { background-color: hsl(var(--pen-purple)); }
   }
 
-  /* Notebook page style */
+  /* ── Luz de Revelação ─────────────────────────────────────
+   * Linha dourada que aparece ao revelar um versículo.
+   * Aplicada via classe .revelation-light no VerseRevealSection.
+   * ────────────────────────────────────────────────────── */
+  @keyframes revelation-enter {
+    from {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  .revelation-light {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .revelation-light::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--gold)) 20%,
+      hsl(var(--gold)) 80%,
+      transparent 100%
+    );
+    transform-origin: left center;
+    animation: revelation-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0.8;
+  }
+
+  /* ── Modo Contemplação ────────────────────────────────────
+   * Aplicado no <body> via classe .contemplation-mode.
+   * Esconde toda a UI exceto o texto da Escritura.
+   * ────────────────────────────────────────────────────── */
+  .contemplation-mode header,
+  .contemplation-mode nav,
+  .contemplation-mode .contemplation-hide {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .contemplation-mode .verse-num {
+    opacity: 0.3;
+  }
+
+  /* ── Modo Leitura Confortável ──────────────────────────────
+   * Aplicado no <html> via classe .comfortable-reading.
+   * Aumenta fonte e espaçamento, suprime painéis de estudo.
+   * ────────────────────────────────────────────────────── */
+
+  /* Oculta elementos de distração */
+  .comfortable-reading .comfortable-hide {
+    display: none !important;
+  }
+
+  /* Reduz sutileza dos números de versículo */
+  .comfortable-reading .verse-num {
+    opacity: 0.28;
+    font-size: 0.65em;
+  }
+
+  /* Fonte maior, espaçamento generoso */
+  .comfortable-reading .comfortable-verses p,
+  .comfortable-reading .comfortable-verses p.font-scripture {
+    font-size: 1.375rem !important;   /* ~22px */
+    line-height: 2.6 !important;
+    letter-spacing: 0.01em;
+  }
+
+  /* Desktop: fonte ainda maior */
+  @media (min-width: 768px) {
+    .comfortable-reading .comfortable-verses p,
+    .comfortable-reading .comfortable-verses p.font-scripture {
+      font-size: 1.5rem !important;   /* 24px */
+      line-height: 2.7 !important;
+    }
+  }
+
+  /* Coluna mais estreita para maior conforto */
+  .comfortable-reading .comfortable-article {
+    max-width: 56ch !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+
+  @media (min-width: 768px) {
+    .comfortable-reading .comfortable-article {
+      padding-left: 4rem !important;
+      padding-right: 4rem !important;
+    }
+  }
+
+  /* Título do capítulo mais espaçado */
+  .comfortable-reading .comfortable-chapter-header {
+    margin-bottom: 3rem !important;
+  }
+
+  /* ── Notebook page ─────────────────────────────────────── */
   .notebook-page {
     background: linear-gradient(
-      to bottom,
+      180deg,
       hsl(var(--background)) 0%,
-      hsl(40 30% 97%) 100%
+      hsl(var(--card)) 100%
     );
-    border: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 3px -1px hsl(210 7% 11% / 0.04);
+    border: 1px solid hsl(var(--border) / 0.7);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ── Divisor editorial ────────────────────────────────── */
+  .editorial-divider {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--border)) 15%,
+      hsl(var(--border)) 85%,
+      transparent 100%
+    );
+  }
+
+  /* ── Destaque de versículo alvo (navegação) ──────────────── */
+  @keyframes verse-highlight-fade {
+    0% { background-color: hsl(var(--gold) / 0.18); border-left-color: hsl(var(--gold)); }
+    100% { background-color: transparent; border-left-color: transparent; }
+  }
+
+  .verse-target-highlight {
+    background-color: hsl(var(--gold) / 0.15);
+    border-left: 3px solid hsl(var(--gold));
+    padding-left: 6px;
+    border-radius: 2px;
+    animation: verse-highlight-fade 3s ease-out 0.5s forwards;
   }
 }
 
 @layer utilities {
-  /* Safe area padding for PWA */
   .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.75rem);
   }
-
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-top-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.875rem);
+  }
+
+  .glass-surface {
+    background: hsl(var(--card) / 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .btn-premium {
+    @apply transition-all duration-200 ease-out;
+    @apply hover:shadow-soft active:scale-[0.98];
+  }
+
+  .verse-num {
+    @apply text-[0.7rem] font-ui font-semibold text-accent/70 mr-2 select-none align-super;
+    font-feature-settings: "tnum";
+  }
+
+  .scripture-container {
+    @apply max-w-prose mx-auto;
+  }
+
+  /* Gold utilities */
+  .text-gold { color: hsl(var(--gold)); }
+  .bg-gold { background-color: hsl(var(--gold)); }
+  .bg-gold-light { background-color: hsl(var(--gold-light)); }
+  .border-gold { border-color: hsl(var(--gold) / 0.4); }
+}
+
+/* Scrollbar premium */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.3);
+    background-clip: padding-box;
   }
 }

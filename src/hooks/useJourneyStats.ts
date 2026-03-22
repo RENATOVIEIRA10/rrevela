@@ -19,6 +19,13 @@ export interface StudiedChapter {
   last_studied: string;
 }
 
+export interface RawHighlight {
+  book: string;
+  chapter: number;
+  verse: number;
+  color_key: HighlightColor;
+}
+
 export interface JourneyStats {
   totalHighlights: number;
   totalNotes: number;
@@ -27,6 +34,7 @@ export interface JourneyStats {
   ntCount: number;
   studiedChapters: StudiedChapter[];
   recentNotes: StructuredNote[];
+  rawHighlights: RawHighlight[];
   loading: boolean;
 }
 
@@ -40,6 +48,7 @@ export function useJourneyStats(): JourneyStats {
     ntCount: 0,
     studiedChapters: [],
     recentNotes: [],
+    rawHighlights: [],
     loading: true,
   });
 
@@ -145,6 +154,12 @@ export function useJourneyStats(): JourneyStats {
       ntCount,
       studiedChapters,
       recentNotes: notes.slice(0, 10),
+      rawHighlights: highlights.map((h) => ({
+        book: h.book,
+        chapter: h.chapter,
+        verse: h.verse,
+        color_key: h.color_key,
+      })),
       loading: false,
     });
   }, [user]);

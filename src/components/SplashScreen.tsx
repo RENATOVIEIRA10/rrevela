@@ -8,8 +8,8 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onFinish, 500);
-    }, 1800);
+      setTimeout(onFinish, 600);
+    }, 2400);
     return () => clearTimeout(timer);
   }, [onFinish]);
 
@@ -20,45 +20,71 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Logo symbol */}
+          {/* Top accent line */}
           <motion.div
-            initial={{ scale: 0.7, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-6"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.1, duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent"
+          />
+
+          {/* Logo animado — folheio rápido das páginas */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.88 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8"
           >
-            <RevelaLogo size={56} className="text-primary" />
+            {/*
+              animated=true ativa o folheio SMIL:
+              as 11 páginas giram em cascata da posição fechada (+15°) para o leque aberto.
+              A variante escolhida aqui é "dark" pois o splash usa bg-background.
+              Em temas claros (papel), o logo fica sobre fundo claro mas as páginas dark
+              ainda criam contraste suficiente — e o "r" creme é muito sutil.
+              Consideração: para temas claros, mudar para variant="light".
+            */}
+            <RevelaLogo size={110} variant="dark" animated />
           </motion.div>
 
-          {/* Title */}
+          {/* Título */}
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
-            className="font-scripture text-3xl font-semibold text-foreground tracking-tight"
+            transition={{ delay: 0.65, duration: 0.55, ease: "easeOut" }}
+            className="font-scripture text-[2rem] font-semibold text-foreground tracking-tight leading-none"
           >
             Revela
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Divider */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.9, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-5 mb-4 h-px w-12 bg-border origin-center"
+          />
+
+          {/* Subtítulo */}
           <motion.p
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="mt-2 text-xs text-muted-foreground tracking-[0.2em] uppercase"
+            animate={{ opacity: 0.65 }}
+            transition={{ delay: 1.05, duration: 0.7 }}
+            className="text-[0.65rem] text-muted-foreground tracking-[0.25em] uppercase font-ui font-medium"
           >
             Estudo bíblico cristocêntrico
           </motion.p>
 
-          {/* Subtle line */}
+          {/* Bottom accent dot */}
           <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
-            className="mt-8 h-px w-16 bg-border origin-center"
-          />
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
+            className="absolute bottom-12 flex flex-col items-center gap-2"
+          >
+            <div className="w-1 h-1 rounded-full bg-primary/30" />
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

@@ -5,16 +5,26 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/hooks/useTheme";
+import { useDailyCheckIn } from "@/hooks/useDailyCheckIn";
+import { AnimatePresence } from "framer-motion";
 import SplashScreen from "./components/SplashScreen";
+import PWAUpdatePrompt from "./components/PWAUpdatePrompt";
+import WhatsNewModal from "./components/WhatsNewModal";
+import MomentoRevela from "./components/MomentoRevela";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
+import Home from "./pages/Home";
 import Reader from "./pages/Reader";
 import RevelaAgora from "./pages/RevelaAgora";
 import MinhaJornada from "./pages/MinhaJornada";
 import LinhaPromessa from "./pages/LinhaPromessa";
+import Devocional from "./pages/Devocional";
+import PlanoLeitura from "./pages/PlanoLeitura";
 import AppLayout from "./components/AppLayout";
 import NotFound from "./pages/NotFound";
 import PublicVerse from "./pages/PublicVerse";
+import PublicStudy from "./pages/PublicStudy";
 import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
 import { useAdminCheck } from "./hooks/useAdminCheck";
@@ -56,13 +66,12 @@ const AdminRoute = () => {
       </div>
     );
   }
-
   return <Admin />;
 };
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
-
+  const { shouldShowMomentoRevela, markCheckInComplete } = useDailyCheckIn();
   if (loading) return <div className="min-h-screen bg-background" />;
 
   return (
@@ -89,16 +98,20 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
-        <BrowserRouter>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
+          <PWAUpdatePrompt />
+          <WhatsNewModal />
+          <BrowserRouter>
+            <AuthProvider>
+              <AppRoutes />
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
