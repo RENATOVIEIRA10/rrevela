@@ -154,6 +154,7 @@ const VerseBody = ({
     <div className={[spacing, comfortableReading ? "comfortable-verses" : ""].join(" ")}>
       {verses.map((verse) => {
         const marked = isMarked(verse.number);
+        const penClass = getVersePenClass(verse.number);
         const selected = isSelected?.(verse.number) ?? false;
         const isPinned = isDesktop &&
           pinnedVerse?.verse === verse.number &&
@@ -170,7 +171,7 @@ const VerseBody = ({
               isDesktop
                 ? "text-foreground/85 hover:text-foreground py-0.5"
                 : "verse-line text-foreground/85 active:text-foreground",
-              marked ? MARK_CSS_CLASS : "",
+              marked ? penClass : "",
               marked && !isDesktop ? "has-highlight" : "",
               isPinned ? "bg-accent/5 -mx-3 px-3 rounded" : "",
               highlightedVerse === verse.number ? "verse-target-highlight" : "",
