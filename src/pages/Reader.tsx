@@ -29,7 +29,7 @@ import TranslationSelector from "@/components/TranslationSelector";
 import RedemptionTimeline from "@/components/RedemptionTimeline";
 import HistoricalContextPanel from "@/components/HistoricalContextPanel";
 import PinnedVerseCard from "@/components/PinnedVerseCard";
-import { MARK_CSS_CLASS } from "@/hooks/useHighlights";
+import { MARK_CSS_CLASS, getPenClass } from "@/hooks/useHighlights";
 import { useReaderState } from "@/hooks/useReaderState";
 import { useChapterSwipe } from "@/hooks/useChapterSwipe";
 import { useContemplation } from "@/hooks/useContemplation";
