@@ -171,15 +171,25 @@
     }
   }
 
-  /* ── Marcação simplificada ─────────────────────────────── */
-  .highlight-marked {
-    background: linear-gradient(
-      to bottom, transparent 60%,
-      hsl(var(--highlight-marked) / 0.35) 60%
-    );
-    border-radius: 1px;
+  /* ── Marca-texto: sublinhado colorido (caneta bíblica) ── */
+  .pen-underline {
+    text-decoration: underline;
+    text-decoration-thickness: 2.5px;
+    text-underline-offset: 3px;
+    text-decoration-skip-ink: none;
+  }
+  .pen-yellow  { text-decoration-color: hsl(var(--pen-yellow)); }
+  .pen-green   { text-decoration-color: hsl(var(--pen-green)); }
+  .pen-blue    { text-decoration-color: hsl(var(--pen-blue)); }
+  .pen-pink    { text-decoration-color: hsl(var(--pen-pink)); }
+  .pen-purple  { text-decoration-color: hsl(var(--pen-purple)); }
+
+  /* Dark mode: underlines slightly more translucent */
+  .dark .pen-underline {
+    text-decoration-thickness: 2px;
   }
 
+  /* Mobile dot indicator for highlighted verses */
   @media (max-width: 767px) {
     .verse-line {
       position: relative;
@@ -194,9 +204,13 @@
       width: 2.5px;
       height: 70%;
       border-radius: 2px;
-      background-color: hsl(var(--highlight-marked));
       opacity: 0.7;
     }
+    .verse-line.has-highlight.pen-yellow::before  { background-color: hsl(var(--pen-yellow)); }
+    .verse-line.has-highlight.pen-green::before   { background-color: hsl(var(--pen-green)); }
+    .verse-line.has-highlight.pen-blue::before    { background-color: hsl(var(--pen-blue)); }
+    .verse-line.has-highlight.pen-pink::before    { background-color: hsl(var(--pen-pink)); }
+    .verse-line.has-highlight.pen-purple::before  { background-color: hsl(var(--pen-purple)); }
   }
 
   /* ── Luz de Revelação ─────────────────────────────────────
