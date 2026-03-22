@@ -332,7 +332,8 @@ const Reader = () => {
             book={selectedBook} chapter={selectedChapter}
             verses={selectedVerses}
             isMarked={isMarked(selectedVerses[0].number)}
-            onToggleMark={() => toggleMark(selectedVerses[0].number)}
+            currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
+            onSelectColor={(color) => setHighlight(selectedVerses[0].number, color)}
             onOpenNote={(aiRev) => openVerseNote(selectedVerses[0].number, selectedVerses[0].text, aiRev)}
             onPinVerse={handlePinVerse} onNavigateToRef={handleNavigateToRef}
             isFavorite={isFavorite(selectedBook, selectedChapter, selectedVerses[0].number)}
