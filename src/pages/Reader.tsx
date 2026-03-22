@@ -99,6 +99,7 @@ interface VerseBodyProps {
   error: string | null;
   fontSizeClass: string;
   isMarked: (n: number) => boolean;
+  getVersePenClass: (n: number) => string;
   isSelected?: (n: number) => boolean;
   onVerseClick: (v: { number: number; text: string }) => void;
   pinnedVerse?: ReturnType<typeof useReaderState>["pinnedVerse"];
