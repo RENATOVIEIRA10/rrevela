@@ -27,11 +27,6 @@ import PublicVerse from "./pages/PublicVerse";
 import PublicStudy from "./pages/PublicStudy";
 import InstallPWA from "./pages/InstallPWA";
 import Admin from "./pages/Admin";
-import Perfil from "./pages/Perfil";
-import BuscaAvancada from "./pages/BuscaAvancada";
-import AtalaiaLGPD from "./pages/AtalaiaLGPD";
-import ResetPassword from "./pages/ResetPassword";
-import Pro from "./pages/Pro";
 import { useAdminCheck } from "./hooks/useAdminCheck";
 import { Button } from "./components/ui/button";
 
@@ -46,18 +41,27 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AdminRoute = () => {
   const { isAdmin, loading, email, role } = useAdminCheck();
-  if (loading) return <div className="min-h-screen bg-background" />;
+
+  if (loading) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-md w-full rounded-lg border border-border bg-card p-6 space-y-3 text-center">
           <h1 className="text-xl font-semibold">Acesso negado</h1>
-          <p className="text-sm text-muted-foreground">Este painel é exclusivo para administradores.</p>
+          <p className="text-sm text-muted-foreground">
+            Este painel é exclusivo para administradores.
+          </p>
           <div className="rounded-md bg-muted p-3 text-left text-xs space-y-1">
             <p><strong>Email logado:</strong> {email ?? "não autenticado"}</p>
             <p><strong>Role atual:</strong> {role}</p>
+            <p><strong>Reconhecido como admin:</strong> não</p>
           </div>
-          <Button asChild><Link to="/leitor">Voltar ao leitor</Link></Button>
+          <Button asChild>
+            <Link to="/leitor">Voltar ao leitor</Link>
+          </Button>
         </div>
       </div>
     );
@@ -71,41 +75,20 @@ const AppRoutes = () => {
   if (loading) return <div className="min-h-screen bg-background" />;
 
   return (
-    <>
-      <AnimatePresence mode="wait">
-        {shouldShowMomentoRevela && user && (
-          <MomentoRevela key="momento-revela" onContinue={markCheckInComplete} />
-        )}
-      </AnimatePresence>
-
-      <Routes>
-        {/* Rotas públicas */}
-        <Route path="/" element={<Onboarding />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
-        <Route path="/study/:book/:chapter" element={<PublicStudy />} />
-        <Route path="/install" element={<InstallPWA />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/pro" element={<Pro />} />
-
-        {/* App protegido */}
-        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route path="/home"      element={<Home />} />
-          <Route path="/leitor"    element={<Reader />} />
-          <Route path="/revela"    element={<RevelaAgora />} />
-          <Route path="/busca"     element={<BuscaAvancada />} />
-          <Route path="/devocional"element={<Devocional />} />
-          <Route path="/plano"     element={<PlanoLeitura />} />
-          <Route path="/promessa"  element={<LinhaPromessa />} />
-          <Route path="/jornada"   element={<MinhaJornada />} />
-          <Route path="/perfil"    element={<Perfil />} />
-          <Route path="/lgpd"      element={<AtalaiaLGPD />} />
-        </Route>
-
-        <Route path="/admin" element={<ProtectedRoute><AdminRoute /></ProtectedRoute>} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={user ? <Navigate to="/leitor" replace /> : <Onboarding />} />
+      <Route path="/auth" element={user ? <Navigate to="/leitor" replace /> : <Auth />} />
+      <Route path="/v/:book/:chapter/:verse" element={<PublicVerse />} />
+      <Route path="/install" element={<InstallPWA />} />
+      <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        <Route path="/leitor" element={<Reader />} />
+        <Route path="/revela" element={<RevelaAgora />} />
+        <Route path="/promessa" element={<LinhaPromessa />} />
+        <Route path="/jornada" element={<MinhaJornada />} />
+      </Route>
+      <Route path="/admin" element={<ProtectedRoute><AdminRoute /></ProtectedRoute>} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 

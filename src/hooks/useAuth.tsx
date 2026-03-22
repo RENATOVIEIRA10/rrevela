@@ -24,13 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<AppUserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadRole = async (userId: string, email?: string | null) => {
-    const normalizedEmail = (email ?? "").toLowerCase();
-    if (normalizedEmail === FORCED_ADMIN_EMAIL) {
-      setRole("admin");
-      return;
-    }
-
+  const loadRole = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
@@ -57,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      loadRole(session.user.id, session.user.email).finally(() => setLoading(false));
+      loadRole(session.user.id).finally(() => setLoading(false));
     });
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -70,6 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
+      await loadRole(session.user.id);
       await loadRole(session.user.id, session.user.email);
       setLoading(false);
     });

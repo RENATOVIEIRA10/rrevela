@@ -178,7 +178,7 @@ const MetricCard = ({ icon: Icon, label, value, sub, state }: { icon: any; label
 const Admin = () => {
   const { isAdmin, loading: roleLoading, role, email } = useAdminCheck();
   const { user } = useAuth();
-  const [metrics, setMetrics] = useState<AdminMetrics>(EMPTY_METRICS);
+  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [metricsStatus, setMetricsStatus] = useState<"idle" | "loading" | "ok" | "partial" | "failed">("idle");
@@ -346,56 +346,6 @@ const Admin = () => {
               <p><strong>Email logado:</strong> {email ?? user?.email ?? "-"}</p>
               <p><strong>Role atual:</strong> {role}</p>
               <p><strong>Reconhecido como admin:</strong> {isAdmin ? "sim" : "não"}</p>
-              <p><strong>Status das métricas:</strong> {metricsStatus}</p>
-              <p><strong>Endpoint:</strong> {metricsDebug.endpoint}</p>
-              <p><strong>Status HTTP:</strong> {metricsDebug.statusCode || "n/d"}</p>
-              <p><strong>Status de resposta:</strong> {metricsDebug.responseStatus}</p>
-              <p><strong>Fonte de eventos:</strong> {metrics.__meta?.analyticsAudit?.events_table_selected ?? "não detectada"}</p>
-              <p><strong>JWT no request:</strong> {metrics.__meta?.requestAudit?.auth.hasAuthorizationHeader ? "sim" : "não"}</p>
-              <p><strong>Auth user na função:</strong> {metrics.__meta?.requestAudit?.auth.userId ?? "não identificado"}</p>
-              <p><strong>Admin check backend:</strong> {metrics.__meta?.requestAudit?.auth.adminCheck ?? "desconhecido"}</p>
-              <p><strong>Métricas com sucesso:</strong> {metricsDebug.okKeys.length > 0 ? metricsDebug.okKeys.join(", ") : "nenhuma"}</p>
-              <p><strong>Métricas com falha:</strong> {metricsDebug.failedKeys.length > 0 ? metricsDebug.failedKeys.join(", ") : "nenhuma"}</p>
-              {metricsDebug.requestAudit.length > 0 && (
-                <div className="pt-1">
-                  <p><strong>Auditoria de queries:</strong></p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {metricsDebug.requestAudit.map((entry, idx) => (
-                      <li key={`${entry.key}-${idx}`}>
-                        <strong>{entry.key}</strong> [{entry.status.toUpperCase()}] tabela/fonte: {entry.source} · query: {entry.query}
-                        {entry.error ? ` · erro: ${entry.error}` : ""}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {Object.keys(metricState).length > 0 && (
-                <div className="pt-1">
-                  <p><strong>Diagnóstico por métrica:</strong></p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {Object.values(metricState).map((entry) => (
-                      <li key={entry.key}>
-                        <strong>{entry.key}</strong> - {entry.status.toUpperCase()} ({entry.source ?? "fonte não informada"})
-                        {entry.message ? `: ${entry.message}` : ""}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {Object.keys(metricErrors).length > 0 ? (
-                <div className="pt-1">
-                  <p><strong>Métricas com falha ({Object.keys(metricErrors).length}):</strong></p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {Object.entries(metricErrors).map(([key, reason]) => (
-                      <li key={key}><strong>{key}</strong>: {reason}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p><strong>Métricas com falha:</strong> nenhuma</p>
-              )}
-              {metricsDebug.error && <p className="text-destructive"><strong>Erro endpoint:</strong> {metricsDebug.error}</p>}
-              {error && <p className="text-destructive"><strong>Observação:</strong> {error}</p>}
             </CardContent>
           </Card>
 

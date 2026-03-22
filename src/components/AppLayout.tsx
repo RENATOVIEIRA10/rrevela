@@ -13,21 +13,26 @@
  */
 
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Home, BookOpen, Sparkles, Heart, Footprints, User } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import PageTransition from "@/components/PageTransition";
+import { BookOpen, Search, Footprints, LogOut, Sparkles, Shield } from "lucide-react";
+import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
-const TABS = [
-  { to: "/home",       icon: Home,       label: "Início"     },
-  { to: "/leitor",     icon: BookOpen,   label: "Bíblia"     },
-  { to: "/revela",     icon: Sparkles,   label: "Revela"     },
-  { to: "/devocional", icon: Heart,      label: "Devocional" },
-  { to: "/jornada",    icon: Footprints, label: "Jornada"    },
+const baseTabs = [
+  { to: "/leitor", icon: BookOpen, label: "Palavra" },
+  { to: "/revela", icon: Search, label: "Revela" },
+  { to: "/promessa", icon: Sparkles, label: "Promessa" },
+  { to: "/jornada", icon: Footprints, label: "Jornada" },
 ];
 
 const AppLayout = () => {
   const location = useLocation();
-  const isPerfilActive = location.pathname === "/perfil";
+  const { signOut } = useAuth();
+  const { isAdmin } = useAdminCheck();
+
+  const tabs = isAdmin
+    ? [...baseTabs, { to: "/admin", icon: Shield, label: "Admin" }]
+    : baseTabs;
 
   return (
     <div className="flex flex-col h-screen bg-background">
