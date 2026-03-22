@@ -203,7 +203,7 @@ const Reader = () => {
     handleVerseOpen, handlePinVerse,
     verses, loading, error, translation, handleTranslationChange, fontSizeClass,
     // Highlight system
-    isMarked, toggleMark, getVersePenClass, setHighlight,
+    isMarked, toggleMark, getVersePenClass, setHighlight, getVerseHighlight,
     isFavorite, toggleFavorite,
     pinnedVerse, unpinVerse,
     noteSheetOpen, setNoteSheetOpen, noteVerse, openVerseNote, openChapterNote,
