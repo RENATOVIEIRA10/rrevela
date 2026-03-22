@@ -112,7 +112,7 @@ interface VerseBodyProps {
 }
 
 const VerseBody = ({
-  verses, loading, error, fontSizeClass, isMarked, isSelected,
+  verses, loading, error, fontSizeClass, isMarked, getVersePenClass, isSelected,
   onVerseClick, pinnedVerse, selectedBook, selectedChapter, variant,
   targetVerse, onTargetVerseScrolled, comfortableReading,
 }: VerseBodyProps) => {
