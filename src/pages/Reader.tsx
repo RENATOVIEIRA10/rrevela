@@ -224,6 +224,11 @@ const Reader = () => {
     return `${selectedBook} ${selectedChapter}:${nums.join(",")}`;
   }, [selectedBook, selectedChapter, selectedVerses]);
 
+  const selectionText = useMemo(
+    () => selectedVerses.map((v) => v.text).join(" "),
+    [selectedVerses]
+  );
+
   const swipeHandlers = useChapterSwipe({
     onPrev: goToPrev,
     onNext: goToNext,
@@ -316,6 +321,7 @@ const Reader = () => {
             <FloatingVerseBar
               count={selectedVerses.length}
               reference={selectionReference}
+              verseText={selectionText}
               isMarked={selectedVerses.every((v) => isMarked(v.number))}
               currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
               onSelectColor={(color) => selectedVerses.forEach((v) => setHighlight(v.number, color))}
@@ -439,6 +445,7 @@ const Reader = () => {
           <FloatingVerseBar
             count={selectedVerses.length}
             reference={selectionReference}
+            verseText={selectionText}
             isMarked={selectedVerses.every((v) => isMarked(v.number))}
             currentColor={getVerseHighlight(selectedVerses[0].number)?.color_key ?? null}
             onSelectColor={(color) => selectedVerses.forEach((v) => setHighlight(v.number, color))}

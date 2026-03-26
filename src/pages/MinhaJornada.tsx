@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map, Heart, Flame } from "lucide-react";
+import { BookMarked, Palette, BookOpen, RotateCcw, Sparkles, Eye, Map, Heart, Flame, CheckCircle2, Circle, ArrowRight } from "lucide-react";
 import { useJourneyStats } from "@/hooks/useJourneyStats";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useTags } from "@/hooks/useTags";
@@ -12,6 +12,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import SpiritualMirror from "@/components/SpiritualMirror";
 import DoctrinalMap from "@/components/DoctrinalMap";
 import FavoritesList from "@/components/FavoritesList";
+import RichText from "@/components/RichText";
 
 const MinhaJornada = () => {
   const stats = useJourneyStats();
@@ -26,6 +27,25 @@ const MinhaJornada = () => {
   useEffect(() => {
     track("study_opened", { area: "minha_jornada" });
   }, [track]);
+
+  const today = new Date().toDateString();
+  const readToday = useMemo(
+    () => stats.studiedChapters.some((ch) => new Date(ch.last_studied).toDateString() === today),
+    [stats.studiedChapters, today]
+  );
+  const revealedToday = useMemo(
+    () => stats.recentNotes.some(
+      (n) => new Date(n.created_at).toDateString() === today && !!n.christocentric
+    ),
+    [stats.recentNotes, today]
+  );
+  const lastChapter = stats.studiedChapters[0];
+
+  const handleNavigateToRef = (book: string, chapter: number, verse: number) => {
+    navigate(`/leitor?livro=${encodeURIComponent(book)}&cap=${chapter}&v=${verse}`, {
+      state: { book, chapter },
+    });
+  };
 
   if (stats.loading) {
     return (
@@ -61,6 +81,22 @@ const MinhaJornada = () => {
               Sem medalhas. Sem rótulos. Apenas o que você estudou, organizado.
             </p>
           </motion.div>
+
+          {/* ── Progresso do dia ── */}
+          <DailyProgress
+            readToday={readToday}
+            revealedToday={revealedToday}
+            lastChapter={lastChapter}
+            onRead={() => navigate("/leitor")}
+            onReveal={() => navigate("/leitor")}
+            onShare={() =>
+              lastChapter &&
+              navigate(
+                `/leitor?livro=${encodeURIComponent(lastChapter.book)}&cap=${lastChapter.chapter}`,
+                { state: { book: lastChapter.book, chapter: lastChapter.chapter } }
+              )
+            }
+          />
 
           {!hasData ? (
             <EmptyState />
@@ -261,7 +297,7 @@ const MinhaJornada = () => {
                               <Eye className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
                               <div>
                                 <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Ver</p>
-                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.observation}</p>
+                                <RichText text={note.observation} className="text-sm text-foreground/80 font-scripture line-clamp-2" onNavigate={handleNavigateToRef} />
                               </div>
                             </div>
                           )}
@@ -271,7 +307,7 @@ const MinhaJornada = () => {
                               <Sparkles className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
                               <div>
                                 <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Revelar</p>
-                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.christocentric}</p>
+                                <RichText text={note.christocentric} className="text-sm text-foreground/80 font-scripture line-clamp-2" onNavigate={handleNavigateToRef} />
                               </div>
                             </div>
                           )}
@@ -281,7 +317,7 @@ const MinhaJornada = () => {
                               <Flame className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
                               <div>
                                 <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Viver</p>
-                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.application}</p>
+                                <RichText text={note.application} className="text-sm text-foreground/80 font-scripture line-clamp-2" onNavigate={handleNavigateToRef} />
                               </div>
                             </div>
                           )}
@@ -291,7 +327,7 @@ const MinhaJornada = () => {
                               <Heart className="w-3 h-3 text-accent/60 mt-0.5 shrink-0" />
                               <div>
                                 <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground mb-0.5">Orar</p>
-                                <p className="text-sm text-foreground/80 font-scripture line-clamp-2">{note.prayer}</p>
+                                <RichText text={note.prayer} className="text-sm text-foreground/80 font-scripture line-clamp-2" onNavigate={handleNavigateToRef} />
                               </div>
                             </div>
                           )}
@@ -354,6 +390,78 @@ const StatCard = ({ label, value, icon }: { label: string; value: number; icon: 
     <p className="text-xs text-muted-foreground tracking-wide">{label}</p>
   </div>
 );
+
+const DailyProgress = ({
+  readToday,
+  revealedToday,
+  lastChapter,
+  onRead,
+  onReveal,
+  onShare,
+}: {
+  readToday: boolean;
+  revealedToday: boolean;
+  lastChapter?: { book: string; chapter: number };
+  onRead: () => void;
+  onReveal: () => void;
+  onShare: () => void;
+}) => {
+  const steps = [
+    {
+      done: readToday,
+      label: readToday ? "Você já leu hoje" : "Ler a Palavra",
+      cta: "Abrir o leitor",
+      onAction: onRead,
+    },
+    {
+      done: revealedToday,
+      label: revealedToday ? "Revelação gerada" : "Gere sua revelação",
+      cta: readToday ? "Revelar agora" : undefined,
+      onAction: onReveal,
+    },
+    {
+      done: false,
+      label: "Compartilhe o que Deus falou",
+      cta: revealedToday ? "Compartilhar" : undefined,
+      onAction: onShare,
+    },
+  ];
+
+  const nextStep = steps.findIndex((s) => !s.done);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 }}
+      className="bg-card rounded-xl p-5 space-y-3"
+      style={{ boxShadow: "var(--shadow-card)" }}
+    >
+      <p className="text-[10px] uppercase tracking-[0.2em] text-accent/70 font-medium">Hoje</p>
+      {steps.map((step, i) => (
+        <div key={i} className="flex items-center gap-3">
+          {step.done ? (
+            <CheckCircle2 className="w-[18px] h-[18px] text-accent shrink-0" />
+          ) : (
+            <Circle className={`w-[18px] h-[18px] shrink-0 ${i === nextStep ? "text-accent/60" : "text-muted-foreground/30"}`} />
+          )}
+          <span className={`flex-1 text-sm font-ui ${step.done ? "text-foreground/90 font-medium" : i === nextStep ? "text-foreground/80" : "text-muted-foreground/50"}`}>
+            {step.label}
+          </span>
+          {step.cta && !step.done && i === nextStep && (
+            <button
+              onClick={step.onAction}
+              className="flex items-center gap-1 text-xs text-accent font-medium hover:text-accent/80 transition-colors shrink-0"
+            >
+              {step.cta}
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      ))}
+    </motion.div>
+  );
+};
 
 const SectionCard = ({
   icon,
