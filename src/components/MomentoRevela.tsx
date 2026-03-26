@@ -61,7 +61,7 @@ const MomentoRevela = ({ onContinue }: MomentoRevelaProps) => {
         transition={{ delay: 0.2 }}
         className="flex justify-center pt-14 pb-2"
       >
-        <RevelaLogo size={32} color="#F9F7F2" />
+        <RevelaLogo size={32} variant="dark" />
       </motion.div>
 
       {/* Subtítulo */}

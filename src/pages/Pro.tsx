@@ -64,7 +64,7 @@ const Pro = () => {
           <ArrowLeft className="w-4 h-4 text-muted-foreground" />
         </button>
         <div className="flex items-center gap-2">
-          <RevelaLogo size={18} color="hsl(var(--accent))" />
+          <RevelaLogo size={18} variant="wine" />
           <span className="font-scripture text-sm font-medium text-foreground/80">Revela Pro</span>
         </div>
       </div>

@@ -81,7 +81,7 @@ const ResetPassword = () => {
       >
         <div className="text-center mb-10">
           <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-5">
-            <RevelaLogo size={28} color="hsl(var(--primary))" />
+            <RevelaLogo size={28} variant="wine" />
           </div>
           <h1 className="font-scripture text-[1.5rem] font-semibold text-foreground">
             Nova senha

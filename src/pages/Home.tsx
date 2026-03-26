@@ -95,7 +95,7 @@ const Home = () => {
         style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.5rem)" }}
       >
         <div className="flex items-center gap-3">
-          <RevelaLogo size={26} color="hsl(var(--accent))" />
+          <RevelaLogo size={26} variant="wine" />
           <span className="font-scripture text-lg font-medium text-foreground/80">
             Revela
           </span>
