@@ -26,7 +26,7 @@ const MomentoRevela = ({ onContinue }: MomentoRevelaProps) => {
           animate={{ opacity: 1 }}
           className="flex flex-col items-center gap-4"
         >
-          <RevelaLogo size={36} color="#F9F7F2" />
+          <RevelaLogo size={36} variant="dark" />
           <div className="w-1 h-1 rounded-full bg-[#F9F7F2]/30 animate-pulse" />
         </motion.div>
       </div>
