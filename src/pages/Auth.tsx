@@ -209,7 +209,7 @@ const Auth = () => {
           transition={{ delay: 0.15, duration: 0.6, ease }}
         >
           <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center mx-auto mb-5">
-            <RevelaLogo size={28} color="hsl(var(--primary))" />
+            <RevelaLogo size={28} variant="wine" />
           </div>
           <h1 className="font-scripture text-[1.75rem] font-semibold text-foreground tracking-tight leading-tight">
             Revela
