@@ -65,7 +65,16 @@ Deno.serve(async (req) => {
         .eq("id", user.id)
         .single();
 
-      if (!profile?.bot_ativo) {
+      // Verifica whitelist manual (plano_ativo na sessão ou no registro email:)
+      const { data: whitelistEntry } = await supabase
+        .from("whatsapp_sessions_rrevela")
+        .select("plano_ativo")
+        .eq("phone", `email:${email.toLowerCase()}`)
+        .single();
+
+      const isProByWhitelist = whitelistEntry?.plano_ativo === "true" || whitelistEntry?.plano_ativo === true;
+
+      if (!profile?.bot_ativo && !isProByWhitelist) {
         return new Response(
           JSON.stringify({
             sucesso: false,
