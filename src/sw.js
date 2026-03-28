@@ -1,4 +1,5 @@
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching';
+import { NavigationRoute, registerRoute } from 'workbox-routing';
 
 // Listen for skip waiting message from PWAUpdatePrompt
 self.addEventListener('message', (event) => {
@@ -7,19 +8,16 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Bypass OAuth redirects — must come before precacheAndRoute
-self.addEventListener('fetch', (event) => {
-  try {
-    if (new URL(event.request.url).pathname.startsWith('/~oauth')) {
-      event.respondWith(fetch(event.request));
-    }
-  } catch (e) {
-    // ignore malformed URLs
-  }
-});
-
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
+
+// SPA navigation fallback — serve index.html for all navigation requests
+// except OAuth redirects
+const handler = createHandlerBoundToURL('/index.html');
+const navigationRoute = new NavigationRoute(handler, {
+  denylist: [/^\/~oauth/, /^\/functions\//, /^\/rest\//, /^\/auth\//],
+});
+registerRoute(navigationRoute);
 
 // ─── Push Notification Handler ───
 self.addEventListener('push', (event) => {
