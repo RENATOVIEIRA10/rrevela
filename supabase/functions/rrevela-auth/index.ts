@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -15,19 +14,13 @@ Deno.serve(async (req) => {
 
     const { action, phone, email } = await req.json();
 
-    // ── GET — retorna sessão ativa pelo telefone ──
     if (action === "get") {
-      const { data } = await supabase
-        .from("whatsapp_sessions_rrevela")
-        .select("*")
-        .eq("phone", phone)
-        .single();
+      const { data } = await supabase.from("whatsapp_sessions_rrevela").select("*").eq("phone", phone).single();
       return new Response(JSON.stringify({ session: data || null }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ── LIST — retorna todas as sessões ativas ──
     if (action === "list") {
       const { data } = await supabase
         .from("whatsapp_sessions_rrevela")
@@ -37,7 +30,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── LOGIN — autentica por e-mail ──
     if (action === "login") {
       if (!email) {
         return new Response(JSON.stringify({ sucesso: false, erro: "E-mail não informado." }), {
@@ -45,27 +37,24 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Busca usuário pelo e-mail
       const { data: usersData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      const user = usersData?.users?.find(
-        (u) => u.email?.toLowerCase() === email.toLowerCase()
-      );
+      const user = usersData?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase());
 
       if (!user) {
         return new Response(
           JSON.stringify({ sucesso: false, erro: "E-mail não encontrado. Crie sua conta no app Revela." }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
 
-      // Verifica bot_ativo na tabela profiles
+      // Verifica bot_ativo na tabela profiles (coluna correta: user_id)
       const { data: profile } = await supabase
         .from("profiles")
-        .select("bot_ativo, name")
-        .eq("id", user.id)
+        .select("bot_ativo, display_name")
+        .eq("user_id", user.id)
         .single();
 
-      // Verifica whitelist manual (plano_ativo na sessão ou no registro email:)
+      // Verifica whitelist manual
       const { data: whitelistEntry } = await supabase
         .from("whatsapp_sessions_rrevela")
         .select("plano_ativo")
@@ -80,38 +69,32 @@ Deno.serve(async (req) => {
             sucesso: false,
             erro: "Você ainda não tem o Revela Pro ativo. Assine em: revela.app/pro",
           }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
 
-      // Cria/atualiza sessão
-      const { error: upsertError } = await supabase
-        .from("whatsapp_sessions_rrevela")
-        .upsert(
-          {
-            phone,
-            user_id: user.id,
-            user_email: user.email,
-            user_name: profile.name || null,
-            created_at: new Date().toISOString(),
-          },
-          { onConflict: "phone" }
-        );
+      const { error: upsertError } = await supabase.from("whatsapp_sessions_rrevela").upsert(
+        {
+          phone,
+          user_id: user.id,
+          user_email: user.email,
+          user_name: profile?.display_name || null,
+          created_at: new Date().toISOString(),
+        },
+        { onConflict: "phone" },
+      );
 
       if (upsertError) {
-        return new Response(
-          JSON.stringify({ sucesso: false, erro: upsertError.message }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ sucesso: false, erro: upsertError.message }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
-      return new Response(
-        JSON.stringify({ sucesso: true, user_name: profile.name, user_email: user.email }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ sucesso: true, user_name: profile?.display_name, user_email: user.email }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // ── LOGOUT ──
     if (action === "logout") {
       await supabase.from("whatsapp_sessions_rrevela").delete().eq("phone", phone);
       return new Response(JSON.stringify({ sucesso: true }), {
